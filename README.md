@@ -171,8 +171,6 @@ npm run format         # format with Prettier
 npm run check          # everything CI runs, in one command
 ```
 
-`dev`, `build` and `test:e2e` arrive with milestone M0.
-
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before your first commit: it has the commit format, coding rules and tooling. See [PLAN.md](PLAN.md) for the architecture and roadmap.
 
 ## Acknowledgements
