@@ -1,0 +1,14 @@
+
+# <Type>: <subject>
+#
+# Why: <motivation, context, anything a reader needs in 6 months>
+#
+# What: - <change 1>
+# - <change 2>
+#
+# Types: Add, Change, Fix, Refactor, Remove, Test, Docs, Style, Perf, Build,
+#        CI, Chore. Optional scope: Fix[hints]: ...
+# Title: 20-80 chars, imperative mood ("add", not "added"), no final period,
+#        subject starts lowercase.
+# Body:  lines <= 80 chars, one blank line between sections.
+# No AI attribution lines. Never bypass hooks with --no-verify.
