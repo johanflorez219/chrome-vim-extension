@@ -35,7 +35,7 @@ The extension is not published on the Chrome Web Store yet. Install it from sour
 ### Build
 
 ```sh
-git clone https://github.com/<your-user>/chrome-vim-extension.git
+git clone https://github.com/johanflorez219/chrome-vim-extension.git
 cd chrome-vim-extension
 npm install
 npm run build
