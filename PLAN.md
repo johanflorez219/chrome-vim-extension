@@ -117,11 +117,11 @@ Each milestone ends with something working that can be loaded in Arc.
 
 - [x] TypeScript (strict), ESLint, Prettier, Vitest, Knip, commitlint, Husky configured
 - [x] GitHub Actions: commits, type-check, lint, format, test, Knip, audit; CodeQL; Dependabot
-- [ ] Initialize WXT on top of the existing tooling
-- [ ] Playwright configured to load the built extension
-- [ ] `npm run dev` opens Chromium with the extension loaded
-- [ ] Add `build` to CI
-- [ ] Content script logs key presses — the "hello world"
+- [x] Initialize WXT on top of the existing tooling
+- [x] Playwright configured to load the built extension
+- [x] `npm run dev` opens Chromium with the extension loaded
+- [x] Add build and end-to-end tests to CI
+- [x] Content script logs key presses in Vim notation — the "hello world"
 
 _Learn: manifest, entrypoints, loading unpacked extensions._
 

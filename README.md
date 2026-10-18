@@ -35,7 +35,7 @@ The extension is not published on the Chrome Web Store yet. Install it from sour
 ### Build
 
 ```sh
-git clone https://github.com/<your-user>/chrome-vim-extension.git
+git clone https://github.com/johanflorez219/chrome-vim-extension.git
 cd chrome-vim-extension
 npm install
 npm run build
@@ -170,8 +170,6 @@ npm run lint           # ESLint: bugs, complexity, security
 npm run format         # format with Prettier
 npm run check          # everything CI runs, in one command
 ```
-
-`dev`, `build` and `test:e2e` arrive with milestone M0.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before your first commit: it has the commit format, coding rules and tooling. See [PLAN.md](PLAN.md) for the architecture and roadmap.
 

@@ -21,7 +21,8 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Commit messages
-        if: github.event_name == 'pull_request'
+        # Dependabot writes its own commit format; every other check still runs
+        if: github.event_name == 'pull_request' && github.event.pull_request.user.login != 'dependabot[bot]'
         run: >
           npx commitlint
           --from ${{ github.event.pull_request.base.sha }}
@@ -31,5 +32,12 @@ jobs:
       - run: npm run format:check
       - run: npm run test:coverage
       - run: npm run knip
+      - run: npx playwright install --with-deps chromium
+      - name: Build and end-to-end tests
+        run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chrome-mv3
+          path: .output/chrome-mv3/
       - name: Dependency vulnerabilities
         run: npm audit --audit-level=high
