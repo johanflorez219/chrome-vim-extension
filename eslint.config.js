@@ -73,6 +73,14 @@ export default defineConfig(
   },
 
   {
+    files: ['tests/e2e/**/*.ts'],
+    rules: {
+      // SonarJS does not recognize Playwright's expect.poll() as an assertion
+      'sonarjs/assertions-in-tests': 'off',
+    },
+  },
+
+  {
     files: ['**/*.js'],
     extends: [tseslint.configs.disableTypeChecked],
     rules: {

@@ -146,10 +146,17 @@ Prettier formats everything; do not argue with it. Names:
 | DOM injection (XSS)                     | eslint-plugin-no-unsanitized                    | part of `npm run lint`                    |
 | Formatting                              | Prettier                                        | `npm run format` / `npm run format:check` |
 | Unit tests and coverage                 | Vitest (jsdom, V8 coverage)                     | `npm test` / `npm run test:coverage`      |
+| End-to-end tests                        | Playwright (Chromium with the built extension)  | `npm run test:e2e`                        |
 | Unused files, exports and dependencies  | Knip                                            | `npm run knip`                            |
 | Dependency vulnerabilities              | `npm audit` + Dependabot                        | `npm run audit`                           |
 | Static security analysis                | GitHub CodeQL                                   | runs in CI                                |
 | Commit format                           | commitlint                                      | `commit-msg` hook and CI                  |
 | Git hooks                               | Husky + lint-staged                             | automatic                                 |
 
-`npm run check` runs typecheck, lint, format check, tests with coverage and Knip in one go.
+`npm run check` runs typecheck, lint, format check, tests with coverage and Knip in one go. End-to-end tests are slower and run separately with `npm run test:e2e`; CI runs both.
+
+TypeScript has one config per environment, all extending `tsconfig.base.json`:
+
+- `src/tsconfig.json`: extension code. Browser and `chrome.*` types only, so Node APIs cannot slip into what we ship.
+- `tests/e2e/tsconfig.json`: Playwright tests, which run in Node.
+- `tsconfig.json`: config files at the root, which also run in Node.
