@@ -1,0 +1,53 @@
+{
+  "skill_name": "specify",
+  "evals": [
+    {
+      "id": 1,
+      "name": "link-hints-requirements",
+      "prompt": "aprobado el contrato, sigamos con la spec",
+      "expected_output": "Writes docs/specs/2026-10-20-link-hints/requirements.md with user stories, numbered EARS criteria, gap hunt (overlap, no links, Esc, >200 links, special pages), non-functional reqs, out of scope from contract; asks <=4 'theirs' questions; does NOT write design.md yet; asks for approval.",
+      "files": ["evals/files/link-hints-contract.md"],
+      "assertions": [
+        "requirements.md created under docs/specs/2026-10-20-link-hints/",
+        "Every requirement has a user story (As a ..., I want ..., so that ...)",
+        "Acceptance criteria use EARS keywords (WHEN/WHILE/IF...THEN/SHALL)",
+        "Criteria are numbered (R1.1 style or numbered lists under R ids)",
+        "Covers no-overlap / not covering link text as a testable criterion",
+        "Covers at least 3 edge cases beyond the contract (e.g. no links, >200 links, Esc, page changes, special pages)",
+        "Has an Out of scope section matching the contract (iframes, yf, gi)",
+        "design.md NOT written yet (waits for requirements approval)",
+        "Asks the user to approve requirements, in Spanish, with <=4 questions"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "count-prefix-design",
+      "prompt": "los requisitos est\u00e1n aprobados (docs/specs/2026-10-20-count-prefix/requirements.md), escribe el dise\u00f1o",
+      "expected_output": "Writes design.md in the same folder, fits PLAN.md architecture (key parser trie, command registry), components trace to R ids, TS signatures, error handling table, testing strategy unit-first, coverage table covering all 8 criteria; asks for approval; no product code.",
+      "files": ["evals/files/count-prefix-requirements.md"],
+      "assertions": [
+        "design.md created next to requirements.md",
+        "Fits PLAN.md architecture (mentions key parser / trie / command registry)",
+        "Components reference requirement ids (R1.x / R2.x)",
+        "Includes TypeScript interfaces or signatures",
+        "Has a coverage table mapping all 8 criteria to design + tests",
+        "Testing strategy is unit-test-first per CONTRIBUTING",
+        "No product code files written (only docs)",
+        "Asks for approval in Spanish"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "spec-without-contract",
+      "prompt": "escr\u00edbeme la spec para el modo visual",
+      "expected_output": "No contract exists, so it runs brainstorm first: asks intent questions instead of writing requirements.md; mentions PLAN.md M6 visual mode is a stretch.",
+      "files": [],
+      "assertions": [
+        "Does not write requirements.md or design.md",
+        "Asks intent questions first (brainstorm behavior)",
+        "Mentions PLAN.md M6 / visual mode is a stretch milestone or depends on earlier milestones",
+        "Reply is in Spanish"
+      ]
+    }
+  ]
+}

@@ -27,7 +27,7 @@ one plain line when it isn't "clear"; the user can override it.
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
 | **Clear**     | Goal, scope and "done" are all in the request or obvious from the project ("rename `foo` to `bar`", "make the hint font 14px"), or it's a question with one reasonable reading | Do it (or answer it) now. If you made any non-obvious choice, mention it in one line when you report back. Skip the rest of this skill. |
 | **Small gap** | One or two things that only the user can answer, and the work fits in one sitting                                                                                              | Ask those things (Step 3), confirm a short contract in chat (Step 4), then build.                                                       |
-| **Project**   | Several moving parts, unclear why, multiple sessions, or decisions that will be hard to undo                                                                                   | Full conversation (Steps 2–5) ending in a written design.                                                                               |
+| **Project**   | Several moving parts, unclear why, multiple sessions, or decisions that will be hard to undo                                                                                   | Full conversation (Steps 2–4), then hand off to the specify skill (Step 5).                                                             |
 
 Triage honestly. Turning a clear task into an interview wastes the user's
 time and makes them stop trusting the skill; treating a project as clear
@@ -142,35 +142,21 @@ is one they couldn't reject; listing it costs one line and saves a rewrite.
 End with a single question asking what's wrong or missing. For projects,
 play back in chunks as each part becomes clear, rather than all at the end.
 
-## Step 5: The written design (projects only)
+## Step 5: Hand off to specify (projects only)
 
-For a project, turn the agreed contract into a document a capable engineer
-could plan from without going back to the user. Cover intent and why;
-goals, non-goals, anti-goals; constraints; decisions as the user made them;
-your calls; and what's left to the builder.
+The workflow is brainstorm → specify → plan → execute. This skill owns the
+first step: agreeing on what to build. Once the user approves the contract
+for a project, invoke the **specify** skill, which turns it into
+`requirements.md` and `design.md`. Don't write those documents here — the
+contract is your output.
 
-**Where it goes:** follow the project's convention if it has one (for
-example, a section or milestone in `PLAN.md`). Otherwise
-`docs/specs/YYYY-MM-DD-<topic>.md`. The user's preference overrides both.
-Don't commit it unless the user asks.
-
-**Builder check:** before handing it over, spawn a fresh subagent with the
-prompt in `references/builder-check.md` and the document's path. Tell the
-user a reviewer is reading it first. Sort what comes back into:
-
-- **Already answered** by the conversation or the project → write the answer
-  into the document.
-- **Minor** → a sensible builder could settle it without changing the
-  result. Settle it, mark it as your call.
-- **Theirs** → only the user can answer, and the answer changes what gets
-  built. Ask these in one round, most important first.
-
-Without a subagent tool, read the document as that builder yourself.
+A small gap doesn't need a spec: the approved contract is enough, so build
+it through the normal workflow.
 
 ## The gate
 
 Nothing gets built until the user approves the contract (small gap) or the
-design (project). "Built" includes writing product code, scaffolding,
+spec (project). "Built" includes writing product code, scaffolding,
 installing dependencies, creating files, and invoking an implementation
 skill. Reading and exploring are fine at any time.
 
