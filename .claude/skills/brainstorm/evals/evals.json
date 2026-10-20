@@ -1,0 +1,23 @@
+{
+  "skill_name": "brainstorm",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "agrega link hints como en Vimium pero mejor",
+      "expected_output": "Triage as project; reads PLAN.md (M3); asks an open intent question about what 'mejor' means; no code written; replies in Spanish.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "agrega un script de npm para empaquetar la extensión en un zip y subirla a la Chrome Web Store",
+      "expected_output": "Triage as small gap; notices WXT is not initialized yet and wxt zip exists; asks few batched questions with recommendations; proposes a short contract; does not build before approval.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "agrega un script npm test:ui que corra vitest --ui",
+      "expected_output": "Triage as clear; does it directly without questions; mentions the @vitest/ui dependency as its call.",
+      "files": []
+    }
+  ]
+}
