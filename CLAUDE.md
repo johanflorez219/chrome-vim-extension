@@ -5,8 +5,8 @@ Vim-style navigation extension for Arc and Chrome (Manifest V3, TypeScript).
 ## Workflow
 
 Every request goes through **brainstorm → specify → plan → execute**. Each
-step ends with the user's approval; nothing is built before the plan is
-approved.
+step ends with the user's approval, except the design when nothing is left
+open; nothing is built before the plan is approved.
 
 1. **Brainstorm** — apply the [brainstorm skill](.claude/skills/brainstorm/SKILL.md)
    to every message before acting. Clear request: just do it. Small gap:
@@ -14,8 +14,10 @@ approved.
    contract, then go to specify.
 2. **Specify** — the [specify skill](.claude/skills/specify/SKILL.md) writes
    `docs/specs/YYYY-MM-DD-<topic>/requirements.md` (user stories, EARS
-   criteria) and, once those are approved, `design.md`. When the design is
-   approved, commit both as `Docs: add the <topic> spec`.
+   criteria) and, once those are approved, `design.md`. If the builder check
+   leaves no open question, the design needs no separate approval: commit
+   both as `Docs: add the <topic> spec` and go straight to plan. Otherwise
+   ask, and wait for the design's approval before committing.
 3. **Plan** — the [plan skill](.claude/skills/plan/SKILL.md) drives the
    [planner subagent](.claude/agents/planner.md): one planner drafts
    `tasks.md`, then one planner per task deepens each task in parallel and

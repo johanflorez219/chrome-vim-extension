@@ -182,7 +182,7 @@ markers; keep entries dated and attributed so the history stays
 trustworthy. Append to _History_ and _Agreements_; never delete past
 entries.
 
-The spec folder is committed when the user approves the design, and
+The spec folder is committed when the design is approved, and
 `tasks.md` when they approve the plan (see the specify and plan skills), so don't add
 tasks for committing or formatting the spec itself.
 

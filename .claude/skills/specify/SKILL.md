@@ -1,6 +1,6 @@
 ---
 name: specify
-description: Turn an agreed idea into a written spec — a requirements.md (user stories with EARS acceptance criteria) and a design.md — in docs/specs/YYYY-MM-DD-<topic>/. Use this right after the brainstorm skill settles a project-sized request, and whenever the user asks for a spec, requirements, acceptance criteria, a design doc, or "write it down before we build". It is the second step of the workflow brainstorm → specify → plan → execute; it hunts for missing requirements (edge cases, errors, limits) before any design or code, and gets the requirements approved before writing the design.
+description: Turn an agreed idea into a written spec — a requirements.md (user stories with EARS acceptance criteria) and a design.md — in docs/specs/YYYY-MM-DD-<topic>/. Use this right after the brainstorm skill settles a project-sized request, and whenever the user asks for a spec, requirements, acceptance criteria, a design doc, or "write it down before we build". It is the second step of the workflow brainstorm → specify → plan → execute; it hunts for missing requirements (edge cases, errors, limits) before any design or code, and gets the requirements approved before writing the design. When the design leaves nothing open, it commits the spec and hands off to the plan skill on its own.
 ---
 
 # Specify
@@ -133,27 +133,39 @@ round. Without a subagent tool, read the spec as that builder yourself.
 
 ## Step 4: Hand off
 
-Give the user the folder path, a two-or-three-line summary of the design,
-the decisions most worth a second look (the rest are in the document), any
-proposed requirement changes, and ask them to approve it. Keep it short, as
-in the requirements gate.
+After the builder check, see whether anything is still open: a "theirs"
+question from the check, a proposed requirement change, or an entry under
+_Open questions_ in `design.md`.
+
+- **Nothing open:** the user's approval of the requirements covers the
+  design, so don't wait for a separate design approval. Mark `design.md`
+  approved, commit the spec (below), and tell the user in a few lines: the
+  folder path, a two-or-three-line summary of the design, and the decisions
+  most worth a second look. Then go straight to Step 5. The user can still
+  correct the design later; that change goes in its own `Docs:` commit.
+- **Something open:** ask it in one round (AskUserQuestion, your
+  recommendation first), together with the folder path, the short design
+  summary and any proposed requirement changes. Update the documents with
+  the answers. If the answers settle everything and change no requirement,
+  continue as in "nothing open". Otherwise ask the user to approve the
+  design before going on.
 
 ## Step 5: Hand off to plan
 
-Once the user approves the design and you've committed the spec (below),
-invoke the **plan** skill with the spec folder path. It runs the planner
-subagent to write `tasks.md` and deepen every task until the plan is ready.
-If the planner finds spec issues along the way, the plan skill brings them
-back; fix them here, with the user's agreement — the planner never edits the
-spec itself.
+Once the spec is committed, invoke the **plan** skill with the spec folder
+path, without waiting to be asked. It runs the planner subagent to write
+`tasks.md` and deepen every task until the plan is ready. If the planner
+finds spec issues along the way, the plan skill brings them back; fix them
+here, with the user's agreement — the planner never edits the spec itself.
 
 ## Committing the spec
 
 The spec is shared through git, so coworkers see the same requirements,
 design, plan and status log:
 
-- When the user approves the design, run Prettier on the spec folder and
-  commit `requirements.md` and `design.md` as
+- When the design is approved (by the user, or by Step 4 when nothing is
+  open), run Prettier on the spec folder and commit `requirements.md` and
+  `design.md` as
   `Docs: add the <topic> spec`, following the commit format in
   `CONTRIBUTING.md`.
 - The plan skill commits `tasks.md` when the user approves the plan.
