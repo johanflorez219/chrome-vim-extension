@@ -136,12 +136,47 @@ round. Without a subagent tool, read the spec as that builder yourself.
 Give the user the folder path, a two-or-three-line summary of the design,
 the decisions most worth a second look (the rest are in the document), any
 proposed requirement changes, and ask them to approve it. Keep it short, as
-in the requirements gate. After approval,
-the next step is the plan (the project's planning skill if one exists;
-otherwise ask how they want to plan it).
+in the requirements gate.
+
+## Step 5: Plan with the planner subagent
+
+After the design is approved, delegate the plan to the **planner** subagent
+(`.claude/agents/planner.md`), passing the spec folder path. It writes
+`tasks.md` — commit-sized tasks plus a status log — and ends each run with a
+verdict:
+
+- **ITERATE** → if it listed questions for the user, ask them first
+  (AskUserQuestion, its recommended answers first) and record the answers
+  in the _Agreements_ of `tasks.md`'s status log. Then invoke it again on
+  the same folder; each run is a fresh review pass. Stop after 5 passes and
+  tell the user what is still weak.
+- **BLOCKED** → same as above, but don't re-invoke until the user answers.
+- **READY** → give the user the path, the number of tasks, the first task,
+  and anything the planner flagged about the spec. Execution starts only
+  after they approve the plan.
+
+If the planner reports spec issues (a criterion the user approved but
+`requirements.md` lacks, a stale status line, a wrong reference), fix them
+in the spec with the user's agreement before the plan is approved — the
+planner never edits the spec itself.
+
+## Committing the spec
+
+The spec is shared through git, so coworkers see the same requirements,
+design, plan and status log:
+
+- When the user approves the design, run Prettier on the spec folder and
+  commit `requirements.md` and `design.md` as
+  `Docs: add the <topic> spec`, following the commit format in
+  `CONTRIBUTING.md`.
+- When they approve the plan, commit `tasks.md` the same way
+  (`Docs: add the <topic> task plan`).
+- Later changes to the spec (an approved requirement change, a status-log
+  update) go in their own `Docs:` commit or in the commit of the task that
+  caused them.
 
 Don't write product code, scaffold, or install anything in this skill —
-specs only. Don't commit the documents unless the user asks.
+specs only.
 
 **Approved documents are the user's.** Once they approve `requirements.md`,
 don't edit it on your own — not even to add notes. If the design or the
