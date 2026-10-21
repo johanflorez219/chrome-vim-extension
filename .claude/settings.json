@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '%s\\n' '{\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"Apply the brainstorm skill (.claude/skills/brainstorm) to this message before acting: triage it first; if it is clear, just do it.\"}}'"
+          }
+        ]
+      }
+    ]
+  }
+}
