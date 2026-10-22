@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T10 — Add Normal mode
+- **Next task:** T11 — Add the scroller
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T9
+- **Last updated:** 2026-10-21 by T10
 
 ### Agreements
 
@@ -36,6 +36,7 @@
 - 2026-10-21 — T7 done: `Add: focus watcher that reports editable focus changes`.
 - 2026-10-21 — T8 done: `Add: mode machine with enter and exit hooks`.
 - 2026-10-21 — T9 done: `Add: insert mode that leaves on Esc and Ctrl-[`.
+- 2026-10-21 — T10 done: `Add: normal mode that runs commands from key sequences`.
 
 ## Project state
 
@@ -487,7 +488,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** the new tests pass; `src/core/modes/insert.ts` has 100% line and branch coverage in `npm run test:coverage`; `npm run check` passes.
 - **Commit:** `Add: insert mode that leaves on Esc and Ctrl-[`
 
-### T10: Add Normal mode — [ ] todo
+### T10: Add Normal mode — [x] done
 
 - **Requirements:** R2.2, R2.4, R4.2 (consume wiring), R4.5, R4.7, R4.8, R4.10 · **Design:** Mode machine and modes (Normal mode), Editable detection and focus watcher (per-key `editableFocused()` check), Default keymap (`KEY_TIMEOUT_MS`)
 - **Depends on:** T1 (`KeyPress`, `KeyResult`), T2 (`CommandRegistry`), T3 (`KeymapTrie`, `buildKeymapTrie`), T4 (`parseKey`, `EMPTY_PARSER_STATE`, `ParserState`), T5 (creates `src/settings/defaults.ts`), T8 (`Mode`, `ModeMachine`)

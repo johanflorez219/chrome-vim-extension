@@ -13,3 +13,6 @@ export const DEFAULT_KEYMAP: readonly KeymapEntry[] = [
   { keys: ['g', 'g'], command: 'scrollToTop' },
   { keys: ['G'], command: 'scrollToBottom' },
 ];
+
+/** How long pending keys wait for the next key before they are dropped (R4.5). */
+export const KEY_TIMEOUT_MS = 1000;
