@@ -5,15 +5,31 @@ const TALL = '<div style="width: 3000px; height: 5000px">Article</div>';
 const RECORDER =
   "<script>window.seen = []; for (const type of ['keydown', 'keyup']) { window.addEventListener(type, (event) => { window.seen.push(type + ':' + event.key + ':' + event.defaultPrevented); }, true); }</script>";
 
+const FILLER = '<div id="filler" style="height: 5000px"></div>';
+
+const SHADOW_SCRIPT =
+  "<script>const open = document.getElementById('open-host').attachShadow({ mode: 'open' }); const input = document.createElement('input'); input.id = 'open-input'; open.appendChild(input); const closed = document.getElementById('closed-host').attachShadow({ mode: 'closed' }); window.closedInput = closed.appendChild(document.createElement('input'));</script>";
+
+function page(body: string, head = ''): string {
+  return `<!doctype html><html><head>${head}</head><body style="margin: 0">${body}</body></html>`;
+}
+
 // Each page is a full document in standard mode, so document.scrollingElement is <html>
 const PAGES = {
-  article: `<!doctype html><html><head></head><body style="margin: 0">${TALL}</body></html>`,
-  recorder: `<!doctype html><html><head>${RECORDER}</head><body style="margin: 0">${TALL}</body></html>`,
+  article: page(TALL),
+  recorder: page(TALL, RECORDER),
+  form: page(
+    `<input id="text"><textarea id="area"></textarea><input id="check" type="checkbox"><div id="editor" contenteditable style="min-height: 2em"></div>${FILLER}`,
+  ),
+  shadow: page(`<div id="open-host"></div><div id="closed-host"></div>${FILLER}${SHADOW_SCRIPT}`),
+  design: page(`<p id="para">Type here</p>${FILLER}<script>document.designMode = 'on';</script>`),
+  autofocus: page(`<input id="auto" autofocus>${FILLER}`),
 } as const;
 
 declare global {
   interface Window {
     seen: string[];
+    closedInput: HTMLInputElement;
   }
 }
 

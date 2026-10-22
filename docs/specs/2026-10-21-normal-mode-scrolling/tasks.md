@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T16 — Add end-to-end tests for modes
+- **Next task:** T17 — Add end-to-end tests for scrolling
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T15
+- **Last updated:** 2026-10-21 by T16
 
 ### Agreements
 
@@ -42,6 +42,7 @@
 - 2026-10-21 — T13 done: `Add: scroll commands for j k h l d u gg and G`.
 - 2026-10-21 — T14 done: `Add: controller that wires modes, keys and scrolling`.
 - 2026-10-21 — T15 done: `Change: run the M1 controller in the content script`.
+- 2026-10-21 — T16 done: `Test: add end-to-end tests for normal and insert modes`.
 
 ## Project state
 
@@ -959,7 +960,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** `npm run test:e2e` passes and `key-logging.spec.ts` is gone; the built `content.js` has no `console.debug`; `content.ts` has no eslint-disable comment; `npm run check` passes.
 - **Commit:** `Change: run the M1 controller in the content script`. The Why says the M0 key log is removed for NFR4, and that the `shadowRootOf` guard exists because an orphaned copy can't call `chrome.*`.
 
-### T16: Add end-to-end tests for modes — [ ] todo
+### T16: Add end-to-end tests for modes — [x] done
 
 - **Requirements:** R2.3, R2.4, R2.5, R2.6, R3.1, R3.2, R3.4, R3.5, R3.6, R3.7 · **Design:** Testing strategy (end-to-end, `modes.spec.ts`; fixture pages with an input, a `contenteditable` element, open and closed shadow roots, a `designMode` document)
 - **Depends on:** T15 (`tests/e2e/fixtures/pages.ts` with `PAGES`, `openPage`, `readSeen`, the `Window` augmentation and the `recorder` page; the controller running in `content.ts`)
