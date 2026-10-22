@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T12 — Add the scroll-target tracker
+- **Next task:** T13 — Add the scroll commands
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T11
+- **Last updated:** 2026-10-21 by T12
 
 ### Agreements
 
@@ -38,6 +38,7 @@
 - 2026-10-21 — T9 done: `Add: insert mode that leaves on Esc and Ctrl-[`.
 - 2026-10-21 — T10 done: `Add: normal mode that runs commands from key sequences`.
 - 2026-10-21 — T11 done: `Add: scroller with smooth, additive scroll animations`.
+- 2026-10-21 — T12 done: `Add: scroll-target tracker for inner scrolling panels`.
 
 ## Project state
 
@@ -650,7 +651,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** every test above passes; `scroller.ts` exports only `createScroller`, `FrameScheduler` and `Axis`, and Knip reports nothing; `npm run check` passes.
 - **Commit:** `Add: scroller with smooth, additive scroll animations`
 
-### T12: Add the scroll-target tracker — [ ] todo
+### T12: Add the scroll-target tracker — [x] done
 
 - **Requirements:** R7.1, R7.2, R7.3, R7.4, R7.6, NFR1.1 (cached fallback) · **Design:** Scroll-target tracker (path per axis, the document's own rule, R7.4 search and cache); Error handling (target removed or no longer scrollable, `scrollingElement` null, page with nothing scrollable)
 - **Depends on:** T11 (`Axis`, exported from `src/core/scroll/scroller.ts`)
