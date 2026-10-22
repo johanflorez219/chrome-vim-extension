@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T15 — Run the controller in the content script
+- **Next task:** T16 — Add end-to-end tests for modes
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T14
+- **Last updated:** 2026-10-21 by T15
 
 ### Agreements
 
@@ -41,6 +41,7 @@
 - 2026-10-21 — T12 done: `Add: scroll-target tracker for inner scrolling panels`.
 - 2026-10-21 — T13 done: `Add: scroll commands for j k h l d u gg and G`.
 - 2026-10-21 — T14 done: `Add: controller that wires modes, keys and scrolling`.
+- 2026-10-21 — T15 done: `Change: run the M1 controller in the content script`.
 
 ## Project state
 
@@ -902,7 +903,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** the 12 tests pass; `npm run check` passes (Knip included: `createController`, `Controller` and `ControllerDeps` are imported by the test).
 - **Commit:** `Add: controller that wires modes, keys and scrolling`
 
-### T15: Run the controller in the content script — [ ] todo
+### T15: Run the controller in the content script — [x] done
 
 - **Requirements:** R1.1, R1.2, R1.3, R1.4 (wiring), R2.2, R4.8, NFR3.3 (`matches: ['<all_urls>']` kept), NFR4 · **Design:** Controller (`content.ts` wiring), Folder layout (`tests/e2e/fixtures/pages.ts`), Testing strategy (pass-through e2e, M0 spec replaced)
 - **Depends on:** T14
