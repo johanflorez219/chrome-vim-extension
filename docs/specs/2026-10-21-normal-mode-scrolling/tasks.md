@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T14 — Add the controller
+- **Next task:** T15 — Run the controller in the content script
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T13
+- **Last updated:** 2026-10-21 by T14
 
 ### Agreements
 
@@ -40,6 +40,7 @@
 - 2026-10-21 — T11 done: `Add: scroller with smooth, additive scroll animations`.
 - 2026-10-21 — T12 done: `Add: scroll-target tracker for inner scrolling panels`.
 - 2026-10-21 — T13 done: `Add: scroll commands for j k h l d u gg and G`.
+- 2026-10-21 — T14 done: `Add: controller that wires modes, keys and scrolling`.
 
 ## Project state
 
@@ -801,7 +802,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** the new tests in `scroll.test.ts` and `defaults.test.ts` pass; `npm run check` passes (Knip: `createScrollCommands`, `SCROLL_STEP_Y`, `SCROLL_STEP_X` and `Scroller` are all imported, and no other new export exists; ESLint: no `unbound-method` reports in either test).
 - **Commit:** `Add: scroll commands for j k h l d u gg and G`
 
-### T14: Add the controller — [ ] todo
+### T14: Add the controller — [x] done
 
 - **Requirements:** R1.4, R1.6 (orphan guard), R2.1, R2.6 (wiring), R3.3, R3.7, NFR2 (wiring), NFR4 · **Design:** Controller; Editable detection and focus watcher (controller mapping, initial mode)
 - **Depends on:** T1 (`listenForKeys`, `KeyPress`, `KeyResult`), T2 (`createCommandRegistry`), T3 (`buildKeymapTrie`), T5 (`DEFAULT_KEYMAP`), T6 (`isEditable`, `deepActiveElement`, `ShadowRootOf`), T7 (`watchFocus`), T8 (`createModeMachine`, `ModeMachine`), T9 (`createInsertMode`), T10 (`createNormalMode`, `Timer`), T11 (`createScroller`, `FrameScheduler`), T12 (`createScrollTargetTracker`), T13 (`createScrollCommands`)
