@@ -45,7 +45,7 @@ content.ts ── createController(deps) ─────────────
   │                 (rAF animation)   (mousedown / focusin)            │
   │                                                                    │
   │  FocusWatcher (focusin/focusout) ──► ModeMachine.enter()           │
-  └── ctx.onInvalidated(controller.stop)  (R1.4) ──────────────────────┘
+  └── ctx.onInvalidated(() => controller.stop())  (R1.4) ─────────────┘
 
 background.ts ── runtime.onInstalled ──► reinjectContentScript(deps)
                    (install / update)      scripting.executeScript into
@@ -265,8 +265,9 @@ export function createCommandRegistry(commands: readonly Command[]): CommandRegi
 ```
 
 The `CommandName` union makes a keymap entry with a misspelled command a
-compile error. A unit test also checks that every `DEFAULT_KEYMAP` entry
-resolves in the real registry and that the trie builds (R5.5). M1 has no
+compile error. A unit test in `defaults.test.ts` also checks that every
+`DEFAULT_KEYMAP` entry resolves in the real registry and that the trie
+builds (R5.5). M1 has no
 `'background'` commands. That field exists for M2's router, and the registry
 runs every command locally for now.
 
@@ -447,7 +448,8 @@ export function createController(deps: ControllerDeps): Controller;
 
 `content.ts` builds the deps from `window`, `setTimeout`,
 `requestAnimationFrame` and `performance.now`. It calls `createController`
-and registers `ctx.onInvalidated(controller.stop)`. That alone isn't
+and registers `ctx.onInvalidated(() => { controller.stop(); })` (an arrow,
+because `unbound-method` rejects passing the method itself). That alone isn't
 enough for R1.4: WXT fires `onInvalidated` only when a newer copy of the
 script starts in the same page, or when `ctx.isInvalid` is read, and Chrome
 doesn't inject the new version into tabs already open. So `ControllerDeps`
@@ -463,7 +465,9 @@ reloaded or updated, the background script starts the new version in them
 ```ts
 export interface ReinjectDeps {
   /** chrome.tabs.query({}) — only ids and discarded flags are read, so no "tabs" permission. */
-  readonly queryTabs: () => Promise<readonly { id?: number; discarded?: boolean }[]>;
+  readonly queryTabs: () => Promise<
+    readonly { readonly id?: number | undefined; readonly discarded?: boolean | undefined }[]
+  >; // `| undefined` so chrome.tabs.Tab fits under exactOptionalPropertyTypes
   /** chrome.scripting.executeScript({ target: { tabId }, files }) */
   readonly executeScript: (tabId: number, files: readonly string[]) => Promise<unknown>;
   readonly files: readonly string[]; // the built content script, from the manifest
@@ -472,13 +476,16 @@ export interface ReinjectDeps {
 export function reinjectContentScript(deps: ReinjectDeps): Promise<void>;
 ```
 
-- `background.ts` registers `browser.runtime.onInstalled`. For the reasons
+- `background.ts` uses `chrome.*`, not WXT's `browser.*`: WXT types
+  `scripting.executeScript`'s `files` as `ScriptPublicPath[]`, which the
+  manifest's `string[]` doesn't satisfy. It registers
+  `chrome.runtime.onInstalled`. For the reasons
   `install` and `update` it calls `reinjectContentScript`. Reloading the
   unpacked extension during development counts as `update`. Browser
   startup doesn't fire `onInstalled`, and tabs load the content script
   normally then.
 - The content script's file list comes from
-  `browser.runtime.getManifest().content_scripts`, so it never drifts from
+  `chrome.runtime.getManifest().content_scripts`, so it never drifts from
   WXT's build output.
 - Every tab is tried in parallel with `Promise.allSettled`. Tabs without an
   `id` and discarded tabs are skipped. A rejection, from `chrome://` pages,
@@ -547,8 +554,9 @@ stays at or above 80%; `entrypoints/` is excluded, which is why
 - **Unit tests (Vitest, jsdom):**
   - `key-parser`: every R4 rule, counts with `0`, the cap, `gj` re-handling.
   - `keymap-trie`: prefix clash, duplicates.
-  - `registry`: R5.3, duplicate or missing names, and a check that
-    `DEFAULT_KEYMAP` resolves (R5.5).
+  - `registry`: R5.3, duplicate or missing names.
+  - `defaults`: the default keymap builds a trie and every entry resolves
+    in the real registry (R5.5).
   - `mode-machine` and modes: R2, R3.7, the timeout with a fake `Timer`,
     and R4.10.
   - `editable`: input types, `contenteditable`, shadow roots.
