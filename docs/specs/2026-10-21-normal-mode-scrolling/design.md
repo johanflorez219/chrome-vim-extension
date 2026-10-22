@@ -107,6 +107,7 @@ export interface KeyPress {
 export function listenForKeys(
   target: EventTarget,
   onKey: (press: KeyPress) => KeyResult,
+  isTrusted: (event: KeyboardEvent) => boolean, // event.isTrusted; injected because jsdom can't make trusted events
 ): () => void;
 ```
 
@@ -150,7 +151,7 @@ export function createModeMachine(modes: readonly Mode[], initial: ModeName): Mo
   Insert mode each key first checks `editableFocused()`
   (`isEditable(deepActiveElement(document))`). If no field has focus any
   more, it switches to Normal mode and hands that key to Normal mode.
-- **Normal mode** (`createNormalMode({ machine, parser, registry, timer })`):
+- **Normal mode** (`createNormalMode({ machine, trie, registry, timer, editableFocused })`):
   `i` enters sticky Insert mode (R2.4). If keys are pending (`5i`, `gi`
   before M3 maps it), they are dropped first, as R4.6 says for any key that
   breaks a sequence. `i` is a
@@ -288,7 +289,8 @@ also defined here.
 
 ### Scroller (→ R6.7–R6.10, R7.5, NFR2)
 
-The scroller keeps one animation for each element. Each animation stores
+The scroller keeps one animation for each element and axis, so `j` and `l`
+pressed together don't cancel each other. Each animation stores
 its **destination**, so a new scroll adds to where the last one was going
 (R6.9). Every new scroll restarts the animation from the current position
 to the new destination, with an ease-out curve and a deadline: 250 ms for a
@@ -433,6 +435,9 @@ export interface ControllerDeps {
   readonly frames: FrameScheduler;
   readonly now: () => number;
   readonly isValid: () => boolean; // false once the extension is reloaded or disabled (R1.4)
+  readonly isTrusted: (event: KeyboardEvent) => boolean; // event.isTrusted in the extension
+  readonly shadowRootOf: ShadowRootOf; // chrome.dom.openOrClosedShadowRoot (R3.2)
+  readonly prefersReducedMotion: () => boolean; // matchMedia, which jsdom lacks (NFR2)
 }
 export interface Controller {
   stop(): void; // removes every listener, clears the timer, stops animations
