@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T6 — Detect editable elements through shadow roots
+- **Next task:** T7 — Watch focus for editable elements
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T5
+- **Last updated:** 2026-10-21 by T6
 
 ### Agreements
 
@@ -32,6 +32,7 @@
 - 2026-10-21 — T3 done: `Add: keymap trie that rejects clashing mappings`.
 - 2026-10-21 — T4 done: `Add: key parser with counts, sequences and re-handling`.
 - 2026-10-21 — T5 done: `Add: default keymap for the M1 scroll commands`.
+- 2026-10-21 — T6 done: `Add: editable element detection through shadow roots`.
 
 ## Project state
 
@@ -268,7 +269,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** the four tests pass; `PLAN.md`'s M1 key line lists `<C-d>` `<C-u>`; `npm run check` passes (typecheck, lint, Prettier including `PLAN.md`, coverage, Knip).
 - **Commit:** `Add: default keymap for the M1 scroll commands`
 
-### T6: Detect editable elements through shadow roots — [ ] todo
+### T6: Detect editable elements through shadow roots — [x] done
 
 - **Requirements:** R3.1, R3.2, R3.6 · **Design:** Editable detection and focus watcher (`ShadowRootOf`, `isEditable`, `deepActiveElement`, input allow-list, `contenteditable`, `designMode`)
 - **Depends on:** —
