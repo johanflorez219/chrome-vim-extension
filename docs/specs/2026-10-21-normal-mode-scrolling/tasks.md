@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T2 — Add the command registry
+- **Next task:** T3 — Add the keymap trie
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T1
+- **Last updated:** 2026-10-21 by T2
 
 ### Agreements
 
@@ -28,6 +28,7 @@
 - 2026-10-21 — planner: pass 1, created 19 tasks (T1–T19).
 - 2026-10-21 — planner: round 1 of per-task reviews (T1–T19, all READY) integrated as pass 2; recorded the user's answers; plan READY.
 - 2026-10-21 — T1 done: `Change: let the key listener consume keys and swallow their keyup`.
+- 2026-10-21 — T2 done: `Add: command registry with named commands and metadata`.
 
 ## Project state
 
@@ -108,7 +109,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** the new tests pass; `npm run check` passes (Knip included, since `KeyPress` and `KeyResult` are imported by the test); `npm run test:e2e` still passes with `key-logging.spec.ts` unchanged.
 - **Commit:** `Change: let the key listener consume keys and swallow their keyup`
 
-### T2: Add the command registry — [ ] todo
+### T2: Add the command registry — [x] done
 
 - **Requirements:** R5.1, R5.2, R5.3 · **Design:** Command registry
 - **Depends on:** —
