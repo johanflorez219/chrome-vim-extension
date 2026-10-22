@@ -24,6 +24,14 @@ const PAGES = {
   shadow: page(`<div id="open-host"></div><div id="closed-host"></div>${FILLER}${SHADOW_SCRIPT}`),
   design: page(`<p id="para">Type here</p>${FILLER}<script>document.designMode = 'on';</script>`),
   autofocus: page(`<input id="auto" autofocus>${FILLER}`),
+  panel: page(
+    '<div id="panel"><div id="panel-content">Panel</div></div><div id="outside">Outside</div><div id="rest"></div>',
+    '<style>#panel { height: 300px; width: 400px; overflow-y: auto } #panel-content { height: 3000px } #outside { height: 100px; width: 400px } #rest { height: 5000px }</style>',
+  ),
+  spa: page(
+    '<div id="main"><div id="main-content">App</div></div>',
+    '<style>html, body { height: 100%; margin: 0 } #main { height: 100vh; overflow-y: auto } #main-content { height: 5000px }</style>',
+  ),
 } as const;
 
 declare global {

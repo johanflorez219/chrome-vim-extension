@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T17 — Add end-to-end tests for scrolling
+- **Next task:** T18 — Restart the content script in open tabs on install and update
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T16
+- **Last updated:** 2026-10-21 by T17
 
 ### Agreements
 
@@ -43,6 +43,7 @@
 - 2026-10-21 — T14 done: `Add: controller that wires modes, keys and scrolling`.
 - 2026-10-21 — T15 done: `Change: run the M1 controller in the content script`.
 - 2026-10-21 — T16 done: `Test: add end-to-end tests for normal and insert modes`.
+- 2026-10-21 — T17 done: `Test: add end-to-end tests for scrolling and scroll targets`.
 
 ## Project state
 
@@ -1003,7 +1004,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** `npm run test:e2e` passes; the `--repeat-each=5` run passes; `npm run check` passes (it type-checks and lints `tests/e2e`).
 - **Commit:** `Test: add end-to-end tests for normal and insert modes`
 
-### T17: Add end-to-end tests for scrolling — [ ] todo
+### T17: Add end-to-end tests for scrolling — [x] done
 
 - **Requirements:** R2.1, R6.1–R6.8, R7.1–R7.5, NFR2.1 · **Design:** Testing strategy (`scrolling.spec.ts`, fixture pages "fixed-height inner scrolling panel" and "SPA layout", the R6.7 and R6.8 timing tests)
 - **Depends on:** T15 (`tests/e2e/fixtures/pages.ts` with `PAGES`, the `article` page overflowing both axes, `openPage(context, name, { reducedMotion })`, the controller running in the content script)
