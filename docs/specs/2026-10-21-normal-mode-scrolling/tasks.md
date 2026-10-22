@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** ready to start
-- **Next task:** T1 — Return consume or pass from the key listener
+- **Phase:** executing
+- **Next task:** T2 — Add the command registry
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by planner
+- **Last updated:** 2026-10-21 by T1
 
 ### Agreements
 
@@ -27,6 +27,7 @@
 
 - 2026-10-21 — planner: pass 1, created 19 tasks (T1–T19).
 - 2026-10-21 — planner: round 1 of per-task reviews (T1–T19, all READY) integrated as pass 2; recorded the user's answers; plan READY.
+- 2026-10-21 — T1 done: `Change: let the key listener consume keys and swallow their keyup`.
 
 ## Project state
 
@@ -61,7 +62,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 
 ## Tasks
 
-### T1: Return consume or pass from the key listener — [ ] todo
+### T1: Return consume or pass from the key listener — [x] done
 
 - **Requirements:** R1.1, R1.2, R1.3 · **Design:** Key listener (interface exactly as in design.md, including the injected `isTrusted` predicate)
 - **Depends on:** —
