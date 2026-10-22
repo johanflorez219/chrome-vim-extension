@@ -132,7 +132,7 @@ _Learn: manifest, entrypoints, loading unpacked extensions._
 - [ ] Auto Insert mode on editable focus; `Esc` / `Ctrl-[` to leave
 - [ ] Key parser with trie, counts, and timeout (unit tested)
 - [ ] Command registry
-- [ ] `j` `k` `h` `l` `d` `u` `gg` `G`
+- [ ] `j` `k` `h` `l` `d` `u` `<C-d>` `<C-u>` `gg` `G`
 - [ ] Scroll the right element (the focused scrollable container, not always `window`)
 
 _Learn: content scripts, DOM events, testing pure logic._

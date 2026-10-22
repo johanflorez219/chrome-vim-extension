@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T5 — Add the default keymap
+- **Next task:** T6 — Detect editable elements through shadow roots
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T4
+- **Last updated:** 2026-10-21 by T5
 
 ### Agreements
 
@@ -31,6 +31,7 @@
 - 2026-10-21 — T2 done: `Add: command registry with named commands and metadata`.
 - 2026-10-21 — T3 done: `Add: keymap trie that rejects clashing mappings`.
 - 2026-10-21 — T4 done: `Add: key parser with counts, sequences and re-handling`.
+- 2026-10-21 — T5 done: `Add: default keymap for the M1 scroll commands`.
 
 ## Project state
 
@@ -229,7 +230,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** the 16 tests pass; `key-parser.ts` has 100% line and branch coverage; `npm run check` passes (including Knip with no unused exports).
 - **Commit:** `Add: key parser with counts, sequences and re-handling`
 
-### T5: Add the default keymap — [ ] todo
+### T5: Add the default keymap — [x] done
 
 - **Requirements:** R5.4, R5.5 (the trie half; the registry half is T13), R6.1–R6.6 (key bindings only), NFR3.2 · **Design:** Default keymap
 - **Depends on:** T3 (`KeymapEntry`, `buildKeymapTrie`; `CommandName` comes from T2 through it)
