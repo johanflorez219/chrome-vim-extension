@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T4 — Add the key parser
+- **Next task:** T5 — Add the default keymap
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T3
+- **Last updated:** 2026-10-21 by T4
 
 ### Agreements
 
@@ -30,6 +30,7 @@
 - 2026-10-21 — T1 done: `Change: let the key listener consume keys and swallow their keyup`.
 - 2026-10-21 — T2 done: `Add: command registry with named commands and metadata`.
 - 2026-10-21 — T3 done: `Add: keymap trie that rejects clashing mappings`.
+- 2026-10-21 — T4 done: `Add: key parser with counts, sequences and re-handling`.
 
 ## Project state
 
@@ -190,7 +191,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** the 10 tests pass; `keymap-trie.ts` has 100% line and branch coverage in `npm run test:coverage`; `npm run check` passes (Knip reports no unused export from `keymap-trie.ts`).
 - **Commit:** `Add: keymap trie that rejects clashing mappings`
 
-### T4: Add the key parser — [ ] todo
+### T4: Add the key parser — [x] done
 
 - **Requirements:** R4.1, R4.2, R4.3, R4.4, R4.6, R4.9 · **Design:** Key parser and keymap trie (`ParserState`, `parseKey`, rules 1–3)
 - **Depends on:** T2 (`CommandName`), T3 (`KeymapTrie`, `buildKeymapTrie`)
