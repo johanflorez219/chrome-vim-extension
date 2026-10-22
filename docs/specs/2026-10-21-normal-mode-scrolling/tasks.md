@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T13 — Add the scroll commands
+- **Next task:** T14 — Add the controller
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T12
+- **Last updated:** 2026-10-21 by T13
 
 ### Agreements
 
@@ -39,6 +39,7 @@
 - 2026-10-21 — T10 done: `Add: normal mode that runs commands from key sequences`.
 - 2026-10-21 — T11 done: `Add: scroller with smooth, additive scroll animations`.
 - 2026-10-21 — T12 done: `Add: scroll-target tracker for inner scrolling panels`.
+- 2026-10-21 — T13 done: `Add: scroll commands for j k h l d u gg and G`.
 
 ## Project state
 
@@ -733,7 +734,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** the tests above pass; `scroll-target.ts` is under 300 lines with every function within the lint limits; `npm run check` passes (Knip reports nothing for `scroll-target.ts`); the T12 marker and History line are in the same commit.
 - **Commit:** `Add: scroll-target tracker for inner scrolling panels`
 
-### T13: Add the scroll commands — [ ] todo
+### T13: Add the scroll commands — [x] done
 
 - **Requirements:** R5.1, R5.2, R5.5 (the registry half; T5 owns the trie half), R6.1–R6.6 (distances and fractions), R6.8 (passes the repeat flag on) · **Design:** Scroller (the scroll-commands paragraph), Command registry, Default keymap (`SCROLL_STEP_Y`, `SCROLL_STEP_X`)
 - **Depends on:** T2 (`Command`, `COMMAND_NAMES`, `createCommandRegistry`), T5 (creates `src/settings/defaults.ts` and `defaults.test.ts`), T11 (`Axis`; the `Scroller` interface, which this task exports), T12 (`ScrollTargetTracker`). T10 also appends to `defaults.ts`. The two edits don't touch each other, so T10 and T13 can land in either order.

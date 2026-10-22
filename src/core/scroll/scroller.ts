@@ -13,7 +13,7 @@ interface ScrollerDeps {
   readonly prefersReducedMotion: () => boolean;
 }
 
-interface Scroller {
+export interface Scroller {
   /** Moves `target` by `delta` px from its current destination. */
   scrollBy(target: Element, axis: Axis, delta: number, options: { repeat: boolean }): void;
   /** Moves `target` to `fraction` (0–1) of its scroll range. */

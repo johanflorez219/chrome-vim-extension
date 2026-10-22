@@ -16,3 +16,8 @@ export const DEFAULT_KEYMAP: readonly KeymapEntry[] = [
 
 /** How long pending keys wait for the next key before they are dropped (R4.5). */
 export const KEY_TIMEOUT_MS = 1000;
+
+/** Pixels per `j` / `k` (R6.1). */
+export const SCROLL_STEP_Y = 60;
+/** Pixels per `h` / `l` (R6.2). */
+export const SCROLL_STEP_X = 40;
