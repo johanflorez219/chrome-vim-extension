@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T11 — Add the scroller
+- **Next task:** T12 — Add the scroll-target tracker
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T10
+- **Last updated:** 2026-10-21 by T11
 
 ### Agreements
 
@@ -37,6 +37,7 @@
 - 2026-10-21 — T8 done: `Add: mode machine with enter and exit hooks`.
 - 2026-10-21 — T9 done: `Add: insert mode that leaves on Esc and Ctrl-[`.
 - 2026-10-21 — T10 done: `Add: normal mode that runs commands from key sequences`.
+- 2026-10-21 — T11 done: `Add: scroller with smooth, additive scroll animations`.
 
 ## Project state
 
@@ -570,7 +571,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** the tests pass; `KEY_TIMEOUT_MS` is exported from `src/settings/defaults.ts` and imported by `normal.ts`; `npm run check` passes (Knip reports no unused export).
 - **Commit:** `Add: normal mode that runs commands from key sequences`
 
-### T11: Add the scroller — [ ] todo
+### T11: Add the scroller — [x] done
 
 - **Requirements:** R6.7, R6.8, R6.9, R6.10, R7.5, NFR1.2 (no frames once idle), NFR2.1 · **Design:** Scroller (one animation per element and axis, destinations, deadlines, `behavior: 'instant'` writes, drift check, reduced motion)
 - **Depends on:** —
