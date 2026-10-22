@@ -134,6 +134,7 @@ _Learn: manifest, entrypoints, loading unpacked extensions._
 - [ ] Command registry
 - [ ] `j` `k` `h` `l` `d` `u` `<C-d>` `<C-u>` `gg` `G`
 - [ ] Scroll the right element (the focused scrollable container, not always `window`)
+- [x] Restart in open tabs on install and update
 
 _Learn: content scripts, DOM events, testing pure logic._
 

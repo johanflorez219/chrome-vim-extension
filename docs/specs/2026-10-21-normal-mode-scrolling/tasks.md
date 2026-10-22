@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T18 — Restart the content script in open tabs on install and update
+- **Next task:** T19 — Check M1 by hand and mark it done
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T17
+- **Last updated:** 2026-10-21 by T18
 
 ### Agreements
 
@@ -44,6 +44,7 @@
 - 2026-10-21 — T15 done: `Change: run the M1 controller in the content script`.
 - 2026-10-21 — T16 done: `Test: add end-to-end tests for normal and insert modes`.
 - 2026-10-21 — T17 done: `Test: add end-to-end tests for scrolling and scroll targets`.
+- 2026-10-21 — T18 done: `Add: restart the content script in open tabs on install and update`; e2e fallback used: after `chrome.runtime.reload()`, Playwright's Chromium never brings the extension back (no service worker for 10 s), so `reinject.spec.ts` was dropped and T19 item 6 checks the reload by hand. The same run showed the old copy stops handling `j` after the reload (R1.4). The permission-warning check moved to T19 item 7. No `host_permissions` added.
 
 ## Project state
 
@@ -1046,7 +1047,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** `npm run test:e2e` passes; the `--repeat-each=5` run of `scrolling.spec.ts` passes; `npm run check` passes; T17 is marked done in `tasks.md`.
 - **Commit:** `Test: add end-to-end tests for scrolling and scroll targets`
 
-### T18: Restart the content script in open tabs on install and update — [ ] todo
+### T18: Restart the content script in open tabs on install and update — [x] done
 
 - **Requirements:** R1.5, R1.6, R1.7 · **Design:** Re-injection into open tabs; Testing strategy (`reinject` unit tests, `reinject.spec.ts`)
 - **Depends on:** T15 (`openPage` and the `article` page in `tests/e2e/fixtures/pages.ts`; the controller running in `content.ts`, with `isValid` and `onInvalidated` wired)
@@ -1125,6 +1126,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
      - Record while pressing `j` three times, then stop. In the Main track, each `Event: keydown` task is shorter than 16 ms. No red long-task corner points at `content.js`.
      - Record 5 s without touching the keyboard, after any scroll has finished. No `Animation frame fired` or `Timer fired` entries come from `content.js`.
   6. **Only if T18 used its fallback** (its _History_ line says so): with the article open, reload the extension from `chrome://extensions`. Back on the tab, press `j` once. The page moves exactly one step, not two (R1.5, R1.6).
+  7. **Permission warning** (from T18, which can't open the browser itself): in Chrome, on `chrome://extensions` → the extension's **Details** → **Permissions**, the only entry is "Read and change all your data on all websites". The `scripting` permission adds no warning of its own.
 - **Steps:**
   1. Run `npm run build`. Give the user the checklist above and wait for their answer on every item, in both browsers. Ask for the Arc and Chrome version numbers (Arc → About Arc; `chrome://version`).
   2. **If any item fails:** don't tick anything and leave this task `[ ] todo`. Add a _History_ line: `YYYY-MM-DD — <executor>: T19 manual check failed: <item, browser, what happened>`. Add a new task `T20: Fix <problem>` **above** T19 in this list, in the usual task format with its own tests first and a `Fix:` commit. Add T20 to T19's _Depends on_. Stop and report to the user. T19 is retried after T20 is done.
