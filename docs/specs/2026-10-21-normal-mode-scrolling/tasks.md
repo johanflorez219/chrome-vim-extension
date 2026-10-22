@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T9 — Add Insert mode
+- **Next task:** T10 — Add Normal mode
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T8
+- **Last updated:** 2026-10-21 by T9
 
 ### Agreements
 
@@ -35,6 +35,7 @@
 - 2026-10-21 — T6 done: `Add: editable element detection through shadow roots`.
 - 2026-10-21 — T7 done: `Add: focus watcher that reports editable focus changes`.
 - 2026-10-21 — T8 done: `Add: mode machine with enter and exit hooks`.
+- 2026-10-21 — T9 done: `Add: insert mode that leaves on Esc and Ctrl-[`.
 
 ## Project state
 
@@ -439,7 +440,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** the 12 tests pass; `npm run knip` reports nothing for `src/core/mode-machine.ts` (every export is imported by the test); `npm run check` passes.
 - **Commit:** `Add: mode machine with enter and exit hooks`
 
-### T9: Add Insert mode — [ ] todo
+### T9: Add Insert mode — [x] done
 
 - **Requirements:** R2.3, R2.5, R2.6, R3.7 (sticky Insert mode ignores a lost focus) · **Design:** Mode machine and modes (Insert mode); Editable detection and focus watcher (per-key `editableFocused()` check)
 - **Depends on:** T1 (`KeyPress`, `KeyResult`), T8 (`Mode`, `ModeMachine`)
