@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T3 — Add the keymap trie
+- **Next task:** T4 — Add the key parser
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T2
+- **Last updated:** 2026-10-21 by T3
 
 ### Agreements
 
@@ -29,6 +29,7 @@
 - 2026-10-21 — planner: round 1 of per-task reviews (T1–T19, all READY) integrated as pass 2; recorded the user's answers; plan READY.
 - 2026-10-21 — T1 done: `Change: let the key listener consume keys and swallow their keyup`.
 - 2026-10-21 — T2 done: `Add: command registry with named commands and metadata`.
+- 2026-10-21 — T3 done: `Add: keymap trie that rejects clashing mappings`.
 
 ## Project state
 
@@ -135,7 +136,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** the nine tests pass; `npm run check` passes, including Knip with no unused exports from `registry.ts` and ESLint with no `unbound-method` reports in the test.
 - **Commit:** `Add: command registry with named commands and metadata`
 
-### T3: Add the keymap trie — [ ] todo
+### T3: Add the keymap trie — [x] done
 
 - **Requirements:** R4.1, R4.2 (lookup results the parser builds on), R5.4, R5.5 (clashing defaults fail the build and its test) · **Design:** Key parser and keymap trie (`KeymapEntry`, `KeymapTrie`, `TrieLookup`, `buildKeymapTrie`); Decisions ("Keymap keys as arrays", "Prefix clashes rejected at build time"); Error handling ("Bad default keymap")
 - **Depends on:** T2 (`CommandName` in `src/core/commands/registry.ts`)
