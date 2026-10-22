@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T8 — Add the mode machine
+- **Next task:** T9 — Add Insert mode
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T7
+- **Last updated:** 2026-10-21 by T8
 
 ### Agreements
 
@@ -34,6 +34,7 @@
 - 2026-10-21 — T5 done: `Add: default keymap for the M1 scroll commands`.
 - 2026-10-21 — T6 done: `Add: editable element detection through shadow roots`.
 - 2026-10-21 — T7 done: `Add: focus watcher that reports editable focus changes`.
+- 2026-10-21 — T8 done: `Add: mode machine with enter and exit hooks`.
 
 ## Project state
 
@@ -355,7 +356,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** the new tests pass; `focus-watcher.ts` has 100% line and branch coverage; `npm run check` passes.
 - **Commit:** `Add: focus watcher that reports editable focus changes`
 
-### T8: Add the mode machine — [ ] todo
+### T8: Add the mode machine — [x] done
 
 - **Requirements:** R2.1 (initial mode), R3.7 (sticky flag), R4.10 (exit hook) · **Design:** Mode machine and modes
 - **Depends on:** T1 (`KeyPress`, `KeyResult` in `src/core/key-listener.ts`)
