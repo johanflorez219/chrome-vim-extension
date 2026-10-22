@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T7 — Watch focus for editable elements
+- **Next task:** T8 — Add the mode machine
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T6
+- **Last updated:** 2026-10-21 by T7
 
 ### Agreements
 
@@ -33,6 +33,7 @@
 - 2026-10-21 — T4 done: `Add: key parser with counts, sequences and re-handling`.
 - 2026-10-21 — T5 done: `Add: default keymap for the M1 scroll commands`.
 - 2026-10-21 — T6 done: `Add: editable element detection through shadow roots`.
+- 2026-10-21 — T7 done: `Add: focus watcher that reports editable focus changes`.
 
 ## Project state
 
@@ -315,7 +316,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** the new tests pass. `editable.ts` has no exports beyond the three in the interface. `npm run check` passes, including Knip with `ShadowRootOf` imported only by the test.
 - **Commit:** `Add: editable element detection through shadow roots`
 
-### T7: Watch focus for editable elements — [ ] todo
+### T7: Watch focus for editable elements — [x] done
 
 - **Requirements:** R3.1, R3.2, R3.4, R3.5, R3.6 · **Design:** Editable detection and focus watcher
 - **Depends on:** T6 (`isEditable`, `deepActiveElement`, `ShadowRootOf`)
