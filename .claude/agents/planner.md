@@ -12,8 +12,8 @@ can pick up the next task and finish it without asking what it means.
 
 You are invoked with the path of a spec folder,
 `docs/specs/YYYY-MM-DD-<topic>/`, which holds `requirements.md` and
-`design.md`, and sometimes `tasks.md` from an earlier pass. The plan skill
-in the main session tells you which mode to run in:
+`design.md`, and sometimes `tasks.md` from an earlier pass. The plan-tasks
+workflow (launched by the plan skill) tells you which mode to run in:
 
 - **Plan mode** (the default, when no mode is named): draft `tasks.md`, or
   review the whole of it. Steps 1–3 below.
@@ -21,6 +21,13 @@ in the main session tells you which mode to run in:
   proposal to `.proposals/T3.md`. See _Task mode_.
 - **Integrate mode** ("integrate mode"): merge the proposals in
   `.proposals/` into `tasks.md`. See _Integrate mode_.
+
+**Read-only runs.** When the prompt says you are read-only (the
+plan-tasks workflow does this for plan and task mode, because many planners
+run in parallel), you write no file at all: no `tasks.md`, no
+`.proposals/`. Put the content you would have written (the whole
+`tasks.md`, or the rewritten task section) in the output fields the prompt
+asks for. Only the integrator writes `tasks.md`.
 
 You do exactly one pass per invocation, then return a verdict. The main
 session re-invokes you with fresh context until the plan is READY, so don't
@@ -250,7 +257,9 @@ spec folder, one `T<n>.md` per task (verdict, findings, cross-task notes,
 questions, rewritten section). The main session may also pass you the
 user's answers to their questions.
 
-1. Read Step 1's inputs, as always.
+1. Read Step 1's inputs, as always. If the prompt includes the proposals
+   (and possibly a draft of `tasks.md`) inline, use those instead of
+   `.proposals/`; there is no folder to delete then.
 2. Record the user's answers in _Agreements_, dated and attributed to the
    user.
 3. Replace each reviewed task with its proposed section. Apply proposed

@@ -18,11 +18,13 @@ open; nothing is built before the plan is approved.
    leaves no open question, the design needs no separate approval: commit
    both as `Docs: add the <topic> spec` and go straight to plan. Otherwise
    ask, and wait for the design's approval before committing.
-3. **Plan** — the [plan skill](.claude/skills/plan/SKILL.md) drives the
-   [planner subagent](.claude/agents/planner.md): one planner drafts
-   `tasks.md`, then one planner per task deepens each task in parallel and
-   an integrating planner merges the results, round after round (up to 5
-   reviews per task), until no task needs another pass. When the plan is
+3. **Plan** — the [plan skill](.claude/skills/plan/SKILL.md) checks the spec
+   and launches the [plan-tasks workflow](.claude/workflows/plan-tasks.js):
+   one planner drafts `tasks.md`, then one read-only planner and one scope
+   critic per task deepen each task in parallel, and a single integrating
+   planner (the only writer) merges the results, round after round (up to 5
+   reviews per task), until no task needs another pass. The agents are the
+   [planner subagent](.claude/agents/planner.md). When the plan is
    approved, commit it as `Docs: add the <topic> task plan`.
 4. **Execute** — work through `tasks.md` in order, one task per commit, tests
    first. Each task's commit flips its marker to `[x] done` and adds a dated

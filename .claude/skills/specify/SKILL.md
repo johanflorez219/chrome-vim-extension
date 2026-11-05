@@ -153,10 +153,11 @@ _Open questions_ in `design.md`.
 ## Step 5: Hand off to plan
 
 Once the spec is committed, invoke the **plan** skill with the spec folder
-path, without waiting to be asked. It runs the planner subagent to write
-`tasks.md` and deepen every task until the plan is ready. If the planner
-finds spec issues along the way, the plan skill brings them back; fix them
-here, with the user's agreement — the planner never edits the spec itself.
+path, without waiting to be asked. It launches the plan-tasks workflow,
+which writes `tasks.md` and deepens every task until the plan is ready. If
+the planners find spec issues along the way, the plan skill brings them
+back; fix them here, with the user's agreement — the planners never edit the
+spec themselves.
 
 ## Committing the spec
 
