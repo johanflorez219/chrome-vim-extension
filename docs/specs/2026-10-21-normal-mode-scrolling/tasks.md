@@ -1,7 +1,7 @@
 # Normal mode and scrolling — Tasks
 
 **Spec:** [requirements.md](requirements.md) · [design.md](design.md)
-**Verdict:** READY — pass 2, 2026-10-21
+**Verdict:** READY — pass 3, 2026-11-05
 
 ## Status log
 
@@ -45,6 +45,7 @@
 - 2026-10-21 — T16 done: `Test: add end-to-end tests for normal and insert modes`.
 - 2026-10-21 — T17 done: `Test: add end-to-end tests for scrolling and scroll targets`.
 - 2026-10-21 — T18 done: `Add: restart the content script in open tabs on install and update`; e2e fallback used: after `chrome.runtime.reload()`, Playwright's Chromium never brings the extension back (no service worker for 10 s), so `reinject.spec.ts` was dropped and T19 item 6 checks the reload by hand. The same run showed the old copy stops handling `j` after the reload (R1.4). The permission-warning check moved to T19 item 7. No `host_permissions` added.
+- 2026-11-05 — planner: round 2 of per-task reviews (T19, READY) integrated as pass 3; plan READY.
 
 ## Project state
 
@@ -1104,10 +1105,10 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 
 ### T19: Check M1 by hand and mark it done — [ ] todo
 
-- **Requirements:** NFR1.1, NFR1.2, NFR3.1, NFR3.3, NFR5.1 · **Design:** Testing strategy (manual check), coverage table rows NFR1, NFR3, NFR5
-- **Depends on:** T1–T18
+- **Requirements:** R1.4, R1.5, R1.6, R4.8, R7.4, NFR1.1, NFR1.2, NFR2.1, NFR3.1, NFR3.3, NFR4.1, NFR5.1 · **Design:** Testing strategy (manual check), coverage table rows NFR1, NFR3, NFR5
+- **Depends on:** T1–T18 (all done)
 - **Files:** modify `PLAN.md`, `docs/specs/2026-10-21-normal-mode-scrolling/tasks.md`
-- **Tests first:** none (docs only). The test is the manual checklist below. The **user** runs it: a Claude session can't drive Arc, Chrome or DevTools. The executor prepares the build, gives the user the list and records the answers. Run it in the current stable Arc **and** Chrome on macOS, with `.output/chrome-mv3/` loaded unpacked (`chrome://extensions` → Developer mode → Load unpacked). Each item passes only if what you see matches exactly:
+- **Tests first:** none (docs only). The test is the manual checklist below. The **user** runs it: a Claude session can't drive Arc, Chrome or DevTools. The executor prepares the build, gives the user the list and records the answers. Run it in the current stable Arc **and** Chrome on macOS, with `.output/chrome-mv3/` loaded unpacked (`chrome://extensions` → Developer mode → Load unpacked). Items 1–4 and 6–8 run in both browsers; item 5 (DevTools Performance) runs in Chrome only. Each item passes only if what you see matches exactly. Start by reloading the extension and clicking **Clear all** in its Errors view, so item 8 starts clean.
   1. **Long article** (any long Wikipedia article), no click first:
      - `j` / `k` move down / up one step. `5j` moves five steps in one smooth motion.
      - `l` / `h` move right / left on a page that scrolls sideways. If the article doesn't, they do nothing and show no error.
@@ -1121,70 +1122,71 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
      - Click the search box at the top and type `jk`: the letters appear and nothing scrolls.
      - The first `Esc` takes focus off the field (the caret is gone) and `j` scrolls again. If GitHub's search dialog is still open, a second `Esc` closes it.
   3. **An SPA with an inner scrolling panel** (for example Gmail's inbox or a Slack channel): right after the page loads, with no click, `j` scrolls the panel (R7.4).
-  4. **Forbidden pages** (NFR3.3): on `chrome://extensions` and `https://chromewebstore.google.com`, `j` does nothing and the page keeps its own behavior. Then, on the extension's card in `chrome://extensions`, there is no **Errors** button, or it lists no errors, once every other item has been run.
+  4. **Forbidden pages** (NFR3.3): on `chrome://extensions` and `https://chromewebstore.google.com`, `j` does nothing and the page keeps its own behavior.
   5. **Performance** (NFR1.1, NFR1.2), in Chrome DevTools → Performance on the long article, with CPU throttling off:
      - Record while pressing `j` three times, then stop. In the Main track, each `Event: keydown` task is shorter than 16 ms. No red long-task corner points at `content.js`.
      - Record 5 s without touching the keyboard, after any scroll has finished. No `Animation frame fired` or `Timer fired` entries come from `content.js`.
-  6. **Only if T18 used its fallback** (its _History_ line says so): with the article open, reload the extension from `chrome://extensions`. Back on the tab, press `j` once. The page moves exactly one step, not two (R1.5, R1.6).
-  7. **Permission warning** (from T18, which can't open the browser itself): in Chrome, on `chrome://extensions` → the extension's **Details** → **Permissions**, the only entry is "Read and change all your data on all websites". The `scripting` permission adds no warning of its own.
+  6. **Reload with a tab open** (R1.4, R1.5, R1.6; T18 used its e2e fallback, so this is the only check of the reload): with the long article open and not refreshed, reload the extension from `chrome://extensions`. Back on the tab, press `j` once. The page moves exactly one step, not two and not zero. Press `j` again: one more step.
+  7. **Permission warning** (from T18, which can't open the browser itself): in Chrome, on `chrome://extensions` → the extension's **Details** → **Permissions**, the only entry is "Read and change all your data on all websites". The `scripting` permission adds no warning of its own. In Arc, check the same page if it shows a permissions list.
+  8. **No key logging and no errors** (NFR4.1, NFR3.3), last, after every other item: on the long article, open the DevTools Console with the level set to **Verbose** and press `j`, `k`, `gg`. No `[vim]` line or any other output mentions the keys. Then on the extension's card in `chrome://extensions` there is no **Errors** button, or it lists no new errors since you cleared it.
 - **Steps:**
-  1. Run `npm run build`. Give the user the checklist above and wait for their answer on every item, in both browsers. Ask for the Arc and Chrome version numbers (Arc → About Arc; `chrome://version`).
+  1. Run `npm run build`. Set T19 to `[~] in progress` in `tasks.md` while waiting (not committed alone). Give the user the checklist above and wait for their answer on every item, in both browsers. Ask for the Arc and Chrome version numbers (Arc → About Arc; `chrome://version`).
   2. **If any item fails:** don't tick anything and leave this task `[ ] todo`. Add a _History_ line: `YYYY-MM-DD — <executor>: T19 manual check failed: <item, browser, what happened>`. Add a new task `T20: Fix <problem>` **above** T19 in this list, in the usual task format with its own tests first and a `Fix:` commit. Add T20 to T19's _Depends on_. Stop and report to the user. T19 is retried after T20 is done.
-  3. If every item passes: in `PLAN.md`, under `### M1 — Normal mode and scrolling`, change every `- [ ]` to `- [x]`. These are the six original lines, the key line T5 rewrote, and T18's line if it's still open. Leave every other milestone untouched.
+  3. If every item passes in both browsers: in `PLAN.md`, under `### M1 — Normal mode and scrolling`, change every `- [ ]` to `- [x]`. These are the seven unticked lines: capture-phase key listener, mode machine, auto Insert mode, key parser, command registry, the `j` `k` `h` `l` `d` `u` `<C-d>` `<C-u>` `gg` `G` line T5 rewrote, and "Scroll the right element". The "Restart in open tabs" line is already ticked by T18. Check with `grep -n '\- \[ \]' PLAN.md` that none is left under M1. Leave every other milestone untouched.
   4. In this `tasks.md`:
      - Flip T19's marker to `[x] done`.
      - Set _Current status_ to **Phase:** done, **Next task:** none, **Blocked by:** nothing, **Last updated:** today by the executor.
      - Append the _History_ line: `YYYY-MM-DD — <executor>: T19 done in "Docs: mark milestone M1 as done"; manual check passed in Arc <version> and Chrome <version> (checked by <user>)`.
-  5. Run `npm run check` and `npm run test:e2e`. Prettier checks `PLAN.md` and `tasks.md`. Run `npm run format` if it complains, then check again.
-- **Done when:** the user confirmed every checklist item in both browsers; `PLAN.md` has no `- [ ]` under M1; T19 is `[x] done` with its _History_ line and _Current status_ done; `npm run test:e2e` passes; `npm run check` passes.
+  5. Run `npm run check` and `npm run test:e2e`. Prettier checks `PLAN.md` and `tasks.md`. Run `npm run format` if it complains, then check again. Commit only after this passes.
+- **Done when:** the user confirmed every checklist item (in both browsers where item 5 doesn't exclude Arc); `PLAN.md` has no `- [ ]` under M1; T19 is `[x] done` with its _History_ line and _Current status_ done; `npm run test:e2e` passes; `npm run check` passes.
 - **Commit:** `Docs: mark milestone M1 as done`. Why: the M1 tasks are done and the manual check passed in Arc and Chrome. What: tick the M1 boxes in `PLAN.md`; record the check and close the plan in `tasks.md`.
 
 ## Coverage
 
-| Criterion         | Tasks                 |
-| ----------------- | --------------------- |
-| R1.1              | T1, T15               |
-| R1.2, R1.3        | T1, T15               |
-| R1.4              | T14, T15              |
-| R1.5              | T18 (T19 if fallback) |
-| R1.6              | T14, T18              |
-| R1.7              | T18                   |
-| R2.1              | T8, T14, T17          |
-| R2.2              | T10, T15              |
-| R2.3              | T9, T16               |
-| R2.4              | T10, T16              |
-| R2.5              | T9, T14, T16          |
-| R2.6              | T9, T14, T16          |
-| R3.1              | T6, T7, T16           |
-| R3.2              | T6, T7, T14, T16      |
-| R3.3              | T14                   |
-| R3.4, R3.5        | T7, T14, T16          |
-| R3.6              | T6, T7, T16           |
-| R3.7              | T8, T9, T14, T16      |
-| R4.1, R4.2        | T3, T4, T10           |
-| R4.3              | T4, T10               |
-| R4.4, R4.6, R4.9  | T4                    |
-| R4.5, R4.7, R4.10 | T10                   |
-| R4.8              | T10, T15              |
-| R5.1, R5.2        | T2, T13               |
-| R5.3              | T2                    |
-| R5.4              | T3, T5                |
-| R5.5              | T3, T5, T13           |
-| R6.1–R6.6         | T5, T13, T17          |
-| R6.7              | T11, T17              |
-| R6.8              | T11, T13, T17         |
-| R6.9, R6.10       | T11                   |
-| R7.1–R7.4         | T12, T17              |
-| R7.5              | T11, T17              |
-| R7.6              | T12                   |
-| NFR1.1            | T12 (cache), T19      |
-| NFR1.2            | T11, T19              |
-| NFR2.1            | T11, T14, T17         |
-| NFR3.1            | T19                   |
-| NFR3.2            | T5                    |
-| NFR3.3            | T15, T19              |
-| NFR4.1            | T14, T15              |
-| NFR5.1            | every task, T19       |
+| Criterion         | Tasks            |
+| ----------------- | ---------------- |
+| R1.1              | T1, T15          |
+| R1.2, R1.3        | T1, T15          |
+| R1.4              | T14, T15, T19    |
+| R1.5              | T18, T19         |
+| R1.6              | T14, T18, T19    |
+| R1.7              | T18              |
+| R2.1              | T8, T14, T17     |
+| R2.2              | T10, T15         |
+| R2.3              | T9, T16          |
+| R2.4              | T10, T16         |
+| R2.5              | T9, T14, T16     |
+| R2.6              | T9, T14, T16     |
+| R3.1              | T6, T7, T16      |
+| R3.2              | T6, T7, T14, T16 |
+| R3.3              | T14              |
+| R3.4, R3.5        | T7, T14, T16     |
+| R3.6              | T6, T7, T16      |
+| R3.7              | T8, T9, T14, T16 |
+| R4.1, R4.2        | T3, T4, T10      |
+| R4.3              | T4, T10          |
+| R4.4, R4.6, R4.9  | T4               |
+| R4.5, R4.7, R4.10 | T10              |
+| R4.8              | T10, T15, T19    |
+| R5.1, R5.2        | T2, T13          |
+| R5.3              | T2               |
+| R5.4              | T3, T5           |
+| R5.5              | T3, T5, T13      |
+| R6.1–R6.6         | T5, T13, T17     |
+| R6.7              | T11, T17         |
+| R6.8              | T11, T13, T17    |
+| R6.9, R6.10       | T11              |
+| R7.1–R7.4         | T12, T17, T19    |
+| R7.5              | T11, T17         |
+| R7.6              | T12              |
+| NFR1.1            | T12 (cache), T19 |
+| NFR1.2            | T11, T19         |
+| NFR2.1            | T11, T14, T17    |
+| NFR3.1            | T19              |
+| NFR3.2            | T5               |
+| NFR3.3            | T15, T19         |
+| NFR4.1            | T14, T15, T19    |
+| NFR5.1            | every task, T19  |
 
 R5.5 has two halves: the trie rejects clashing defaults (T3, T5), and every default names a registered command (the `CommandName` type plus T13's test in `src/settings/defaults.test.ts`, which stands in for the design's `registry.test.ts` line).
 
@@ -1203,3 +1205,4 @@ R5.5 has two halves: the trie rejects clashing defaults (T3, T5), and every defa
   - T15 owns `tests/e2e/fixtures/pages.ts`: unexported `PAGES` `as const`, `openPage(context, name, { reducedMotion = true } = {})`, `readSeen`, the `declare global` `Window` block, and the `article` (3000 px wide × 5000 px tall) and `recorder` pages, each starting with `<!doctype html>`. T16 now reads the recorder through `readSeen` with T15's `type:key:defaultPrevented` entries and wraps its pages the same way; T17 and T18 use `article` as defined there.
   - T10's subject is lowercase (`Add: normal mode …`), T16's and T17's start with `add`; T10's _Depends on_ gained T1, T3, T5. Every task's steps now end with the `tasks.md` status update in the same commit.
   - Coverage table refined (R2.5, R3.2, R4.3, R6.8, NFR1.2, NFR2.1, NFR3.3 rows). Checked every dependency points backward.
+- Pass 3 (integrate, round 2): replaced T19 with its proposal (READY). The reload check is now unconditional because T18 used its e2e fallback; item 8 checks NFR4.1 and the error list from a cleared state; the PLAN.md step lists the seven unticked M1 lines; item 5 is Chrome-only. Coverage rows R1.4, R1.5, R1.6, R4.8, R7.4 and NFR4.1 gained T19. No scope critics' findings this round.
