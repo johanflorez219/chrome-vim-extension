@@ -8,7 +8,7 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T5 — Add the tab and session handlers
+- **Next task:** T6 — Add the history handlers
 - **Blocked by:** nothing
 - **Last updated:** 2026-11-05 by executor
 
@@ -28,6 +28,7 @@
 - 2026-11-05 — executor: T2 done, commit `Add: message protocol for background commands` (the planned subject "typed message protocol" failed commitlint: "typed" reads as past tense). `Message` is an interface, not the design's type alias, because lint (consistent-type-definitions) requires it for one variant.
 - 2026-11-05 — executor: T3 done, commit `Add: message client that never throws`.
 - 2026-11-05 — executor: T4 done, commit `Add: message router with sender and message checks`. `BackgroundCommandHandlers` is `Readonly<Record<...>>` instead of a mapped type literal (lint: consistent-indexed-object-style); same compile-time check.
+- 2026-11-05 — executor: T5 done, commit `Add: tab and session handlers for the background commands`. `tabFirst`/`tabLast` also skip the update in a one-tab window (same result as the target being current).
 
 ## Project state
 
@@ -160,7 +161,7 @@ As of pass 2 (branch `m2-tabs-and-history`, head `cc885ff Docs: add the tabs and
 - **Done when:** tests pass; `npm run typecheck` fails if either `@ts-expect-error` line stops being an error (check once by hand); `npm run check` passes, including Knip: all six exports are imported by `router.test.ts`.
 - **Commit:** `Add: message router with sender and message checks`
 
-### T5: Add the tab and session handlers — [ ] todo
+### T5: Add the tab and session handlers — [x] done
 
 - **Requirements:** R2.1–R2.8, R3.1–R3.4, R4.1, R4.3–R4.8, R5.1, R10.5, NFR2.3 · **Design:** Tab handlers
 - **Depends on:** T4 (`HandlerContext`, `BackgroundCommandHandlers`), T2 (`BackgroundCommandName`)
