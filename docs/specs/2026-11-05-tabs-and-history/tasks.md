@@ -8,7 +8,7 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T6 — Add the history handlers
+- **Next task:** T7 — Add the history adapter over the browser events
 - **Blocked by:** nothing
 - **Last updated:** 2026-11-05 by executor
 
@@ -29,6 +29,7 @@
 - 2026-11-05 — executor: T3 done, commit `Add: message client that never throws`.
 - 2026-11-05 — executor: T4 done, commit `Add: message router with sender and message checks`. `BackgroundCommandHandlers` is `Readonly<Record<...>>` instead of a mapped type literal (lint: consistent-indexed-object-style); same compile-time check.
 - 2026-11-05 — executor: T5 done, commit `Add: tab and session handlers for the background commands`. `tabFirst`/`tabLast` also skip the update in a one-tab window (same result as the target being current).
+- 2026-11-05 — executor: T6 done, commit `Add: history handlers that step back and forward`.
 
 ## Project state
 
@@ -185,7 +186,7 @@ As of pass 2 (branch `m2-tabs-and-history`, head `cc885ff Docs: add the tabs and
 - **Done when:** the tests pass; `npm run check` passes (Knip: every export is imported by `tabs.test.ts`; `TabCommandName` is not exported).
 - **Commit:** `Add: tab and session handlers for the background commands`
 
-### T6: Add the history handlers — [ ] todo
+### T6: Add the history handlers — [x] done
 
 - **Requirements:** R6.1–R6.5, R1.6, R1.8 · **Design:** History handlers
 - **Depends on:** T4 (type-only import of `BackgroundCommandHandlers` and `HandlerContext` from `src/messaging/router.ts`)
