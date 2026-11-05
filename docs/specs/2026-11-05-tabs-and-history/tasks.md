@@ -8,7 +8,7 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T7 — Add the history adapter over the browser events
+- **Next task:** T7b — Wire the router into the service worker and add permissions
 - **Blocked by:** nothing
 - **Last updated:** 2026-11-05 by executor
 
@@ -30,6 +30,7 @@
 - 2026-11-05 — executor: T4 done, commit `Add: message router with sender and message checks`. `BackgroundCommandHandlers` is `Readonly<Record<...>>` instead of a mapped type literal (lint: consistent-indexed-object-style); same compile-time check.
 - 2026-11-05 — executor: T5 done, commit `Add: tab and session handlers for the background commands`. `tabFirst`/`tabLast` also skip the update in a one-tab window (same result as the target being current).
 - 2026-11-05 — executor: T6 done, commit `Add: history handlers that step back and forward`.
+- 2026-11-05 — executor: T7 done, commit `Add: history adapter that waits for navigation commits`.
 
 ## Project state
 
@@ -212,7 +213,7 @@ As of pass 2 (branch `m2-tabs-and-history`, head `cc885ff Docs: add the tabs and
 - **Done when:** the tests pass; the file is under the lint limits; Knip passes (`createHistoryHandlers` and `HistoryApi` are imported by the test, T7 and T7b import `HistoryApi` later); `npm run check` passes.
 - **Commit:** `Add: history handlers that step back and forward`
 
-### T7: Add the history adapter over the browser events — [ ] todo
+### T7: Add the history adapter over the browser events — [x] done
 
 - **Requirements:** R6.3, R6.4 · **Design:** History handlers (`HistoryApi`)
 - **Depends on:** T6 (type-only import of `HistoryApi`)
