@@ -1,5 +1,7 @@
+import type { MessageClient } from '../messaging/client';
 import { DEFAULT_KEYMAP } from '../settings/defaults';
 
+import { createBackgroundCommands } from './commands/background';
 import { createNavigationCommands, type PageActions } from './commands/navigation';
 import { createCommandRegistry, type CommandRegistry } from './commands/registry';
 import { createScrollCommands } from './commands/scroll';
@@ -28,6 +30,8 @@ export interface ControllerDeps {
   readonly prefersReducedMotion: () => boolean;
   /** location and the clipboard in the extension (R7, R8, R9). */
   readonly page: PageActions;
+  /** Hands background commands to the service worker (R1.3). */
+  readonly client: Pick<MessageClient, 'sendCommand'>;
 }
 
 export interface Controller {
@@ -91,6 +95,7 @@ export function createController(deps: ControllerDeps): Controller {
   const registry = createCommandRegistry([
     ...createScrollCommands({ scroller, targets: tracker }),
     ...createNavigationCommands(deps.page),
+    ...createBackgroundCommands({ client: deps.client }),
   ]);
   const { machine, normal } = createModes({
     timer: deps.timer,

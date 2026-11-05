@@ -8,7 +8,7 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T9 — Add the background command proxies and their keys
+- **Next task:** T10 — Add end-to-end tests for tabs
 - **Blocked by:** nothing
 - **Last updated:** 2026-11-05 by executor
 
@@ -33,6 +33,7 @@
 - 2026-11-05 — executor: T7 done, commit `Add: history adapter that waits for navigation commits`.
 - 2026-11-05 — executor: T7b done, commit `Add: service worker router, tab and history wiring and permissions`. `src/manifest.test.ts` imports `../wxt.config` fine (no fallback needed); built manifest permissions are exactly scripting, sessions, webNavigation.
 - 2026-11-05 — executor: T8 done, commit `Add: page commands for reload, copying the URL and going up`.
+- 2026-11-05 — executor: T9 done, commit `Add: tab and history commands that message the service worker`. Ran `npm run test:e2e`: 30 passed.
 
 ## Project state
 
@@ -327,7 +328,7 @@ As of pass 2 (branch `m2-tabs-and-history`, head `cc885ff Docs: add the tabs and
 - **Done when:** the new and changed tests pass; no M1 e2e spec is affected by the new keys `r`, `y`, `u`, `U` (they press only `j`, `k`, `h`, `l`, `g`, `G`, `i`, `x`, digits, `Tab`, `Escape`; `x` is handled in T9); `npm run build` succeeds; `npm run check` passes (Knip: `SCROLL_COMMAND_NAMES` is imported by `scroll.test.ts`, `onceOnly` by `navigation.ts`, `PageActions` and `createNavigationCommands` by `controller.ts`; `PAGE_COMMAND_NAMES` is not exported).
 - **Commit:** `Add: page commands for reload, copying the URL and going up`
 
-### T9: Add the background command proxies and their keys — [ ] todo
+### T9: Add the background command proxies and their keys — [x] done
 
 - **Requirements:** R1.3, R2.1–R2.5, R3.1–R3.4, R4.1–R4.4, R5.1, R5.2, R6.1–R6.3, R10.1–R10.4, R10.7, NFR2.2 · **Design:** Background command proxies, Registry and keymap, Wiring
 - **Depends on:** T3 (`MessageClient`, `createMessageClient`), T7b (the worker handles every command, so no key sends a message nobody handles), T8 (`onceOnly`, `SCROLL_COMMAND_NAMES`, `createNavigationCommands`, `page` dep, `press(key, init)`)

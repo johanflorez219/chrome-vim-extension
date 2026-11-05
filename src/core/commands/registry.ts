@@ -1,3 +1,5 @@
+import { BACKGROUND_COMMAND_NAMES } from '../../messaging/protocol';
+
 export const SCROLL_COMMAND_NAMES = [
   'scrollDown',
   'scrollUp',
@@ -9,7 +11,11 @@ export const SCROLL_COMMAND_NAMES = [
   'scrollToBottom',
 ] as const;
 const PAGE_COMMAND_NAMES = ['reload', 'copyUrl', 'urlUp', 'urlRoot'] as const;
-export const COMMAND_NAMES = [...SCROLL_COMMAND_NAMES, ...PAGE_COMMAND_NAMES] as const;
+export const COMMAND_NAMES = [
+  ...SCROLL_COMMAND_NAMES,
+  ...PAGE_COMMAND_NAMES,
+  ...BACKGROUND_COMMAND_NAMES,
+] as const;
 export type CommandName = (typeof COMMAND_NAMES)[number];
 
 export interface CommandContext {

@@ -16,6 +16,17 @@ export const DEFAULT_KEYMAP: readonly KeymapEntry[] = [
   { keys: ['y', 'y'], command: 'copyUrl' },
   { keys: ['g', 'u'], command: 'urlUp' },
   { keys: ['g', 'U'], command: 'urlRoot' },
+  { keys: ['J'], command: 'tabNext' },
+  { keys: ['g', 't'], command: 'tabGoTo' },
+  { keys: ['K'], command: 'tabPrevious' },
+  { keys: ['g', 'T'], command: 'tabPrevious' },
+  { keys: ['g', '0'], command: 'tabFirst' },
+  { keys: ['g', '$'], command: 'tabLast' },
+  { keys: ['x'], command: 'tabClose' },
+  { keys: ['X'], command: 'tabRestore' },
+  { keys: ['H'], command: 'historyBack' },
+  { keys: ['L'], command: 'historyForward' },
+  { keys: ['y', 't'], command: 'tabDuplicate' },
 ];
 
 /** How long pending keys wait for the next key before they are dropped (R4.5). */

@@ -1,11 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { createCommandRegistry } from '@/core/commands/registry';
+import { createBackgroundCommands } from '@/core/commands/background';
 import { createNavigationCommands, type PageActions } from '@/core/commands/navigation';
 import { createScrollCommands } from '@/core/commands/scroll';
 import { buildKeymapTrie, type KeymapEntry } from '@/core/keymap-trie';
 import type { ScrollTargetTracker } from '@/core/scroll/scroll-target';
 import type { Scroller } from '@/core/scroll/scroller';
+import type { MessageClient } from '@/messaging/client';
 
 import { DEFAULT_KEYMAP } from './defaults';
 
@@ -24,6 +26,17 @@ const EXPECTED: readonly KeymapEntry[] = [
   { keys: ['y', 'y'], command: 'copyUrl' },
   { keys: ['g', 'u'], command: 'urlUp' },
   { keys: ['g', 'U'], command: 'urlRoot' },
+  { keys: ['J'], command: 'tabNext' },
+  { keys: ['g', 't'], command: 'tabGoTo' },
+  { keys: ['K'], command: 'tabPrevious' },
+  { keys: ['g', 'T'], command: 'tabPrevious' },
+  { keys: ['g', '0'], command: 'tabFirst' },
+  { keys: ['g', '$'], command: 'tabLast' },
+  { keys: ['x'], command: 'tabClose' },
+  { keys: ['X'], command: 'tabRestore' },
+  { keys: ['H'], command: 'historyBack' },
+  { keys: ['L'], command: 'historyForward' },
+  { keys: ['y', 't'], command: 'tabDuplicate' },
 ];
 
 describe('DEFAULT_KEYMAP', () => {
@@ -37,6 +50,13 @@ describe('DEFAULT_KEYMAP', () => {
 
   it('has no mappings beyond the listed keys', () => {
     expect(DEFAULT_KEYMAP).toHaveLength(EXPECTED.length);
+  });
+
+  it('treats g and y as prefixes', () => {
+    const trie = buildKeymapTrie(DEFAULT_KEYMAP);
+
+    expect(trie.lookup(['g'])).toEqual({ type: 'prefix' });
+    expect(trie.lookup(['y'])).toEqual({ type: 'prefix' });
   });
 
   it('uses no default key with Cmd', () => {
@@ -63,7 +83,14 @@ describe('DEFAULT_KEYMAP in the command registry', () => {
       reload: vi.fn<PageActions['reload']>(),
       writeClipboard: vi.fn<PageActions['writeClipboard']>(() => Promise.resolve()),
     });
-    const registry = createCommandRegistry([...scrollCommands, ...pageCommands]);
+    const backgroundCommands = createBackgroundCommands({
+      client: { sendCommand: vi.fn<MessageClient['sendCommand']>() },
+    });
+    const registry = createCommandRegistry([
+      ...scrollCommands,
+      ...pageCommands,
+      ...backgroundCommands,
+    ]);
 
     for (const entry of DEFAULT_KEYMAP) {
       expect(registry.get(entry.command).name).toBe(entry.command);

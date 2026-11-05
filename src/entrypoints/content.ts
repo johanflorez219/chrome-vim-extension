@@ -1,6 +1,7 @@
 import { defineContentScript } from 'wxt/utils/define-content-script';
 
 import { createController } from '@/core/controller';
+import { createMessageClient } from '@/messaging/client';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
@@ -40,6 +41,8 @@ export default defineContentScript({
         },
         writeClipboard: (text) => navigator.clipboard.writeText(text),
       },
+      // Read inside the client's try/catch, so an invalidated extension can't throw in the page (R10.7)
+      client: createMessageClient((message) => chrome.runtime.sendMessage(message)),
     });
     ctx.onInvalidated(() => {
       controller.stop();
