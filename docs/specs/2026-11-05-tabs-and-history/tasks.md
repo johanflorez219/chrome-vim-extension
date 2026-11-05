@@ -8,7 +8,7 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T7b — Wire the router into the service worker and add permissions
+- **Next task:** T8 — Add the page commands (reload, copy URL, go up)
 - **Blocked by:** nothing
 - **Last updated:** 2026-11-05 by executor
 
@@ -31,6 +31,7 @@
 - 2026-11-05 — executor: T5 done, commit `Add: tab and session handlers for the background commands`. `tabFirst`/`tabLast` also skip the update in a one-tab window (same result as the target being current).
 - 2026-11-05 — executor: T6 done, commit `Add: history handlers that step back and forward`.
 - 2026-11-05 — executor: T7 done, commit `Add: history adapter that waits for navigation commits`.
+- 2026-11-05 — executor: T7b done, commit `Add: service worker router, tab and history wiring and permissions`. `src/manifest.test.ts` imports `../wxt.config` fine (no fallback needed); built manifest permissions are exactly scripting, sessions, webNavigation.
 
 ## Project state
 
@@ -257,7 +258,7 @@ As of pass 2 (branch `m2-tabs-and-history`, head `cc885ff Docs: add the tabs and
 - **Done when:** the tests pass; `npm run check` passes. Knip is satisfied: the test imports `createHistoryApi` and `CommitEvent`, and T7b imports `createHistoryApi` later. `HistoryApi` is already exported by T6 and imported here.
 - **Commit:** `Add: history adapter that waits for navigation commits`
 
-### T7b: Wire the router into the service worker and add permissions — [ ] todo
+### T7b: Wire the router into the service worker and add permissions — [x] done
 
 - **Requirements:** R1.2, R1.3, R1.6, R1.7, NFR3.1, NFR3.2 · **Design:** Wiring
 - **Depends on:** T4 (`createRouter`, `Router`, `BackgroundCommandHandlers`, `MessageHandlers`, `SenderInfo`), T5 (`createTabHandlers`, `TabsApi`, `SessionsApi`), T6 (`createHistoryHandlers`, `HistoryApi`), T7 (`createHistoryApi`)
