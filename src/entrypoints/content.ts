@@ -30,6 +30,16 @@ export default defineContentScript({
           ? chrome.dom.openOrClosedShadowRoot(host)
           : host.shadowRoot,
       prefersReducedMotion: () => reducedMotion.matches,
+      page: {
+        href: () => location.href,
+        navigate: (url) => {
+          location.assign(url);
+        },
+        reload: () => {
+          location.reload();
+        },
+        writeClipboard: (text) => navigator.clipboard.writeText(text),
+      },
     });
     ctx.onInvalidated(() => {
       controller.stop();

@@ -12,6 +12,10 @@ export const DEFAULT_KEYMAP: readonly KeymapEntry[] = [
   { keys: ['<C-u>'], command: 'scrollHalfPageUp' },
   { keys: ['g', 'g'], command: 'scrollToTop' },
   { keys: ['G'], command: 'scrollToBottom' },
+  { keys: ['r'], command: 'reload' },
+  { keys: ['y', 'y'], command: 'copyUrl' },
+  { keys: ['g', 'u'], command: 'urlUp' },
+  { keys: ['g', 'U'], command: 'urlRoot' },
 ];
 
 /** How long pending keys wait for the next key before they are dropped (R4.5). */

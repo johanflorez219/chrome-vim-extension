@@ -1,5 +1,6 @@
 import { DEFAULT_KEYMAP } from '../settings/defaults';
 
+import { createNavigationCommands, type PageActions } from './commands/navigation';
 import { createCommandRegistry, type CommandRegistry } from './commands/registry';
 import { createScrollCommands } from './commands/scroll';
 import { deepActiveElement, isEditable, type ShadowRootOf } from './editable';
@@ -25,6 +26,8 @@ export interface ControllerDeps {
   readonly shadowRootOf: ShadowRootOf;
   /** matchMedia in the extension, which jsdom lacks (NFR2). */
   readonly prefersReducedMotion: () => boolean;
+  /** location and the clipboard in the extension (R7, R8, R9). */
+  readonly page: PageActions;
 }
 
 export interface Controller {
@@ -85,7 +88,10 @@ export function createController(deps: ControllerDeps): Controller {
     prefersReducedMotion: deps.prefersReducedMotion,
   });
   const tracker = createScrollTargetTracker(doc);
-  const registry = createCommandRegistry(createScrollCommands({ scroller, targets: tracker }));
+  const registry = createCommandRegistry([
+    ...createScrollCommands({ scroller, targets: tracker }),
+    ...createNavigationCommands(deps.page),
+  ]);
   const { machine, normal } = createModes({
     timer: deps.timer,
     registry,

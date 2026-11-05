@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { createCommandRegistry } from '@/core/commands/registry';
+import { createNavigationCommands, type PageActions } from '@/core/commands/navigation';
 import { createScrollCommands } from '@/core/commands/scroll';
 import { buildKeymapTrie, type KeymapEntry } from '@/core/keymap-trie';
 import type { ScrollTargetTracker } from '@/core/scroll/scroll-target';
@@ -19,6 +20,10 @@ const EXPECTED: readonly KeymapEntry[] = [
   { keys: ['<C-u>'], command: 'scrollHalfPageUp' },
   { keys: ['g', 'g'], command: 'scrollToTop' },
   { keys: ['G'], command: 'scrollToBottom' },
+  { keys: ['r'], command: 'reload' },
+  { keys: ['y', 'y'], command: 'copyUrl' },
+  { keys: ['g', 'u'], command: 'urlUp' },
+  { keys: ['g', 'U'], command: 'urlRoot' },
 ];
 
 describe('DEFAULT_KEYMAP', () => {
@@ -30,7 +35,7 @@ describe('DEFAULT_KEYMAP', () => {
     expect(buildKeymapTrie(DEFAULT_KEYMAP).lookup(keys)).toEqual({ type: 'complete', command });
   });
 
-  it('has no mappings beyond the M1 keys', () => {
+  it('has no mappings beyond the listed keys', () => {
     expect(DEFAULT_KEYMAP).toHaveLength(EXPECTED.length);
   });
 
@@ -43,7 +48,7 @@ describe('DEFAULT_KEYMAP', () => {
 
 describe('DEFAULT_KEYMAP in the command registry', () => {
   it('resolves every default mapping to a registered command', () => {
-    const commands = createScrollCommands({
+    const scrollCommands = createScrollCommands({
       scroller: {
         scrollBy: vi.fn<Scroller['scrollBy']>(),
         scrollToFraction: vi.fn<Scroller['scrollToFraction']>(),
@@ -52,7 +57,13 @@ describe('DEFAULT_KEYMAP in the command registry', () => {
         targetFor: vi.fn<ScrollTargetTracker['targetFor']>(() => document.documentElement),
       },
     });
-    const registry = createCommandRegistry(commands);
+    const pageCommands = createNavigationCommands({
+      href: vi.fn<PageActions['href']>(() => 'https://x.test/'),
+      navigate: vi.fn<PageActions['navigate']>(),
+      reload: vi.fn<PageActions['reload']>(),
+      writeClipboard: vi.fn<PageActions['writeClipboard']>(() => Promise.resolve()),
+    });
+    const registry = createCommandRegistry([...scrollCommands, ...pageCommands]);
 
     for (const entry of DEFAULT_KEYMAP) {
       expect(registry.get(entry.command).name).toBe(entry.command);

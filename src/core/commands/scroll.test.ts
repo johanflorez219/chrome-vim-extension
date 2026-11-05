@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { ScrollTargetTracker } from '../scroll/scroll-target';
 import type { Scroller } from '../scroll/scroller';
 
-import { COMMAND_NAMES, type Command, type CommandName } from './registry';
+import { SCROLL_COMMAND_NAMES, type Command, type CommandName } from './registry';
 import { createScrollCommands } from './scroll';
 
 function setup() {
@@ -34,7 +34,7 @@ const ONCE = { count: undefined, repeat: false };
 
 describe('createScrollCommands', () => {
   it('returns one command per command name, in order', () => {
-    expect(setup().commands.map((command) => command.name)).toEqual([...COMMAND_NAMES]);
+    expect(setup().commands.map((command) => command.name)).toEqual([...SCROLL_COMMAND_NAMES]);
   });
 
   it('describes every command as a page command that accepts a count', () => {

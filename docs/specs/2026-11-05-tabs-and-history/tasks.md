@@ -8,7 +8,7 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T8 — Add the page commands (reload, copy URL, go up)
+- **Next task:** T9 — Add the background command proxies and their keys
 - **Blocked by:** nothing
 - **Last updated:** 2026-11-05 by executor
 
@@ -32,6 +32,7 @@
 - 2026-11-05 — executor: T6 done, commit `Add: history handlers that step back and forward`.
 - 2026-11-05 — executor: T7 done, commit `Add: history adapter that waits for navigation commits`.
 - 2026-11-05 — executor: T7b done, commit `Add: service worker router, tab and history wiring and permissions`. `src/manifest.test.ts` imports `../wxt.config` fine (no fallback needed); built manifest permissions are exactly scripting, sessions, webNavigation.
+- 2026-11-05 — executor: T8 done, commit `Add: page commands for reload, copying the URL and going up`.
 
 ## Project state
 
@@ -281,7 +282,7 @@ As of pass 2 (branch `m2-tabs-and-history`, head `cc885ff Docs: add the tabs and
 - **Done when:** the new tests pass; `npm run build` succeeds and `.output/chrome-mv3/manifest.json` lists exactly `scripting`, `sessions` and `webNavigation`, no `tabs`; `npm run check` passes (Knip: `createBackgroundRouter` is imported by `background.ts`; `createHistoryApi` by `background.ts`; `TabsApi`, `SessionsApi`, `HistoryApi` and `Router` by `handlers.ts`; nothing new is exported without a consumer).
 - **Commit:** `Add: service worker router, tab and history wiring and permissions`
 
-### T8: Add the page commands (reload, copy URL, go up) — [ ] todo
+### T8: Add the page commands (reload, copy URL, go up) — [x] done
 
 - **Requirements:** R7.1, R7.2, R8.1–R8.4, R9.1–R9.7 (through T1's functions), R10.1–R10.4, NFR2.2, NFR4.1 · **Design:** Page commands, Registry and keymap, Wiring
 - **Depends on:** T1
