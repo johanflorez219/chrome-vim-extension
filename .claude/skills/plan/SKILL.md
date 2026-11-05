@@ -1,111 +1,120 @@
 ---
 name: plan
-description: Turn an approved spec into a deep, ready-to-execute tasks.md by orchestrating the planner subagent — one planner drafts the plan, then one planner per task digs into each task in parallel, and an integrating planner merges the results, round after round, until no task needs another pass. Use this right after the specify skill finishes (design approved), and whenever the user asks to plan, break down, or create or refine the tasks for a spec in docs/specs/. It is the third step of the workflow brainstorm → specify → plan → execute.
+description: Turn an approved spec into a deep, ready-to-execute tasks.md by launching the plan-tasks workflow on it. Use this right after the specify skill finishes (design approved), and whenever the user asks to plan, break down, or create or refine the tasks for a spec in docs/specs/. It checks the spec is ready, launches the workflow, then brings the user its questions and the result. It is the third step of the workflow brainstorm → specify → plan → execute.
 ---
 
 # Plan
 
 A design says how the feature works; a plan says which commits make it real,
 in what order, with which tests. A shallow plan pushes the hard thinking into
-execution, where it is expensive: half-done commits, failing checks,
-surprises about what the code base already has. This skill makes the
-thinking happen up front by giving every task its own focused, fresh-context
-review until each one is unambiguous.
+execution, where it is expensive. The **plan-tasks workflow**
+(`.claude/workflows/plan-tasks.js`) does that thinking up front: it gives
+every task its own fresh-context review and a scope check until each one is
+unambiguous. This skill makes sure the workflow gets a good input, launches
+it, and brings the result to the user.
 
-You (the main session) orchestrate. The **planner** subagent
-(`.claude/agents/planner.md`) does the planning work in three modes —
-_plan_, _task_ and _integrate_ — described in its own instructions. You
-launch it, collect its verdicts, bring the user any questions only they can
-answer, and decide when to stop.
+Talk to the user in their language.
 
-Talk to the user in their language. Keep them posted with one short line per
-round ("Round 2: deepening T2, T5 — 2 planners running").
+## How the workflow works
 
-## Before you start
+You don't run these steps; the workflow does. Know them so you can explain
+the plan and the result.
 
-- You need a spec folder `docs/specs/YYYY-MM-DD-<topic>/` with an approved
-  `requirements.md` and `design.md`. The design counts as approved when the
-  user approved it, or when the specify skill found nothing open and
-  committed it. If it isn't approved yet, go back to the specify skill —
-  planning an unapproved design is guesswork.
-- The spec should already be committed (the specify skill does this when the
-  design is approved). If it isn't, ask whether to commit it first.
-- If `tasks.md` already exists, this is a re-plan: skip the draft step and
-  start with a deepening round on every task that isn't done.
+1. **Draft.** A planner reads the spec and the project and drafts the task
+   list. If `tasks.md` already exists, this is a re-plan: the file stays as
+   it is and only tasks not marked done are reviewed.
+2. **Deepen.** One read-only planner per task reviews it against the
+   checklist in `.claude/agents/planner.md` (one commit, traced to criteria,
+   tests first, grounded in the repo, passes the gates). Each task then gets
+   a scope critic that never saw the rewrite and looks for a task that is
+   too big, too small, outside the design, or leaves a criterion uncovered.
+   Tasks run in parallel, each on its own clock.
+3. **Integrate.** One planner merges every proposal into `tasks.md`,
+   resolving the scope findings and dependencies. It is the **only** agent
+   that writes `tasks.md`.
+4. **Repeat** with the tasks the integrator flags, up to 5 reviews per task,
+   until the plan is READY, BLOCKED, or a task is still weak after its fifth
+   review.
 
-## Step 1: Draft
+Because many planners run at once, none of them may write. The workflow
+fingerprints the working tree before and after every fan-out and stops with
+an error if anything changed. The workflow cannot ask the user anything
+while it runs: it answers every open question with the planner's
+recommendation, marked _provisional_, and returns the questions at the end.
 
-Launch the planner in **plan mode** with the spec folder path. It reads the
-spec and the project, writes `tasks.md`, and reports a verdict, the task
-list, and any questions for the user.
+## Step 1: Make sure the input is right
 
-If it reports questions, ask them now (AskUserQuestion, its recommended
-answer first) before going deeper — every task review afterward builds on
-those answers. If it reports spec issues, fix them in the spec with the
-user's agreement before continuing; the planner never edits the spec.
+You need a spec folder `docs/specs/YYYY-MM-DD-<topic>/` and the answers to
+these checks before launching:
 
-## Step 2: Deepen, round by round
+- It has an approved `requirements.md` and `design.md`. The design counts as
+  approved when the user approved it, or when the specify skill found
+  nothing open and committed it. If it isn't approved, go back to the
+  specify skill: planning an unapproved design is guesswork.
+- The spec is committed. If it isn't, ask whether to commit it first.
+- Which folder: use the one the user named or the one the specify skill just
+  committed. If several exist and it's unclear, ask.
+- Whether `tasks.md` exists. If it does, it's a re-plan; say so, and note
+  how many tasks aren't done.
 
-Each round has two parts.
+Tell the user in one line what is about to run: the folder, new plan or
+re-plan, and roughly how many planners (one draft, then two agents per
+pending task per round, plus one integrator). For a plan with more than
+~12 tasks, offer to stop after the first round if they'd rather review
+the result before going deeper.
 
-**Fan out.** Launch one planner in **task mode** per task that needs a look,
-all in the same message so they run in parallel. Give each one the spec
-folder and its task ID. Task-mode planners leave `tasks.md` alone; each
-writes its proposal to `.proposals/T<n>.md` in the spec folder — the
-rewritten task, a verdict for that task, cross-task notes (dependencies
-that should change, a task that should be split or added), and questions —
-and returns the same report to you.
+## Step 2: Launch the workflow
 
-- Round 1 covers every task not yet marked done.
-- Later rounds cover only the tasks whose last verdict was ITERATE, plus any
-  task the integrator flagged as affected by the last merge.
-- Stay under the concurrent subagent limit: launch at most 10 at a time and
-  start the next batch when those finish.
-- A task gets at most **5** deep reviews. If it still says ITERATE after its
-  fifth, stop reviewing it and report it as still weak.
+Call the Workflow tool with the saved workflow `plan-tasks` and these args:
 
-**Collect questions.** Before integrating, gather every question from the
-round, drop duplicates, and ask the user in one AskUserQuestion round (up
-to 4 questions, the most important first; queue the rest for the next
-round). Questions that block a task shouldn't hold up the others.
+```json
+{ "spec": "docs/specs/YYYY-MM-DD-<topic>", "date": "<today, YYYY-MM-DD>" }
+```
 
-**Integrate.** Once every planner of the round has finished, launch one
-planner in **integrate mode** with the spec folder and the user's answers.
-It reads the proposals from `.proposals/`, applies them to `tasks.md`,
-reconciles conflicts between tasks, re-checks dependencies and coverage,
-updates the status log, deletes `.proposals/`, and reports the overall
-verdict plus which tasks still need a look. Check that every task you
-launched left a proposal file before integrating; relaunch any that didn't.
+Add `"answers": ["…"]` when re-running with decisions the user already made
+(Step 3). If the name isn't found, pass
+`scriptPath: ".claude/workflows/plan-tasks.js"` instead.
 
-Run the next round with the tasks the integrator lists. Stop when:
+It runs in the background and notifies you when it ends; the user can watch
+it with `/workflows`. Don't edit `tasks.md` or the spec while it runs, since
+the guard counts any change in the working tree as a violation.
 
-- the integrator returns **READY** and no task is ITERATE — the plan is done;
-- every remaining ITERATE task has used its 5 reviews — stop and report them;
-- the integrator returns **BLOCKED** — ask the user, then continue.
+## Step 3: Bring the result to the user
 
-## Step 3: Hand off
+Read the workflow's result and report briefly: the verdict, the path to
+`tasks.md`, the number of tasks and how many are done, the rounds it took,
+and any task still weak. Then handle what came back:
 
-Give the user, briefly:
+- **Questions for the user.** The planner already applied its recommended
+  answer to each. Ask them now (AskUserQuestion, the recommended answer
+  first). If the user accepts all of them, nothing else is needed. If they
+  change any, re-launch the workflow with their decisions in `answers`; it
+  treats the file as a re-plan and records them in _Agreements_.
+- **Spec issues.** The planner never edits the spec. Fix them in the spec
+  with the user's agreement, commit that, and re-launch.
+- **BLOCKED.** The workflow needs a decision only the user can make. Ask,
+  then re-launch with their answers.
+- **An error from the guard** ("the working tree changed during a read-only
+  fan-out") means a planner wrote a file it shouldn't have. Show the user
+  what changed with `git status`, don't commit it, and re-run once the tree
+  is clean.
+- **A task still weak** after its five reviews: say which one and why, and
+  let the user decide whether to accept it or reshape it with the spec.
 
-- the path to `tasks.md`, the number of tasks and the first one;
-- how many rounds it took and any task still marked weak;
-- the agreements made along the way and anything flagged about the spec.
+## Step 4: Hand off
 
-Ask them to approve the plan. When they do, run Prettier on `tasks.md` and
-commit it as `Docs: add the <topic> task plan` following `CONTRIBUTING.md`.
-Execution — working through the tasks one commit at a time — starts only
-after that.
+Show the user the plan and ask them to approve it. Point them at what
+changed: `git diff` for a re-plan, since the integrator may reword several
+tasks. When they approve, run Prettier on `tasks.md` and commit it as
+`Docs: add the <topic> task plan` following `CONTRIBUTING.md`. Execution —
+working through the tasks one commit at a time — starts only after that.
 
 ## Things to keep in mind
 
-- **Costs scale with tasks.** Each planner run takes a few minutes and tens
-  of thousands of tokens. Before round 1, tell the user how many planners
-  you're about to launch. For a plan with more than ~12 tasks, offer to
-  deepen only the riskiest ones first.
-- **You don't edit tasks.md yourself** during planning — the planners do.
-  That keeps one voice and one checklist behind every task. Pass user
-  answers to the next planner run instead of writing them in.
+- **Costs scale with tasks.** Each planner run takes minutes and tens of
+  thousands of tokens. The workflow has no spend cap; the per-task review cap
+  and the round limit are its only brakes.
 - **Don't write product code** or start executing tasks in this skill.
-- **Proposals travel as files.** Don't paste or summarize them into the
-  integrator's prompt — the files carry every detail the deep review found.
-  `.proposals/` is scratch space: never commit it.
+- **Don't edit `tasks.md` yourself** during planning. One planner voice and
+  one checklist stand behind every task; user decisions reach it through
+  `answers`.
