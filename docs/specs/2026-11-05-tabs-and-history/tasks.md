@@ -8,7 +8,7 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T4 — Add the service-worker message router
+- **Next task:** T5 — Add the tab and session handlers
 - **Blocked by:** nothing
 - **Last updated:** 2026-11-05 by executor
 
@@ -27,6 +27,7 @@
 - 2026-11-05 — executor: T1 done, commit `Add: pure URL functions for going up a path`.
 - 2026-11-05 — executor: T2 done, commit `Add: message protocol for background commands` (the planned subject "typed message protocol" failed commitlint: "typed" reads as past tense). `Message` is an interface, not the design's type alias, because lint (consistent-type-definitions) requires it for one variant.
 - 2026-11-05 — executor: T3 done, commit `Add: message client that never throws`.
+- 2026-11-05 — executor: T4 done, commit `Add: message router with sender and message checks`. `BackgroundCommandHandlers` is `Readonly<Record<...>>` instead of a mapped type literal (lint: consistent-indexed-object-style); same compile-time check.
 
 ## Project state
 
@@ -134,7 +135,7 @@ As of pass 2 (branch `m2-tabs-and-history`, head `cc885ff Docs: add the tabs and
 - **Done when:** the five tests pass; no `console` use; `npm run check` passes (`MessageClient` and `createMessageClient` are imported by the test, `createMessageClient` by T9 later).
 - **Commit:** `Add: message client that never throws`
 
-### T4: Add the service-worker message router — [ ] todo
+### T4: Add the service-worker message router — [x] done
 
 - **Requirements:** R1.2, R1.3, R1.4, R1.5, R1.6, R1.8, R10.5, R10.6, NFR3.3 · **Design:** Router
 - **Depends on:** T2
