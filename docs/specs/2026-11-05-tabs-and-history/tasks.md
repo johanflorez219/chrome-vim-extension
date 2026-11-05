@@ -8,7 +8,7 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T3 — Add the message client
+- **Next task:** T4 — Add the service-worker message router
 - **Blocked by:** nothing
 - **Last updated:** 2026-11-05 by executor
 
@@ -26,6 +26,7 @@
 - 2026-11-05 — planner: pass 3, integrated the task-mode proposals for T7, T7b, T8, T9, T10 and T11; kept T9 as one commit; moved the `press(key, init)` change from T9 to T8 and the pass-through sentinel fix into T9.
 - 2026-11-05 — executor: T1 done, commit `Add: pure URL functions for going up a path`.
 - 2026-11-05 — executor: T2 done, commit `Add: message protocol for background commands` (the planned subject "typed message protocol" failed commitlint: "typed" reads as past tense). `Message` is an interface, not the design's type alias, because lint (consistent-type-definitions) requires it for one variant.
+- 2026-11-05 — executor: T3 done, commit `Add: message client that never throws`.
 
 ## Project state
 
@@ -113,7 +114,7 @@ As of pass 2 (branch `m2-tabs-and-history`, head `cc885ff Docs: add the tabs and
 - **Done when:** the tests pass; `npm run check` passes. Knip is satisfied because the test imports all four exports, and T3, T4 and T9 import them later.
 - **Commit:** `Add: typed message protocol for background commands`
 
-### T3: Add the message client — [ ] todo
+### T3: Add the message client — [x] done
 
 - **Requirements:** R1.3, R1.6, R10.7, NFR4.1 · **Design:** Message client
 - **Depends on:** T2
