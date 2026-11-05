@@ -8,7 +8,7 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T2 — Add the message protocol
+- **Next task:** T3 — Add the message client
 - **Blocked by:** nothing
 - **Last updated:** 2026-11-05 by executor
 
@@ -25,6 +25,7 @@
 - 2026-11-05 — planner: pass 2, integrated the task-mode proposals for T1–T12; split T7 into T7 (history adapter) and T7b (router wiring and permissions); restored NFR2.1 on T12.
 - 2026-11-05 — planner: pass 3, integrated the task-mode proposals for T7, T7b, T8, T9, T10 and T11; kept T9 as one commit; moved the `press(key, init)` change from T9 to T8 and the pass-through sentinel fix into T9.
 - 2026-11-05 — executor: T1 done, commit `Add: pure URL functions for going up a path`.
+- 2026-11-05 — executor: T2 done, commit `Add: message protocol for background commands` (the planned subject "typed message protocol" failed commitlint: "typed" reads as past tense). `Message` is an interface, not the design's type alias, because lint (consistent-type-definitions) requires it for one variant.
 
 ## Project state
 
@@ -91,7 +92,7 @@ As of pass 2 (branch `m2-tabs-and-history`, head `cc885ff Docs: add the tabs and
 - **Done when:** both tables pass; `npm run check` passes (Knip is satisfied because `url.test.ts` imports both exports and T8 will too).
 - **Commit:** `Add: pure URL functions for going up a path`
 
-### T2: Add the message protocol — [ ] todo
+### T2: Add the message protocol — [x] done
 
 - **Requirements:** R1.1, R1.5 · **Design:** Protocol
 - **Depends on:** —
