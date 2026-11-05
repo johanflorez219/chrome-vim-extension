@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** executing
-- **Next task:** T19 — Check M1 by hand and mark it done
+- **Phase:** done
+- **Next task:** none
 - **Blocked by:** nothing
-- **Last updated:** 2026-10-21 by T18
+- **Last updated:** 2026-11-05 by T19
 
 ### Agreements
 
@@ -46,6 +46,7 @@
 - 2026-10-21 — T17 done: `Test: add end-to-end tests for scrolling and scroll targets`.
 - 2026-10-21 — T18 done: `Add: restart the content script in open tabs on install and update`; e2e fallback used: after `chrome.runtime.reload()`, Playwright's Chromium never brings the extension back (no service worker for 10 s), so `reinject.spec.ts` was dropped and T19 item 6 checks the reload by hand. The same run showed the old copy stops handling `j` after the reload (R1.4). The permission-warning check moved to T19 item 7. No `host_permissions` added.
 - 2026-11-05 — planner: round 2 of per-task reviews (T19, READY) integrated as pass 3; plan READY.
+- 2026-11-05 — executor: T19 done in "Docs: mark milestone M1 as done"; manual check passed in Arc 1.162.0 and Chrome 156.0.8078.80 (checked by the user).
 
 ## Project state
 
@@ -1103,7 +1104,7 @@ As of pass 2 (branch `m1-normal-mode-scrolling`, head `b3bf075 Docs: fill four i
 - **Done when:** the unit tests pass; the built manifest has `permissions: ["scripting"]` and a `background.service_worker`; the Details page shows only "Read and change all your data on all websites"; `npm run test:e2e` passes, or the fallback is recorded in _History_; `PLAN.md` has the ticked line; T18 is `[x] done` with its _History_ line; `npm run check` passes (Knip: `ReinjectDeps` and `reinjectContentScript` are both imported).
 - **Commit:** `Add: restart the content script in open tabs on install and update`. Why: after an install or update, open tabs keep running the old copy, which stops handling keys, until the user refreshes. Re-injecting fixes that. It needs the `scripting` permission (CONTRIBUTING.md), which adds no install warning because `<all_urls>` already grants host access. What: `reinjectContentScript` with unit tests; the background entrypoint; the `scripting` permission; the reload e2e test; the ticked `PLAN.md` line; T18 marked done.
 
-### T19: Check M1 by hand and mark it done — [ ] todo
+### T19: Check M1 by hand and mark it done — [x] done
 
 - **Requirements:** R1.4, R1.5, R1.6, R4.8, R7.4, NFR1.1, NFR1.2, NFR2.1, NFR3.1, NFR3.3, NFR4.1, NFR5.1 · **Design:** Testing strategy (manual check), coverage table rows NFR1, NFR3, NFR5
 - **Depends on:** T1–T18 (all done)
