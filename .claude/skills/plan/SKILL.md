@@ -24,8 +24,10 @@ round ("Round 2: deepening T2, T5 — 2 planners running").
 ## Before you start
 
 - You need a spec folder `docs/specs/YYYY-MM-DD-<topic>/` with an approved
-  `requirements.md` and `design.md`. If the design isn't approved yet, go
-  back to the specify skill — planning an unapproved design is guesswork.
+  `requirements.md` and `design.md`. The design counts as approved when the
+  user approved it, or when the specify skill found nothing open and
+  committed it. If it isn't approved yet, go back to the specify skill —
+  planning an unapproved design is guesswork.
 - The spec should already be committed (the specify skill does this when the
   design is approved). If it isn't, ask whether to commit it first.
 - If `tasks.md` already exists, this is a re-plan: skip the draft step and

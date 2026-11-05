@@ -1,15 +1,38 @@
 import { defineContentScript } from 'wxt/utils/define-content-script';
 
-import { listenForKeys } from '@/core/key-listener';
+import { createController } from '@/core/controller';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
   runAt: 'document_start',
   main(ctx) {
-    const stop = listenForKeys(window, (key) => {
-      // eslint-disable-next-line no-console -- M0 "hello world"; replaced by the mode machine in M1
-      console.debug(`[vim] ${key}`);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const controller = createController({
+      window,
+      timer: {
+        set: (callback, ms) => window.setTimeout(callback, ms),
+        clear: (id) => {
+          window.clearTimeout(id);
+        },
+      },
+      frames: {
+        request: (callback) => window.requestAnimationFrame(callback),
+        cancel: (id) => {
+          window.cancelAnimationFrame(id);
+        },
+      },
+      now: () => performance.now(),
+      isValid: () => ctx.isValid,
+      isTrusted: (event) => event.isTrusted,
+      // chrome.* can throw once the extension is gone; reading ctx.isValid also fires onInvalidated
+      shadowRootOf: (host) =>
+        host instanceof HTMLElement && ctx.isValid
+          ? chrome.dom.openOrClosedShadowRoot(host)
+          : host.shadowRoot,
+      prefersReducedMotion: () => reducedMotion.matches,
     });
-    ctx.onInvalidated(stop);
+    ctx.onInvalidated(() => {
+      controller.stop();
+    });
   },
 });

@@ -7,5 +7,7 @@ export default defineConfig({
   manifest: {
     name: 'chrome-vim-extension',
     description: 'Vim-style keyboard navigation for Arc and Chrome.',
+    // Restart the content script in open tabs on install and update (R1.5)
+    permissions: ['scripting'],
   },
 });
