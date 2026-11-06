@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T11 — Add end-to-end tests for history, reload, copy and go up
+- **Next task:** T12 — Run the manual check and mark milestone M2 done (needs the user: Arc and Chrome)
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-05 by executor
+- **Last updated:** 2026-11-06 by executor
 
 ### Agreements
 
@@ -35,6 +35,7 @@
 - 2026-11-05 — executor: T8 done, commit `Add: page commands for reload, copying the URL and going up`.
 - 2026-11-05 — executor: T9 done, commit `Add: tab and history commands that message the service worker`. Ran `npm run test:e2e`: 30 passed.
 - 2026-11-05 — executor: T10 done, commit `Test: add end-to-end tests for tab commands`. Deviations: the active tab is read from the service worker (`chrome.tabs.query({ active: true, lastFocusedWindow: true })`) because headless Chromium reports every tab as visible; a consumed key never reaches the page, so consumed keys are proved with an unmapped `q` sentinel instead of `readSeen` containing `keydown:J:true`; `yt` asserts the active index is 1 (a duplicate sits right after its original, and `context.pages()` is in creation order); the press helper ignores the keyboard error when `x` closes the tab first. Not met: three full-suite e2e runs in a row. Full-suite runs hang on Chromium launch on this machine (launchPersistentContext timeout, also on `main`, also in M1 specs); `tabs.spec.ts` passed 13 of 13 on its own in separate runs (`npx playwright test tabs --workers=1`).
+- 2026-11-06 — executor: T11 done, commit `Test: add end-to-end tests for history, reload, copy and go up`. Deviation: `openAt` opens the page with `location.replace` from the initial about:blank, because `page.goto` left the blank entry in history (length 5, not 4), which made 9H stop at about:blank. Runs used `npx playwright test navigation --workers=1` (10 of 10 passed); full-suite runs hang on Chromium launch on this machine.
 
 ## Project state
 
@@ -403,7 +404,7 @@ As of pass 2 (branch `m2-tabs-and-history`, head `cc885ff Docs: add the tabs and
 - **Done when:** `npm run test:e2e` passes (all specs, including the existing ones), three times in a row; `npm run check` passes.
 - **Commit:** `Test: add end-to-end tests for tab commands`
 
-### T11: Add end-to-end tests for history, reload, copy and go up — [ ] todo
+### T11: Add end-to-end tests for history, reload, copy and go up — [x] done
 
 - **Requirements:** R6.1–R6.5, R7.1, R8.1, R9.1–R9.4, R10.1 · **Design:** Testing strategy (end-to-end)
 - **Depends on:** T9 (every key it presses is mapped and handled by then)

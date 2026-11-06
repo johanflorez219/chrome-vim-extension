@@ -38,6 +38,7 @@ declare global {
   interface Window {
     seen: string[];
     closedInput: HTMLInputElement;
+    marker?: number;
   }
 }
 
@@ -58,4 +59,22 @@ export async function openPage(
 /** The keys the recorder page saw, as `type:key:defaultPrevented`. */
 export function readSeen(page: Page): Promise<string[]> {
   return page.evaluate(() => window.seen);
+}
+
+/** Opens the article page at any path on example.test as the first history entry, with reduced motion. */
+export async function openAt(context: BrowserContext, path: string): Promise<Page> {
+  const page = await context.newPage();
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  // A regex, so every path and query matches; the hash is never sent
+  await page.route(/^https:\/\/example\.test\//, (route) =>
+    route.fulfill({ contentType: 'text/html', body: PAGES.article }),
+  );
+  // location.replace swaps the initial about:blank entry, so the page under test
+  // is the first history entry and H has nothing behind it
+  const url = `https://example.test${path}`;
+  await page.evaluate((target) => {
+    location.replace(target);
+  }, url);
+  await page.waitForURL(url);
+  return page;
 }
