@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createController, type Controller, type ControllerDeps } from './controller';
+import type { MessageClient } from '../messaging/client';
+
+import type { PageActions } from './commands/navigation';
 import type { Timer } from './modes/normal';
 import type { FrameScheduler } from './scroll/scroller';
 
@@ -28,6 +31,11 @@ const request = vi.fn<FrameScheduler['request']>((callback) => {
   return ++lastFrameId;
 });
 const cancel = vi.fn<FrameScheduler['cancel']>();
+const href = vi.fn<PageActions['href']>(() => 'https://x.test/a/b/c');
+const navigate = vi.fn<PageActions['navigate']>();
+const reload = vi.fn<PageActions['reload']>();
+const writeClipboard = vi.fn<PageActions['writeClipboard']>(() => Promise.resolve());
+const sendCommand = vi.fn<MessageClient['sendCommand']>(() => Promise.resolve());
 
 function stubDocument(): void {
   const root = document.documentElement;
@@ -73,13 +81,15 @@ function start(overrides: Partial<ControllerDeps> = {}): Controller {
     isTrusted: () => true,
     shadowRootOf: (host) => closedRoots.get(host) ?? host.shadowRoot,
     prefersReducedMotion: () => true,
+    page: { href, navigate, reload, writeClipboard },
+    client: { sendCommand },
     ...overrides,
   });
   return controller;
 }
 
-function press(key: string): KeyboardEvent {
-  const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+function press(key: string, init: KeyboardEventInit = {}): KeyboardEvent {
+  const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init });
   (document.activeElement ?? document.body).dispatchEvent(event);
   return event;
 }
@@ -107,7 +117,17 @@ beforeEach(() => {
   lastTimerId = 0;
   lastFrameId = 0;
   queued = [];
-  for (const spy of [set, clear, request, cancel]) {
+  for (const spy of [
+    set,
+    clear,
+    request,
+    cancel,
+    href,
+    navigate,
+    reload,
+    writeClipboard,
+    sendCommand,
+  ]) {
     spy.mockClear();
   }
 });
@@ -272,5 +292,165 @@ describe('createController', () => {
     for (const spy of [debug, log, info, warn, error]) {
       expect(spy).not.toHaveBeenCalled();
     }
+  });
+  describe('page commands', () => {
+    it('r reloads the page and consumes the key', () => {
+      start();
+
+      expect(press('r').defaultPrevented).toBe(true);
+      expect(reload).toHaveBeenCalledOnce();
+    });
+
+    it('yy copies the URL and consumes both keys', () => {
+      start();
+
+      expect(press('y').defaultPrevented).toBe(true);
+      expect(press('y').defaultPrevented).toBe(true);
+      expect(writeClipboard).toHaveBeenCalledOnce();
+      expect(writeClipboard).toHaveBeenCalledWith('https://x.test/a/b/c');
+    });
+
+    it('gu goes up a level', () => {
+      start();
+
+      press('g');
+      press('u');
+
+      expect(navigate).toHaveBeenCalledWith('https://x.test/a/b');
+    });
+
+    it('3gu goes three levels', () => {
+      start();
+
+      for (const key of ['3', 'g', 'u']) {
+        press(key);
+      }
+
+      expect(navigate).toHaveBeenCalledOnce();
+      expect(navigate).toHaveBeenCalledWith('https://x.test/');
+    });
+
+    it.each([['gU'], ['3gU']])('%s goes to the root', (keys) => {
+      start();
+
+      for (const key of keys) {
+        press(key);
+      }
+
+      expect(navigate).toHaveBeenCalledOnce();
+      expect(navigate).toHaveBeenCalledWith('https://x.test/');
+    });
+
+    it('runs no page command for keys typed in a focused field', () => {
+      addInput().focus();
+      start();
+
+      const events = ['r', 'y', 'y'].map((key) => press(key));
+
+      expect(reload).not.toHaveBeenCalled();
+      expect(writeClipboard).not.toHaveBeenCalled();
+      expect(events.map((event) => event.defaultPrevented)).toEqual([false, false, false]);
+    });
+
+    it('reloads once for a held r', () => {
+      start();
+
+      press('r');
+      press('r', { repeat: true });
+
+      expect(reload).toHaveBeenCalledOnce();
+    });
+  });
+  describe('background commands', () => {
+    it.each([
+      ['J', 'tabNext'],
+      ['gt', 'tabGoTo'],
+      ['K', 'tabPrevious'],
+      ['gT', 'tabPrevious'],
+      ['g0', 'tabFirst'],
+      ['g$', 'tabLast'],
+      ['x', 'tabClose'],
+      ['X', 'tabRestore'],
+      ['H', 'historyBack'],
+      ['L', 'historyForward'],
+      ['yt', 'tabDuplicate'],
+    ] as const)('sends %s as %s and consumes it', (keys, command) => {
+      start();
+
+      const events = keys.split('').map((key) => press(key));
+
+      expect(sendCommand).toHaveBeenCalledOnce();
+      expect(sendCommand).toHaveBeenCalledWith(command, undefined);
+      expect(events.at(-1)?.defaultPrevented).toBe(true);
+    });
+
+    it.each([
+      ['3K', 'tabPrevious', 3],
+      ['3gt', 'tabGoTo', 3],
+      ['2H', 'historyBack', 2],
+      ['3X', 'tabRestore', 3],
+    ] as const)('passes the count in %s to %s', (keys, command, count) => {
+      start();
+
+      for (const key of keys) {
+        press(key);
+      }
+
+      expect(sendCommand).toHaveBeenCalledOnce();
+      expect(sendCommand).toHaveBeenCalledWith(command, count);
+    });
+
+    it.each([
+      ['2x', 'tabClose'],
+      ['2g0', 'tabFirst'],
+      ['2yt', 'tabDuplicate'],
+    ] as const)('drops the count in %s for %s', (keys, command) => {
+      start();
+
+      for (const key of keys) {
+        press(key);
+      }
+
+      expect(sendCommand).toHaveBeenCalledWith(command, undefined);
+    });
+
+    it('treats the 0 in g0 as a key, not a count', () => {
+      start();
+
+      press('g');
+      press('0');
+
+      expect(sendCommand).toHaveBeenCalledWith('tabFirst', undefined);
+      expect(scrollTop()).toBe(0);
+    });
+
+    it('sends once for a held x', () => {
+      start();
+
+      press('x');
+      press('x', { repeat: true });
+
+      expect(sendCommand).toHaveBeenCalledOnce();
+    });
+
+    it('sends nothing for keys typed in a field', () => {
+      addInput().focus();
+      start();
+
+      const events = ['J', 'x', 'H'].map((key) => press(key));
+
+      expect(sendCommand).not.toHaveBeenCalled();
+      expect(events.map((event) => event.defaultPrevented)).toEqual([false, false, false]);
+    });
+
+    it('keeps working while sendCommand never settles', () => {
+      sendCommand.mockReturnValue(new Promise<void>(() => undefined));
+      start();
+
+      press('J');
+      press('j');
+
+      expect(scrollTop()).toBe(60);
+    });
   });
 });

@@ -1,8 +1,9 @@
-import { describe, expect, it, vi, type Mock } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
 import {
   COMMAND_NAMES,
   createCommandRegistry,
+  onceOnly,
   type Command,
   type CommandContext,
   type CommandName,
@@ -124,5 +125,32 @@ describe('createCommandRegistry', () => {
     const commands = [fakeCommand('scrollDown').command, fakeCommand('scrollDown').command];
 
     expect(() => createCommandRegistry(commands)).toThrow('Duplicate command: scrollDown');
+  });
+});
+
+describe('onceOnly', () => {
+  const run = vi.fn<(ctx: CommandContext) => void>();
+
+  beforeEach(() => {
+    run.mockClear();
+  });
+
+  it('runs the wrapped function for repeat false', () => {
+    const ctx = { count: 2, repeat: false };
+
+    onceOnly((context) => {
+      run(context);
+    })(ctx);
+
+    expect(run).toHaveBeenCalledOnce();
+    expect(run).toHaveBeenCalledWith(ctx);
+  });
+
+  it('skips the wrapped function for repeat true', () => {
+    onceOnly((context) => {
+      run(context);
+    })({ count: undefined, repeat: true });
+
+    expect(run).not.toHaveBeenCalled();
   });
 });

@@ -1,4 +1,6 @@
-export const COMMAND_NAMES = [
+import { BACKGROUND_COMMAND_NAMES } from '../../messaging/protocol';
+
+export const SCROLL_COMMAND_NAMES = [
   'scrollDown',
   'scrollUp',
   'scrollLeft',
@@ -7,6 +9,12 @@ export const COMMAND_NAMES = [
   'scrollHalfPageUp',
   'scrollToTop',
   'scrollToBottom',
+] as const;
+const PAGE_COMMAND_NAMES = ['reload', 'copyUrl', 'urlUp', 'urlRoot'] as const;
+export const COMMAND_NAMES = [
+  ...SCROLL_COMMAND_NAMES,
+  ...PAGE_COMMAND_NAMES,
+  ...BACKGROUND_COMMAND_NAMES,
 ] as const;
 export type CommandName = (typeof COMMAND_NAMES)[number];
 
@@ -20,9 +28,18 @@ export interface Command {
   readonly name: CommandName;
   readonly description: string;
   readonly acceptsCount: boolean;
-  /** M1 runs every command locally; `'background'` is for M2's router. */
+  /** `'page'` commands run in the page; `'background'` commands run through the service worker. */
   readonly context: 'page' | 'background';
   run(ctx: CommandContext): void;
+}
+
+/** Wraps a command's `run` so a key held down runs it once (R10.3). */
+export function onceOnly(run: (ctx: CommandContext) => void): (ctx: CommandContext) => void {
+  return (ctx) => {
+    if (!ctx.repeat) {
+      run(ctx);
+    }
+  };
 }
 
 export interface CommandRegistry {

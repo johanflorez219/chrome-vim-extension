@@ -2,10 +2,10 @@ import { expect, test } from './fixtures';
 import { openPage, readSeen } from './fixtures/pages';
 import type { Page } from '@playwright/test';
 
-// x is unmapped, so once its keyup reaches the page every earlier key was handled
+// q is unmapped, so once its keyup reaches the page every earlier key was handled
 async function waitForPage(page: Page): Promise<void> {
-  await page.keyboard.press('x');
-  await expect.poll(() => readSeen(page)).toContain('keyup:x:false');
+  await page.keyboard.press('q');
+  await expect.poll(() => readSeen(page)).toContain('keyup:q:false');
 }
 
 function scrollY(page: Page): Promise<number> {
@@ -18,17 +18,17 @@ test('hides consumed keys from the page, keyup included', async ({ context }) =>
   await page.keyboard.press('j');
   await waitForPage(page);
 
-  expect(await readSeen(page)).toEqual(['keydown:x:false', 'keyup:x:false']);
+  expect(await readSeen(page)).toEqual(['keydown:q:false', 'keyup:q:false']);
   expect(await scrollY(page)).toBe(60);
 });
 
 test('lets unmapped keys reach the page with their default action', async ({ context }) => {
   const page = await openPage(context, 'recorder');
 
-  await page.keyboard.press('x');
-  await expect.poll(() => readSeen(page)).toContain('keyup:x:false');
+  await page.keyboard.press('q');
+  await expect.poll(() => readSeen(page)).toContain('keyup:q:false');
 
-  expect(await readSeen(page)).toEqual(['keydown:x:false', 'keyup:x:false']);
+  expect(await readSeen(page)).toEqual(['keydown:q:false', 'keyup:q:false']);
 });
 
 test('lets Escape reach the page when nothing is pending', async ({ context }) => {
@@ -40,8 +40,8 @@ test('lets Escape reach the page when nothing is pending', async ({ context }) =
   expect(await readSeen(page)).toEqual([
     'keydown:Escape:false',
     'keyup:Escape:false',
-    'keydown:x:false',
-    'keyup:x:false',
+    'keydown:q:false',
+    'keyup:q:false',
   ]);
 });
 
@@ -55,6 +55,6 @@ test('ignores keys the page dispatches itself', async ({ context }) => {
   });
   await waitForPage(page);
 
-  expect(await readSeen(page)).toEqual(['keydown:j:false', 'keydown:x:false', 'keyup:x:false']);
+  expect(await readSeen(page)).toEqual(['keydown:j:false', 'keydown:q:false', 'keyup:q:false']);
   expect(await scrollY(page)).toBe(0);
 });
