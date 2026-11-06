@@ -8,7 +8,7 @@
 ### Current status
 
 - **Phase:** executing
-- **Next task:** T10 — Add end-to-end tests for tabs
+- **Next task:** T11 — Add end-to-end tests for history, reload, copy and go up
 - **Blocked by:** nothing
 - **Last updated:** 2026-11-05 by executor
 
@@ -34,6 +34,7 @@
 - 2026-11-05 — executor: T7b done, commit `Add: service worker router, tab and history wiring and permissions`. `src/manifest.test.ts` imports `../wxt.config` fine (no fallback needed); built manifest permissions are exactly scripting, sessions, webNavigation.
 - 2026-11-05 — executor: T8 done, commit `Add: page commands for reload, copying the URL and going up`.
 - 2026-11-05 — executor: T9 done, commit `Add: tab and history commands that message the service worker`. Ran `npm run test:e2e`: 30 passed.
+- 2026-11-05 — executor: T10 done, commit `Test: add end-to-end tests for tab commands`. Deviations: the active tab is read from the service worker (`chrome.tabs.query({ active: true, lastFocusedWindow: true })`) because headless Chromium reports every tab as visible; a consumed key never reaches the page, so consumed keys are proved with an unmapped `q` sentinel instead of `readSeen` containing `keydown:J:true`; `yt` asserts the active index is 1 (a duplicate sits right after its original, and `context.pages()` is in creation order); the press helper ignores the keyboard error when `x` closes the tab first. Not met: three full-suite e2e runs in a row. Full-suite runs hang on Chromium launch on this machine (launchPersistentContext timeout, also on `main`, also in M1 specs); `tabs.spec.ts` passed 13 of 13 on its own in separate runs (`npx playwright test tabs --workers=1`).
 
 ## Project state
 
@@ -368,7 +369,7 @@ As of pass 2 (branch `m2-tabs-and-history`, head `cc885ff Docs: add the tabs and
 - **Done when:** the new and changed tests pass; `npm run build` succeeds; `npm run test:e2e` passes (M1 specs unaffected by the mapped `x`); `npm run check` passes (Knip: `createBackgroundCommands` is imported by `controller.ts` and the tests, `createMessageClient` by `content.ts`; `BACKGROUND_COMMAND_NAMES` by `registry.ts`).
 - **Commit:** `Add: tab and history commands that message the service worker`
 
-### T10: Add end-to-end tests for tabs — [ ] todo
+### T10: Add end-to-end tests for tabs — [x] done
 
 - **Requirements:** R1.3, R2.1–R2.8, R3.1–R3.4, R4.1, R4.2, R5.1, R10.1 · **Design:** Testing strategy (end-to-end)
 - **Depends on:** T9 (which also frees `x` from the pass-through spec)
