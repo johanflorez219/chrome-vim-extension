@@ -140,11 +140,11 @@ _Learn: content scripts, DOM events, testing pure logic._
 
 ### M2 — Tabs and history
 
-- [ ] Typed message protocol and router
-- [ ] `J`/`gt`, `K`/`gT`, `g0`, `g$`, `x`, `X`, `yt`
-- [ ] `H`, `L`, `r`
-- [ ] `yy`, `gu`, `gU`
-- [ ] Counts work for background commands (`3J`, `2x`)
+- [x] Typed message protocol and router
+- [x] `J`/`gt`, `K`/`gT`, `g0`, `g$`, `x`, `X`, `yt`
+- [x] `H`, `L`, `r`
+- [x] `yy`, `gu`, `gU`
+- [x] Counts work for background commands (`3J`, `3H`, `3X`); `x` takes no count
 
 _Learn: service worker, `chrome.tabs`, `chrome.sessions`, message passing._
 

@@ -7,8 +7,8 @@
 
 ### Current status
 
-- **Phase:** executing
-- **Next task:** T12 — Run the manual check and mark milestone M2 done (needs the user: Arc and Chrome)
+- **Phase:** done
+- **Next task:** none
 - **Blocked by:** nothing
 - **Last updated:** 2026-11-06 by executor
 
@@ -36,6 +36,7 @@
 - 2026-11-05 — executor: T9 done, commit `Add: tab and history commands that message the service worker`. Ran `npm run test:e2e`: 30 passed.
 - 2026-11-05 — executor: T10 done, commit `Test: add end-to-end tests for tab commands`. Deviations: the active tab is read from the service worker (`chrome.tabs.query({ active: true, lastFocusedWindow: true })`) because headless Chromium reports every tab as visible; a consumed key never reaches the page, so consumed keys are proved with an unmapped `q` sentinel instead of `readSeen` containing `keydown:J:true`; `yt` asserts the active index is 1 (a duplicate sits right after its original, and `context.pages()` is in creation order); the press helper ignores the keyboard error when `x` closes the tab first. Not met: three full-suite e2e runs in a row. Full-suite runs hang on Chromium launch on this machine (launchPersistentContext timeout, also on `main`, also in M1 specs); `tabs.spec.ts` passed 13 of 13 on its own in separate runs (`npx playwright test tabs --workers=1`).
 - 2026-11-06 — executor: T11 done, commit `Test: add end-to-end tests for history, reload, copy and go up`. Deviation: `openAt` opens the page with `location.replace` from the initial about:blank, because `page.goto` left the blank entry in history (length 5, not 4), which made 9H stop at about:blank. Runs used `npx playwright test navigation --workers=1` (10 of 10 passed); full-suite runs hang on Chromium launch on this machine.
+- 2026-11-06 — executor: T12 done in "Docs: mark milestone M2 as done"; manual check passed in Arc 1.162.0 and Chrome 156.0.8078.81 (checked by the user): the build loads in both, tab order follows the Arc sidebar, `X` and `3X` restore, `J` works after stopping the service worker, `5H` goes as far as it can, `yy` copies in Arc, and the keypress handoff stays under 16 ms with nothing running at idle. No fallback was needed.
 
 ## Project state
 
@@ -427,7 +428,7 @@ As of pass 2 (branch `m2-tabs-and-history`, head `cc885ff Docs: add the tabs and
 - **Done when:** `npm run test:e2e` passes; `npm run check` passes (Knip: `openAt` is imported by the spec).
 - **Commit:** `Test: add end-to-end tests for history, reload, copy and go up`
 
-### T12: Run the manual check and mark milestone M2 done — [ ] todo
+### T12: Run the manual check and mark milestone M2 done — [x] done
 
 - **Requirements:** R1.7, R4.4–R4.8, R6.4, R8.1, NFR1.1, NFR1.2, NFR2.1, NFR2.3, NFR3.1 · **Design:** Testing strategy (manual check)
 - **Depends on:** T10, T11 (and so all of T1–T9)
