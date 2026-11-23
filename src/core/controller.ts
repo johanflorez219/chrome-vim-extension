@@ -1,5 +1,5 @@
 import type { MessageClient } from '../messaging/client';
-import { DEFAULT_KEYMAP } from '../settings/defaults';
+import { DEFAULT_KEYMAP, HINT_ALPHABET } from '../settings/defaults';
 
 import { createBackgroundCommands } from './commands/background';
 import { createNavigationCommands, type PageActions } from './commands/navigation';
@@ -11,9 +11,16 @@ import { listenForKeys } from './key-listener';
 import { buildKeymapTrie } from './keymap-trie';
 import { createModeMachine, type ModeMachine } from './mode-machine';
 import { createInsertMode } from './modes/insert';
+import { createHintMode, type HintMode } from './modes/hint';
+import { createHintActions } from './hints/actions';
+import { createFinder } from './hints/finder';
+import type { Geometry } from './hints/geometry';
+import { watchPage } from './hints/page-watch';
+import { createHintOverlay } from '../ui/hints';
+import { mountUiRoot } from '../ui/shadow-root';
 import { createNormalMode, type Timer } from './modes/normal';
 import { createScrollTargetTracker } from './scroll/scroll-target';
-import { createScroller, type FrameScheduler } from './scroll/scroller';
+import { createScroller, type FrameScheduler, type Scroller } from './scroll/scroller';
 
 export interface ControllerDeps {
   readonly window: Window;
@@ -30,8 +37,10 @@ export interface ControllerDeps {
   readonly prefersReducedMotion: () => boolean;
   /** location and the clipboard in the extension (R7, R8, R9). */
   readonly page: PageActions;
-  /** Hands background commands to the service worker (R1.3). */
-  readonly client: Pick<MessageClient, 'sendCommand'>;
+  /** Hands background commands to the service worker (R1.3), and opens links in a new tab (R5.2). */
+  readonly client: Pick<MessageClient, 'sendCommand' | 'openTab'>;
+  /** Layout reads and hit tests: createDomGeometry in the extension (R1.2, R1.3). */
+  readonly geometry: Geometry;
 }
 
 export interface Controller {
@@ -44,11 +53,52 @@ function blurElement(element: Element | null): void {
   }
 }
 
+/**
+ * Hint mode and everything it uses. `machine` is read only when Hint mode switches
+ * modes, after the machine exists. Building these objects reads no layout (NFR1.3).
+ */
+function createHints(
+  deps: ControllerDeps,
+  parts: {
+    readonly scroller: Pick<Scroller, 'stop'>;
+    readonly machine: () => Pick<ModeMachine, 'enter'>;
+  },
+): HintMode {
+  return createHintMode({
+    machine: {
+      enter: (name, options) => {
+        parts.machine().enter(name, options);
+      },
+    },
+    finder: createFinder({
+      document: deps.window.document,
+      shadowRootOf: deps.shadowRootOf,
+      geometry: deps.geometry,
+    }),
+    overlay: createHintOverlay({
+      mount: () => mountUiRoot(deps.window.document),
+      viewport: () => deps.geometry.viewport(),
+    }),
+    alphabet: HINT_ALPHABET,
+    perform: createHintActions({
+      geometry: deps.geometry,
+      writeClipboard: (text) => deps.page.writeClipboard(text),
+      client: deps.client,
+    }),
+    stopScrolling: () => {
+      parts.scroller.stop();
+    },
+    watchPage: (hinted, onChange) =>
+      watchPage({ window: deps.window, frames: deps.frames }, hinted, onChange),
+  });
+}
+
 function createModes(deps: {
   readonly timer: Timer;
   readonly registry: CommandRegistry;
   readonly editableFocused: () => boolean;
   readonly blurActive: () => void;
+  readonly hint: HintMode;
 }): { readonly machine: ModeMachine; readonly normal: ReturnType<typeof createNormalMode> } {
   // The modes need the machine before it exists: forward to it at call time
   const switcher: Pick<ModeMachine, 'enter' | 'handleKey' | 'isSticky'> = {
@@ -72,7 +122,10 @@ function createModes(deps: {
     blurActive: deps.blurActive,
     editableFocused: deps.editableFocused,
   });
-  const machine = createModeMachine([normal, insert], deps.editableFocused() ? 'insert' : 'normal');
+  const machine = createModeMachine(
+    [normal, insert, deps.hint],
+    deps.editableFocused() ? 'insert' : 'normal',
+  );
   return { machine, normal };
 }
 
@@ -91,6 +144,7 @@ export function createController(deps: ControllerDeps): Controller {
     now: deps.now,
     prefersReducedMotion: deps.prefersReducedMotion,
   });
+  const hint = createHints(deps, { scroller, machine: () => machine });
   const tracker = createScrollTargetTracker(doc);
   const registry = createCommandRegistry([
     ...createScrollCommands({ scroller, targets: tracker }),
@@ -100,6 +154,7 @@ export function createController(deps: ControllerDeps): Controller {
   const { machine, normal } = createModes({
     timer: deps.timer,
     registry,
+    hint,
     editableFocused,
     blurActive: () => {
       blurElement(activeElement());
