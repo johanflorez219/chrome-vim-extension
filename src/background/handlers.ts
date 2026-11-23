@@ -1,6 +1,6 @@
 import { createHistoryHandlers } from '@/background/history';
 import type { HistoryApi } from '@/background/history';
-import { createTabHandlers } from '@/background/tabs';
+import { createOpenTabHandler, createTabHandlers } from '@/background/tabs';
 import type { SessionsApi, TabsApi } from '@/background/tabs';
 import { createRouter } from '@/messaging/router';
 import type { BackgroundCommandHandlers, MessageHandlers, Router } from '@/messaging/router';
@@ -23,5 +23,6 @@ export function createBackgroundRouter(deps: {
   };
   const runCommand: MessageHandlers['runCommand'] = (message, ctx) =>
     commandHandlers[message.command](message.count, ctx);
-  return createRouter({ handlers: { runCommand }, extensionId: deps.extensionId });
+  const openTab = createOpenTabHandler({ tabs: deps.tabs });
+  return createRouter({ handlers: { runCommand, openTab }, extensionId: deps.extensionId });
 }

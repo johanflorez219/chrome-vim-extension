@@ -13,6 +13,7 @@ export default defineBackground(() => {
       update: (id, props) => chrome.tabs.update(id, props),
       remove: (id) => chrome.tabs.remove(id),
       duplicate: (id) => chrome.tabs.duplicate(id),
+      create: (props) => chrome.tabs.create(props),
     },
     sessions: {
       getRecentlyClosed: (filter) => chrome.sessions.getRecentlyClosed(filter),

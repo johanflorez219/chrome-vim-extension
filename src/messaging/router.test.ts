@@ -11,15 +11,19 @@ import type {
 const EXTENSION_ID = 'ext-id';
 
 const runCommand = vi.fn<MessageHandlers['runCommand']>(() => Promise.resolve());
+const openTab = vi.fn<MessageHandlers['openTab']>(() => Promise.resolve());
 const goodSender: SenderInfo = { id: EXTENSION_ID, frameId: 0, tab: { id: 7, windowId: 3 } };
 const goodMessage = { type: 'runCommand', command: 'tabNext', count: 2 };
+const openMessage = { type: 'openTab', url: 'https://x.test/' };
 
 let router: Router;
 
 beforeEach(() => {
   runCommand.mockReset();
   runCommand.mockResolvedValue(undefined);
-  router = createRouter({ handlers: { runCommand }, extensionId: EXTENSION_ID });
+  openTab.mockReset();
+  openTab.mockResolvedValue(undefined);
+  router = createRouter({ handlers: { runCommand, openTab }, extensionId: EXTENSION_ID });
 });
 
 describe('createRouter', () => {
@@ -30,6 +34,33 @@ describe('createRouter', () => {
     expect(runCommand).toHaveBeenCalledOnce();
     expect(runCommand).toHaveBeenCalledWith(goodMessage, expected);
     expect(Object.keys(runCommand.mock.calls[0]?.[1] ?? {})).toStrictEqual(['tabId', 'windowId']);
+    expect(openTab).not.toHaveBeenCalled();
+  });
+
+  it("runs the openTab handler with the message and the sender's tab", async () => {
+    await router.handle(openMessage, goodSender);
+
+    expect(openTab).toHaveBeenCalledExactlyOnceWith(openMessage, { tabId: 7, windowId: 3 });
+    expect(runCommand).not.toHaveBeenCalled();
+  });
+
+  it('ignores openTab from another extension or a sub-frame', async () => {
+    await router.handle(openMessage, { ...goodSender, id: 'other' });
+    await router.handle(openMessage, { ...goodSender, frameId: 3 });
+
+    expect(openTab).not.toHaveBeenCalled();
+  });
+
+  it('ignores openTab with a javascript: URL', async () => {
+    await router.handle({ type: 'openTab', url: 'javascript:alert(1)' }, goodSender);
+
+    expect(openTab).not.toHaveBeenCalled();
+  });
+
+  it('resolves when the openTab handler rejects', async () => {
+    openTab.mockRejectedValueOnce(new Error('x'));
+
+    await expect(router.handle(openMessage, goodSender)).resolves.toBeUndefined();
   });
 
   it('passes a message without count unchanged', async () => {
@@ -116,7 +147,7 @@ describe('createRouter', () => {
   });
 
   it('keeps no state between calls', async () => {
-    const other = createRouter({ handlers: { runCommand }, extensionId: EXTENSION_ID });
+    const other = createRouter({ handlers: { runCommand, openTab }, extensionId: EXTENSION_ID });
 
     await router.handle(goodMessage, goodSender);
     await router.handle(goodMessage, goodSender);
@@ -132,6 +163,14 @@ describe('createRouter', () => {
     const missingHandlers = (): Router => createRouter({ handlers: {}, extensionId: EXTENSION_ID });
 
     expect(missingHandlers).toBeTypeOf('function');
+  });
+
+  it('requires an openTab handler', () => {
+    const noOpenTab = (): Router =>
+      // @ts-expect-error missing handler for openTab
+      createRouter({ handlers: { runCommand }, extensionId: EXTENSION_ID });
+
+    expect(noOpenTab).toBeTypeOf('function');
   });
 });
 

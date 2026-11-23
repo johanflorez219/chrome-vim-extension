@@ -52,6 +52,16 @@ function contextOf(sender: SenderInfo, extensionId: string): HandlerContext | un
   return { tabId: tab.id, windowId: tab.windowId };
 }
 
+/** Hands a message to the handler for its type; the switch is exhaustive, so a new type must be handled here. */
+function dispatch(handlers: MessageHandlers, message: Message, ctx: HandlerContext): Promise<void> {
+  switch (message.type) {
+    case 'runCommand':
+      return handlers.runCommand(message, ctx);
+    case 'openTab':
+      return handlers.openTab(message, ctx);
+  }
+}
+
 export function createRouter(deps: {
   readonly handlers: MessageHandlers;
   /** chrome.runtime.id */
@@ -64,7 +74,7 @@ export function createRouter(deps: {
         if (ctx === undefined || !isMessage(message)) {
           return;
         }
-        await deps.handlers[message.type](message, ctx);
+        await dispatch(deps.handlers, message, ctx);
       } catch {
         // Never surface an error to the sender and never log (NFR4.1).
       }

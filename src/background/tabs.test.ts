@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { HandlerContext } from '@/messaging/router';
-import { createTabHandlers } from './tabs';
+import type { OpenTabMessage } from '@/messaging/protocol';
+import { createOpenTabHandler, createTabHandlers } from './tabs';
 import type { ClosedEntry, SessionsApi, TabInfo, TabsApi } from './tabs';
 
 function createFakes(count: number, activeIndex: number) {
@@ -12,11 +13,13 @@ function createFakes(count: number, activeIndex: number) {
   const update = vi.fn<TabsApi['update']>(() => Promise.resolve(undefined));
   const remove = vi.fn<TabsApi['remove']>(() => Promise.resolve());
   const duplicate = vi.fn<TabsApi['duplicate']>(() => Promise.resolve(undefined));
+  const create = vi.fn<TabsApi['create']>(() => Promise.resolve(undefined));
   const tabs: TabsApi = {
     query: (filter) => query(filter),
     update: (id, props) => update(id, props),
     remove: (id) => remove(id),
     duplicate: (id) => duplicate(id),
+    create: (props) => create(props),
   };
   let closed: readonly ClosedEntry[] = [];
   const getRecentlyClosed = vi.fn<SessionsApi['getRecentlyClosed']>((filter) =>
@@ -36,6 +39,7 @@ function createFakes(count: number, activeIndex: number) {
     update,
     remove,
     duplicate,
+    create,
     getRecentlyClosed,
     restore,
     setClosed: (entries: readonly ClosedEntry[]): void => {
@@ -300,5 +304,134 @@ describe('tabDuplicate', () => {
     await fakes.handlers.tabDuplicate(undefined, fakes.ctx);
 
     expect(fakes.update).not.toHaveBeenCalled();
+  });
+});
+
+describe('createOpenTabHandler', () => {
+  const message: OpenTabMessage = { type: 'openTab', url: 'https://x.test/a' };
+
+  /** Tabs opened by `create` appear in the list, so consecutive opens see each other. */
+  function setupOpen(initial: readonly TabInfo[], currentId: number) {
+    let list: readonly TabInfo[] = initial;
+    let nextId = 100;
+    const query = vi.fn<TabsApi['query']>(() => Promise.resolve([...list].reverse()));
+    const create = vi.fn<TabsApi['create']>((props) => {
+      const at = props.index ?? list.length;
+      const shifted = list.map((tab) => (tab.index >= at ? { ...tab, index: tab.index + 1 } : tab));
+      list = [...shifted, { id: nextId, index: at, openerTabId: props.openerTabId }];
+      nextId += 1;
+      return Promise.resolve(undefined);
+    });
+    const tabs: TabsApi = {
+      query: (filter) => query(filter),
+      update: () => Promise.resolve(undefined),
+      remove: () => Promise.resolve(),
+      duplicate: () => Promise.resolve(undefined),
+      create: (props) => create(props),
+    };
+    const ctx: HandlerContext = { tabId: currentId, windowId: 1 };
+    return { open: createOpenTabHandler({ tabs }), ctx, query, create };
+  }
+
+  it('opens the URL in the background right after the current tab', async () => {
+    const { open, ctx, create } = setupOpen(
+      [
+        { id: 10, index: 0 },
+        { id: 11, index: 1 },
+        { id: 12, index: 2 },
+      ],
+      11,
+    );
+
+    await open(message, ctx);
+
+    expect(create).toHaveBeenCalledOnce();
+    expect(create.mock.calls[0]?.[0]).toStrictEqual({
+      url: 'https://x.test/a',
+      active: false,
+      index: 2,
+      windowId: 1,
+      openerTabId: 11,
+    });
+  });
+
+  it('goes after the tabs already opened from the current tab', async () => {
+    const { open, ctx, create } = setupOpen(
+      [
+        { id: 10, index: 0 },
+        { id: 20, index: 1, openerTabId: 10 },
+        { id: 21, index: 2, openerTabId: 10 },
+        { id: 30, index: 3 },
+      ],
+      10,
+    );
+
+    await open(message, ctx);
+
+    expect(create.mock.calls[0]?.[0]?.index).toBe(3);
+  });
+
+  it('keeps the order of several opens', async () => {
+    const { open, ctx, create } = setupOpen(
+      [
+        { id: 10, index: 0 },
+        { id: 30, index: 1 },
+      ],
+      10,
+    );
+
+    await open(message, ctx);
+    await open(message, ctx);
+
+    expect(create.mock.calls.map((call) => call[0].index)).toStrictEqual([1, 2]);
+  });
+
+  it('stops at an unrelated tab', async () => {
+    const { open, ctx, create } = setupOpen(
+      [
+        { id: 10, index: 0 },
+        { id: 30, index: 1 },
+        { id: 20, index: 2, openerTabId: 10 },
+      ],
+      10,
+    );
+
+    await open(message, ctx);
+
+    expect(create.mock.calls[0]?.[0]?.index).toBe(1);
+  });
+
+  it('opens without an index when the current tab is missing', async () => {
+    const { open, ctx, create } = setupOpen(
+      [
+        { id: 10, index: 0 },
+        { id: 11, index: 1 },
+      ],
+      99,
+    );
+
+    await open(message, ctx);
+
+    expect(create.mock.calls[0]?.[0]).toStrictEqual({
+      url: 'https://x.test/a',
+      active: false,
+      windowId: 1,
+      openerTabId: 99,
+    });
+  });
+
+  it("queries only the sender's window", async () => {
+    const { open, ctx, query } = setupOpen([{ id: 10, index: 0 }], 10);
+
+    await open(message, ctx);
+
+    expect(query).toHaveBeenCalledExactlyOnceWith({ windowId: 1 });
+  });
+
+  it('lets a create failure reach the router', async () => {
+    const { open, ctx, create } = setupOpen([{ id: 10, index: 0 }], 10);
+    create.mockRejectedValueOnce(new Error('closed'));
+
+    await expect(open(message, ctx)).rejects.toThrow('closed');
   });
 });
