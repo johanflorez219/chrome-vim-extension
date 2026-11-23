@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** executing (T2 done)
-- **Next task:** T3 — Add the geometry adapter
+- **Phase:** executing (T3 done)
+- **Next task:** T4 — Add the finder for visible hint targets
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-23 by executor (T2)
+- **Last updated:** 2026-11-23 by executor (T3)
 
 ### Agreements
 
@@ -35,6 +35,7 @@
 - 2026-11-23 — planner: pass 3, round 2 re-reviewed T10–T14; merged the five proposals; kept T10 as one commit; split T12 into T12 (commands) and new T13 (`followFocus`, `stop()` guard, R7.2/R7.3/R7.7/NFR4.1 tests); renumbered the e2e tasks to T14 and T15 and the manual check to T16; 16 tasks.
 - 2026-11-23 — executor: T1 done in "Add: hint label generator and prefix matching". Deviations: `generateLabels` expands with a `for…of` loop over the queue instead of an index, so the unreachable `?? ''` fallback doesn't count against the 100% branch target for `labels.ts`; the test helper uses `Array.from` and `localeCompare` to satisfy lint.
 - 2026-11-23 — executor: T2 done in "Add: rules for clickable elements, text inputs and link URLs". `linkUrl` keeps a `?? ''` fallback that `isLink` makes unreachable (branch 97.7% in `clickable.ts`; the global 80% target holds).
+- 2026-11-23 — executor: T3 done in "Add: geometry adapter for layout reads and hit tests". `deepestAt` tests `!root` before reading the inner element, and uses `inner?.getRootNode()` to satisfy lint; behaviour is unchanged.
 
 ## Project state
 
@@ -212,7 +213,7 @@ As of pass 3 (branch `m3-link-hints`, head `8789e70 Docs: add the link hints spe
   - `npm run check` passes. Knip: the test imports all six exports of `clickable.ts`, and `clickable.ts` imports `TEXT_INPUT_TYPES`. T4 later imports `isClickable`, `isTextInput`, `linkUrl` and `isCopyableUrl`; T8 imports `isDisabled`, `isTextInput`, `linkUrl` and `isOpenableUrl`.
 - **Commit:** `Add: rules for clickable elements, text inputs and link URLs`. In the same commit, flip this marker to `[x] done`, set _Next task_ to T3 and add a dated _History_ line naming the subject.
 
-### T3: Add the geometry adapter — [ ] todo
+### T3: Add the geometry adapter — [x] done
 
 - **Requirements:** R1.1 (shadow descent of the hit test), R1.2 (`isRendered`, rects, viewport), R1.3 (`hitTest`), R2.6 (viewport for clipping and clamping) · **Design:** Geometry
 - **Depends on:** —
