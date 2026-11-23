@@ -6,6 +6,7 @@ import type { MessageClient } from '../messaging/client';
 import type { PageActions } from './commands/navigation';
 import type { Timer } from './modes/normal';
 import type { FrameScheduler } from './scroll/scroller';
+import type { Geometry } from './hints/geometry';
 
 const STUBBED = [
   'scrollHeight',
@@ -36,6 +37,11 @@ const navigate = vi.fn<PageActions['navigate']>();
 const reload = vi.fn<PageActions['reload']>();
 const writeClipboard = vi.fn<PageActions['writeClipboard']>(() => Promise.resolve());
 const sendCommand = vi.fn<MessageClient['sendCommand']>(() => Promise.resolve());
+const openTab = vi.fn<MessageClient['openTab']>(() => Promise.resolve());
+const viewport = vi.fn<Geometry['viewport']>(() => ({ left: 0, top: 0, width: 1000, height: 800 }));
+const rects = vi.fn<Geometry['rects']>(() => []);
+const isRendered = vi.fn<Geometry['isRendered']>(() => true);
+const hitTest = vi.fn<Geometry['hitTest']>(() => null);
 
 function stubDocument(): void {
   const root = document.documentElement;
@@ -82,7 +88,13 @@ function start(overrides: Partial<ControllerDeps> = {}): Controller {
     shadowRootOf: (host) => closedRoots.get(host) ?? host.shadowRoot,
     prefersReducedMotion: () => true,
     page: { href, navigate, reload, writeClipboard },
-    client: { sendCommand },
+    client: { sendCommand, openTab },
+    geometry: {
+      viewport: () => viewport(),
+      rects: (element) => rects(element),
+      isRendered: (element) => isRendered(element),
+      hitTest: (x, y) => hitTest(x, y),
+    },
     ...overrides,
   });
   return controller;
@@ -127,6 +139,11 @@ beforeEach(() => {
     reload,
     writeClipboard,
     sendCommand,
+    openTab,
+    viewport,
+    rects,
+    isRendered,
+    hitTest,
   ]) {
     spy.mockClear();
   }
@@ -452,5 +469,20 @@ describe('createController', () => {
 
       expect(scrollTop()).toBe(60);
     });
+  });
+});
+
+describe('Hint mode while off', () => {
+  it('reads no layout and shows no hints', () => {
+    start();
+    for (const key of ['j', 'g', 'g', 'x']) {
+      press(key);
+    }
+    press('Escape');
+
+    for (const spy of [viewport, rects, isRendered, hitTest, openTab]) {
+      expect(spy).not.toHaveBeenCalled();
+    }
+    expect(document.querySelector('vim-hints')).toBeNull();
   });
 });

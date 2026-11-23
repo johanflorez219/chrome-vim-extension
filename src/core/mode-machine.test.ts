@@ -26,7 +26,8 @@ function setup(initial: ModeName = 'normal'): {
 } {
   const normal = fakeMode('normal', 'consumed');
   const insert = fakeMode('insert', 'passed');
-  const machine = createModeMachine([normal.mode, insert.mode], initial);
+  const hint = fakeMode('hint');
+  const machine = createModeMachine([normal.mode, insert.mode, hint.mode], initial);
   return { machine, normal, insert };
 }
 
@@ -153,6 +154,12 @@ describe('createModeMachine', () => {
     const modes = [fakeMode('normal').mode, fakeMode('normal').mode, fakeMode('insert').mode];
 
     expect(() => createModeMachine(modes, 'normal')).toThrow('Duplicate mode: normal');
+  });
+
+  it('throws when Hint mode is missing', () => {
+    expect(() =>
+      createModeMachine([fakeMode('normal').mode, fakeMode('insert').mode], 'normal'),
+    ).toThrow('Missing mode: hint');
   });
 
   it('throws when a mode in MODE_NAMES is missing', () => {

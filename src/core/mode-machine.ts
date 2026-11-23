@@ -1,6 +1,6 @@
 import type { KeyPress, KeyResult } from './key-listener';
 
-export const MODE_NAMES = ['normal', 'insert'] as const;
+export const MODE_NAMES = ['normal', 'insert', 'hint'] as const;
 export type ModeName = (typeof MODE_NAMES)[number];
 
 export interface EnterOptions {

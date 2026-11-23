@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** executing (T9 done)
-- **Next task:** T10 — Add Hint mode and register it in the controller
+- **Phase:** executing (T10 done)
+- **Next task:** T11 — Let i finish a mapped key sequence in Normal mode
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-23 by executor (T9)
+- **Last updated:** 2026-11-23 by executor (T10)
 
 ### Agreements
 
@@ -43,6 +43,7 @@
 - 2026-11-23 — executor: T7 done in "Add: openTab in the message client that never throws". `sendCommand` and `openTab` share one `deliver` helper, so the existing tests cover the refactor.
 - 2026-11-23 — executor: T8 done in "Add: hint actions that click, open in a tab or copy a link". Deviation: no `view` on the simulated events (see Agreements). `canTakeFocus` reads "natively focusable" as tabIndex 0 or more, or any element with a tabindex attribute.
 - 2026-11-23 — executor: T9 done in "Add: page watcher that ends hints on scroll, resize and blur". The window blur is recognised by a non-Node target, because the window object seen by the listener is not identical to the global `window` in jsdom.
+- 2026-11-23 — executor: T10 done in "Add: hint mode that narrows and picks hints as labels are typed". Hint mode is registered but nothing starts it until T12 adds the keys, so the controller hint wiring (overlay, actions, watcher) has no unit coverage yet (controller.ts 84% lines, global threshold holds); T12 covers it through `f`.
 
 ## Project state
 
@@ -570,7 +571,7 @@ As of pass 3 (branch `m3-link-hints`, head `8789e70 Docs: add the link hints spe
 - **Done when:** the tests pass; `npm run check` passes (Knip: `watchPage` is imported by its test now, and by T10's controller later; nothing else is exported).
 - **Commit:** `Add: page watcher that ends hints on scroll, resize and blur`
 
-### T10: Add Hint mode and register it in the controller — [ ] todo
+### T10: Add Hint mode and register it in the controller — [x] done
 
 - **Requirements:** R1.6, R2.5, R3.1–R3.9, R3.10 (stays in Normal mode), R5.3 (filter), R7.1–R7.4, NFR1.3 · **Design:** Hint mode, Controller wiring
 - **Depends on:** T1 (`generateLabels`, `matchPrefix`, `HINT_ALPHABET`), T3 (`Geometry`, `createDomGeometry`), T4 (`createFinder`, `Finder`, `HintTarget`, `TargetFilter`), T5 (`createHintOverlay`, `HintOverlay`, `mountUiRoot`), T7 (`MessageClient.openTab`), T8 (`createHintActions`, `HintAction`), T9 (`watchPage`)
