@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** executing (T15 done)
-- **Next task:** T16 — Run the manual check and mark milestone M3 done (needs the user in Arc and Chrome)
+- **Phase:** done
+- **Next task:** none
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-23 by executor (T15)
+- **Last updated:** 2026-11-23 by executor (T16)
 
 ### Agreements
 
@@ -23,6 +23,7 @@
 - 2026-11-23 — Provisional (planner, user not asked): `generateLabels` throws `RangeError` for an alphabet of fewer than 2 letters (T1). If the user declines, remove the guard, its test and the step-5 sentence, and document `alphabet.length >= 2` as a precondition.
 - 2026-11-23 — Provisional (planner, user not asked): `i` in Normal mode finishes a pending mapped sequence (only `gi` today) and still enters sticky Insert mode in every other case (`i`, `3i`, `yi`, an unmapped `gx` then `i`), because Normal mode checks `i` before parsing keys and `gi` would otherwise never reach `focusInput` (T11).
 - 2026-11-23 — Provisional (planner, user not asked): Arc reversing the order of several `F` tabs (it drops `openerTabId`) is a known Arc limitation, not a failure; Chrome must keep the order (T16 item 3).
+- 2026-11-23 — user: Arc is dropped from M3. Its checks (including item 3, the `F` order) are not run and do not block the milestone; M3 is checked in Chrome only (user).
 - 2026-11-23 — Provisional (planner, user not asked): NFR1.1 and NFR1.2 are timed by hand on a real GitHub pull request diff only. The Playwright-only `many` fixture can't be loaded by hand, so it keeps an untimed smoke test (T15). The user runs the T16 manual check and reports each result in chat.
 - 2026-11-23 — Provisional (planner, user not asked): if full-suite e2e runs hang on Chromium launch on this machine (as in M2), run the new spec alone with `npx playwright test <name> --workers=1` and record that in _History_.
 - 2026-11-23 — Provisional (planner, user not asked): the e2e tests are split across `hints.spec.ts` (T14) and `hint-actions.spec.ts` (T15) because of the 300-line file limit, against the design's single file. Their shared helpers (`openHints`, `press`, `hintHost`, `readEvents`, `readClicks`, `expectOnlySentinel`, `nextFrames`, `pageState`) live in `tests/e2e/fixtures/hints.ts`, created by T14; page markup, `HINTS_URL` and `OPENED_URL` stay in `fixtures/pages.ts`.
@@ -49,6 +50,7 @@
 - 2026-11-23 — executor: T13 done in "Add: end hint mode on editable focus and on stop". Focus moves between non-editable elements keep the hints; `stop()` ends Hint mode first. `npm run test:e2e` still passes 53 of 53.
 - 2026-11-23 — executor: T14 done in "Test: add end-to-end tests for link hints with f". 16 tests in hints.spec.ts pass on the first run against the built extension. `npm run test:e2e` passes 69 of 69. The fixture was not changed to make a test pass.
 - 2026-11-23 — executor: T15 done in "Test: add end-to-end tests for F, yf, gi and a large page". Deviation: the F test does not wait for the opened tab's URL. A tab the extension opens shows a network error (Playwright attaches its route after the tab exists), so the test checks the tab through the service worker (index, opener, active) instead. `npm run test:e2e` passes 80 of 80. The M1 timing test "keeps up with a held key" failed once under full-suite load and passed alone twice and again in the full run.
+- 2026-11-23 — executor: T16 done in "Docs: mark milestone M3 as done"; manual check passed in Chrome 158.0.8127.37 (the user reported "everything works fine"). Arc was dropped by the user, so Arc was not checked. Item 5 counts and per-item results were not recorded, at the user's request. Safari 27.2 also works (not a plan target).
 
 ## Project state
 
@@ -1020,7 +1022,7 @@ As of pass 3 (branch `m3-link-hints`, head `8789e70 Docs: add the link hints spe
 - **Done when:** `npm run test:e2e` passes. If the full suite hangs on Chromium launch as in M2, `npm run build && npx playwright test hint-actions --workers=1` passes instead and that is recorded in _History_. `npm run check` also passes, including the typecheck of `tests/e2e`, lint and Prettier.
 - **Commit:** `Test: add end-to-end tests for F, yf, gi and a large page`
 
-### T16: Run the manual check and mark milestone M3 done — [ ] todo
+### T16: Run the manual check and mark milestone M3 done — [x] done
 
 - **Requirements:** R2.6, R5.2, R7.1, R7.5, R7.7, NFR1.1–NFR1.3, NFR2.1, NFR3.1, NFR4.1, NFR5.1 · **Design:** Testing strategy (manual check, performance); Controller wiring (R7.7); Ending on page changes (the shadow-root scroll gap)
 - **Depends on:** T1–T15 (all `[x] done`)
