@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** executing (T13 done)
-- **Next task:** T14 — Add end-to-end tests for f and cancelling
+- **Phase:** executing (T14 done)
+- **Next task:** T15 — Add end-to-end tests for F, yf, gi and a large page
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-23 by executor (T13)
+- **Last updated:** 2026-11-23 by executor (T14)
 
 ### Agreements
 
@@ -47,6 +47,7 @@
 - 2026-11-23 — executor: T11 done in "Change: let i finish a mapped key sequence in Normal mode". The continuation check is a module-level function, because `createNormalMode` would otherwise pass the 60-line limit.
 - 2026-11-23 — executor: T12 done in "Add: f, F, yf and gi commands for link hints". Playwright Chromium was missing, so `npx playwright install chromium` ran first; `npm run test:e2e` then passed 53 of 53 (M1, M2 and the existing specs), with no hang. `createRegistry` and the hoisted finder are in controller.ts.
 - 2026-11-23 — executor: T13 done in "Add: end hint mode on editable focus and on stop". Focus moves between non-editable elements keep the hints; `stop()` ends Hint mode first. `npm run test:e2e` still passes 53 of 53.
+- 2026-11-23 — executor: T14 done in "Test: add end-to-end tests for link hints with f". 16 tests in hints.spec.ts pass on the first run against the built extension. `npm run test:e2e` passes 69 of 69. The fixture was not changed to make a test pass.
 
 ## Project state
 
@@ -830,7 +831,7 @@ As of pass 3 (branch `m3-link-hints`, head `8789e70 Docs: add the link hints spe
 - **Done when:** the new tests pass and every existing controller test passes unchanged; `createController` is about 50 counted lines (at most 60) and `followFocus` is under complexity 10; `npm run check` passes.
 - **Commit:** `Add: end hint mode on editable focus and on stop`
 
-### T14: Add end-to-end tests for f and cancelling — [ ] todo
+### T14: Add end-to-end tests for f and cancelling — [x] done
 
 - **Requirements:** R1.1–R1.5, R2.6, R3.2, R3.5–R3.8, R3.10, R4.1–R4.5, R7.1, R7.2, R7.5, R7.6, NFR5.2, NFR6.1 · **Design:** Testing strategy (end-to-end)
 - **Depends on:** T13 (and through it T1–T12)

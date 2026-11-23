@@ -7,6 +7,46 @@ const RECORDER =
 
 const FILLER = '<div id="filler" style="height: 5000px"></div>';
 
+export const OPENED_URL = 'https://example.test/opened';
+export const HINTS_URL = 'https://example.test/hints';
+
+// A page rule that tries to hide the hint host and make it catch clicks; the host's
+// inline !important styles must win (R2.6)
+const HINTS_HEAD = `${RECORDER}<style>vim-hints { display: none !important; position: static !important; pointer-events: auto !important; }</style>`;
+
+const HINTS_BODY = [
+  `<a id="first" href="${OPENED_URL}">First</a>`,
+  '<a id="hidden" href="https://example.test/hidden" style="display: none">Hidden</a>',
+  '<button id="button">Button</button>',
+  '<input id="text">',
+  '<textarea id="area"></textarea>',
+  '<select id="pick"><option>One</option><option>Two</option></select>',
+  '<label id="check-label"><input id="check" type="checkbox"> Check</label>',
+  `<a id="blank" href="${OPENED_URL}" target="_blank">Blank</a>`,
+  '<div id="shadow-host"></div>',
+  '<a id="covered" href="https://example.test/covered" style="position: absolute; top: 300px; left: 0">Covered</a>',
+  '<div id="cover" style="position: absolute; top: 290px; left: 0; width: 400px; height: 60px; background: #fff"></div>',
+  '<iframe id="frame" srcdoc="<a href=\'https://example.test/framed\'>Framed</a>" style="position: absolute; top: 400px; left: 0"></iframe>',
+  '<a id="last" href="#last">Last</a>',
+  '<a id="offscreen" href="https://example.test/offscreen" style="position: absolute; top: 3000px; left: 0">Off</a>',
+  FILLER,
+  // Records the clicks and presses the page receives, and closes a shadow root over a button
+  `<script>
+    window.events = [];
+    for (const type of ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click']) {
+      document.addEventListener(type, (event) => {
+        const target = event.composedPath()[0];
+        window.events.push(type + ':' + (target instanceof Element ? target.id : ''));
+      }, true);
+    }
+    const root = document.getElementById('shadow-host').attachShadow({ mode: 'closed' });
+    const shadowButton = document.createElement('button');
+    shadowButton.id = 'shadow-button';
+    shadowButton.textContent = 'Shadow';
+    root.appendChild(shadowButton);
+  </script>`,
+].join('');
+
 const SHADOW_SCRIPT =
   "<script>const open = document.getElementById('open-host').attachShadow({ mode: 'open' }); const input = document.createElement('input'); input.id = 'open-input'; open.appendChild(input); const closed = document.getElementById('closed-host').attachShadow({ mode: 'closed' }); window.closedInput = closed.appendChild(document.createElement('input'));</script>";
 
@@ -28,6 +68,8 @@ const PAGES = {
     '<div id="panel"><div id="panel-content">Panel</div></div><div id="outside">Outside</div><div id="rest"></div>',
     '<style>#panel { height: 300px; width: 400px; overflow-y: auto } #panel-content { height: 3000px } #outside { height: 100px; width: 400px } #rest { height: 5000px }</style>',
   ),
+  hints: page(HINTS_BODY, HINTS_HEAD),
+  empty: page('<p>No links here</p>', RECORDER),
   spa: page(
     '<div id="main"><div id="main-content">App</div></div>',
     '<style>html, body { height: 100%; margin: 0 } #main { height: 100vh; overflow-y: auto } #main-content { height: 5000px }</style>',
@@ -37,6 +79,7 @@ const PAGES = {
 declare global {
   interface Window {
     seen: string[];
+    events: string[];
     closedInput: HTMLInputElement;
     marker?: number;
   }
