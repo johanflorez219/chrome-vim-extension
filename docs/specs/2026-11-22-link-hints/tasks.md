@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** executing (T7 done)
-- **Next task:** T8 — Add the hint actions
+- **Phase:** executing (T8 done)
+- **Next task:** T9 — Add the page watcher that ends Hint mode
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-23 by executor (T7)
+- **Last updated:** 2026-11-23 by executor (T8)
 
 ### Agreements
 
@@ -27,6 +27,7 @@
 - 2026-11-23 — Provisional (planner, user not asked): if full-suite e2e runs hang on Chromium launch on this machine (as in M2), run the new spec alone with `npx playwright test <name> --workers=1` and record that in _History_.
 - 2026-11-23 — Provisional (planner, user not asked): the e2e tests are split across `hints.spec.ts` (T14) and `hint-actions.spec.ts` (T15) because of the 300-line file limit, against the design's single file. Their shared helpers (`openHints`, `press`, `hintHost`, `readEvents`, `readClicks`, `expectOnlySentinel`, `nextFrames`, `pageState`) live in `tests/e2e/fixtures/hints.ts`, created by T14; page markup, `HINTS_URL` and `OPENED_URL` stay in `fixtures/pages.ts`.
 - 2026-11-23 — Provisional (planner, user not asked): T10 stays one commit (the plan's largest) because every split leaves the tree red; the focus watcher and `stop()` guard are a separate task, T13, after the commands task T12.
+- 2026-11-23 — Provisional (executor, T8): simulated mouse events carry no `view`, because jsdom rejects a Window as the view of any mouse or pointer event. Page code does not depend on `view`, so the design's `view` property is left out.
 
 ### History
 
@@ -40,6 +41,7 @@
 - 2026-11-23 — executor: T5 done in "Add: hint overlay in a closed shadow root". Template literals take `px()` strings (lint `restrict-template-expressions`); sizes are read in one batch of `measured` entries, not a separate array index.
 - 2026-11-23 — executor: T6 done in "Add: openTab message that opens a background tab". The router dispatches with an exhaustive switch (`dispatch`), and `createOpenTabHandler` returns the handler through a typed const. `npm run build` keeps the permissions at scripting, sessions and webNavigation.
 - 2026-11-23 — executor: T7 done in "Add: openTab in the message client that never throws". `sendCommand` and `openTab` share one `deliver` helper, so the existing tests cover the refactor.
+- 2026-11-23 — executor: T8 done in "Add: hint actions that click, open in a tab or copy a link". Deviation: no `view` on the simulated events (see Agreements). `canTakeFocus` reads "natively focusable" as tabIndex 0 or more, or any element with a tabindex attribute.
 
 ## Project state
 
@@ -472,7 +474,7 @@ As of pass 3 (branch `m3-link-hints`, head `8789e70 Docs: add the link hints spe
 - **Done when:** all tests in `client.test.ts` pass; `npm run check` passes. ESLint has no `require-await` or `explicit-module-boundary-types` errors, and Knip reports nothing new (`deliver` isn't exported; interface members aren't tracked).
 - **Commit:** `Add: openTab in the message client that never throws`
 
-### T8: Add the hint actions — [ ] todo
+### T8: Add the hint actions — [x] done
 
 - **Requirements:** R4.2–R4.6, R5.2, R5.4–R5.6, R5.8, NFR4.1 · **Design:** Hint actions (`simulateClick`, `createHintActions`)
 - **Depends on:** T2 (`isDisabled`, `isTextInput`, `linkUrl`, `isOpenableUrl`), T3 (`Geometry`, `Rect`), T7 (`MessageClient.openTab`)
