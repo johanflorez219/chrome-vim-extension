@@ -36,3 +36,6 @@ export const KEY_TIMEOUT_MS = 1000;
 export const SCROLL_STEP_Y = 60;
 /** Pixels per `h` / `l` (R6.2). */
 export const SCROLL_STEP_X = 40;
+
+/** The letters hint labels are made of (R2.1). M5 makes it a setting. */
+export const HINT_ALPHABET = 'sadfjklewcmpgh';
