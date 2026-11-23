@@ -6,7 +6,8 @@ import type { MessageClient } from '../messaging/client';
 import type { PageActions } from './commands/navigation';
 import type { Timer } from './modes/normal';
 import type { FrameScheduler } from './scroll/scroller';
-import type { Geometry } from './hints/geometry';
+import type { Geometry, Rect } from './hints/geometry';
+import { HINT_ALPHABET } from '../settings/defaults';
 
 const STUBBED = [
   'scrollHeight',
@@ -42,6 +43,7 @@ const viewport = vi.fn<Geometry['viewport']>(() => ({ left: 0, top: 0, width: 10
 const rects = vi.fn<Geometry['rects']>(() => []);
 const isRendered = vi.fn<Geometry['isRendered']>(() => true);
 const hitTest = vi.fn<Geometry['hitTest']>(() => null);
+const boxes = new Map<Element, Rect>();
 
 function stubDocument(): void {
   const root = document.documentElement;
@@ -147,11 +149,27 @@ beforeEach(() => {
   ]) {
     spy.mockClear();
   }
+  rects.mockImplementation((element) => {
+    const box = boxes.get(element);
+    return box === undefined ? [] : [box];
+  });
+  hitTest.mockImplementation((x, y) => {
+    let hit: Element | null = null;
+    for (const [element, box] of boxes) {
+      if (x >= box.left && x < box.left + box.width && y >= box.top && y < box.top + box.height) {
+        hit = element;
+      }
+    }
+    return hit;
+  });
 });
 
 afterEach(() => {
   controller?.stop();
   controller = undefined;
+  boxes.clear();
+  // stop() leaves open hints in place until T13, so a failing test must not leak a host
+  document.querySelector('vim-hints')?.remove();
   document.body.replaceChildren();
   closedRoots.clear();
   for (const name of STUBBED) {
@@ -484,5 +502,158 @@ describe('Hint mode while off', () => {
       expect(spy).not.toHaveBeenCalled();
     }
     expect(document.querySelector('vim-hints')).toBeNull();
+  });
+});
+
+describe('link hints', () => {
+  const TOP: Rect = { left: 0, top: 0, width: 100, height: 20 };
+  const BELOW: Rect = { left: 0, top: 40, width: 100, height: 20 };
+  let clicked: string[] = [];
+
+  beforeEach(() => {
+    clicked = [];
+  });
+
+  function place(element: Element, box: Rect): Element {
+    boxes.set(element, box);
+    return element;
+  }
+
+  function addField(box: Rect): HTMLInputElement {
+    return place(addInput(), box) as HTMLInputElement;
+  }
+
+  function addButton(id: string, box: Rect): Element {
+    const button = document.body.appendChild(document.createElement('button'));
+    button.id = id;
+    button.addEventListener('click', () => {
+      clicked.push(id);
+    });
+    return place(button, box);
+  }
+
+  function addLink(href: string, box: Rect): Element {
+    const link = document.body.appendChild(document.createElement('a'));
+    link.setAttribute('href', href);
+    link.addEventListener('click', (event) => {
+      clicked.push('link');
+      event.preventDefault();
+    });
+    return place(link, box);
+  }
+
+  const host = (): Element | null => document.querySelector('vim-hints');
+
+  it('f shows hints and a label clicks its element', () => {
+    start();
+    addButton('first', TOP);
+    addButton('second', BELOW);
+    expect(press('f').defaultPrevented).toBe(true);
+    expect(host()).not.toBeNull();
+    expect(press(HINT_ALPHABET[0] ?? 's').defaultPrevented).toBe(true);
+    expect(clicked).toStrictEqual(['first']);
+    expect(host()).toBeNull();
+  });
+
+  it('f with nothing to hint consumes the key and stays in Normal mode', () => {
+    start();
+    expect(press('f').defaultPrevented).toBe(true);
+    expect(host()).toBeNull();
+    expect(press('j').defaultPrevented).toBe(true);
+    expect(scrollTop()).toBe(60);
+  });
+
+  it('Esc removes the hints without clicking', () => {
+    start();
+    addButton('first', TOP);
+    addButton('second', BELOW);
+    press('f');
+    expect(press('Escape').defaultPrevented).toBe(true);
+    expect(host()).toBeNull();
+    expect(clicked).toStrictEqual([]);
+  });
+
+  it('a count before f is ignored', () => {
+    start();
+    addButton('first', TOP);
+    addButton('second', BELOW);
+    press('3');
+    press('f');
+    press('s');
+    expect(clicked).toStrictEqual(['first']);
+  });
+
+  it('a held f starts Hint mode once', () => {
+    start();
+    addButton('first', TOP);
+    press('f');
+    press('f', { repeat: true });
+    expect(host()).not.toBeNull();
+    press('s');
+    expect(clicked).toStrictEqual(['first']);
+  });
+
+  it('F opens a link in a background tab', () => {
+    start();
+    addLink('https://x.test/a', TOP);
+    press('F');
+    press('s');
+    expect(openTab).toHaveBeenCalledExactlyOnceWith('https://x.test/a');
+    expect(clicked).toStrictEqual([]);
+    expect(writeClipboard).not.toHaveBeenCalled();
+  });
+
+  it('yf copies a link URL', () => {
+    start();
+    addLink('https://x.test/a', TOP);
+    press('y');
+    press('f');
+    press('s');
+    expect(writeClipboard).toHaveBeenCalledExactlyOnceWith('https://x.test/a');
+    expect(openTab).not.toHaveBeenCalled();
+    expect(clicked).toStrictEqual([]);
+  });
+
+  it('gi focuses the first text input and enters Insert mode', () => {
+    start();
+    const [first] = [addField(TOP), addField(BELOW)];
+    press('g');
+    press('i');
+    expect(document.activeElement).toBe(first);
+    expect(press('j').defaultPrevented).toBe(false);
+  });
+
+  it('2gi focuses the second text input', () => {
+    start();
+    const [, second] = [addField(TOP), addField(BELOW)];
+    press('2');
+    press('g');
+    press('i');
+    expect(document.activeElement).toBe(second);
+  });
+
+  it('gi with no text input consumes the keys and stays in Normal mode', () => {
+    start();
+    expect(press('g').defaultPrevented).toBe(true);
+    expect(press('i').defaultPrevented).toBe(true);
+    expect(press('j').defaultPrevented).toBe(true);
+    expect(scrollTop()).toBe(60);
+  });
+
+  it('keys in Insert mode never start hints', () => {
+    addInput().focus();
+    start();
+    const events = ['f', 'F', 'y', 'f', 'g', 'i'].map((key) => press(key));
+    expect(events.every((event) => !event.defaultPrevented)).toBe(true);
+    expect(host()).toBeNull();
+    expect(document.activeElement).toBe(document.querySelector('input'));
+  });
+
+  it('a sticky Insert mode from i keeps f as a letter', () => {
+    start();
+    addButton('first', TOP);
+    press('i');
+    expect(press('f').defaultPrevented).toBe(false);
+    expect(host()).toBeNull();
   });
 });

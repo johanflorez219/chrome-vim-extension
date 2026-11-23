@@ -11,9 +11,12 @@ export const SCROLL_COMMAND_NAMES = [
   'scrollToBottom',
 ] as const;
 const PAGE_COMMAND_NAMES = ['reload', 'copyUrl', 'urlUp', 'urlRoot'] as const;
+// Private here: commands/hints.ts imports onceOnly from this file, so exporting from it would cycle
+const HINT_COMMAND_NAMES = ['hintClick', 'hintOpenTab', 'hintCopyUrl', 'focusInput'] as const;
 export const COMMAND_NAMES = [
   ...SCROLL_COMMAND_NAMES,
   ...PAGE_COMMAND_NAMES,
+  ...HINT_COMMAND_NAMES,
   ...BACKGROUND_COMMAND_NAMES,
 ] as const;
 export type CommandName = (typeof COMMAND_NAMES)[number];

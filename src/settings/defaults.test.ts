@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { createCommandRegistry } from '@/core/commands/registry';
+import { createHintCommands } from '@/core/commands/hints';
+import type { Finder } from '@/core/hints/finder';
+import type { HintMode } from '@/core/modes/hint';
 import { createBackgroundCommands } from '@/core/commands/background';
 import { createNavigationCommands, type PageActions } from '@/core/commands/navigation';
 import { createScrollCommands } from '@/core/commands/scroll';
@@ -37,6 +40,10 @@ const EXPECTED: readonly KeymapEntry[] = [
   { keys: ['H'], command: 'historyBack' },
   { keys: ['L'], command: 'historyForward' },
   { keys: ['y', 't'], command: 'tabDuplicate' },
+  { keys: ['f'], command: 'hintClick' },
+  { keys: ['F'], command: 'hintOpenTab' },
+  { keys: ['y', 'f'], command: 'hintCopyUrl' },
+  { keys: ['g', 'i'], command: 'focusInput' },
 ];
 
 describe('DEFAULT_KEYMAP', () => {
@@ -86,9 +93,14 @@ describe('DEFAULT_KEYMAP in the command registry', () => {
     const backgroundCommands = createBackgroundCommands({
       client: { sendCommand: vi.fn<MessageClient['sendCommand']>() },
     });
+    const hintCommands = createHintCommands({
+      hints: { start: vi.fn<HintMode['start']>() },
+      finder: { find: vi.fn<Finder['find']>(() => []) },
+    });
     const registry = createCommandRegistry([
       ...scrollCommands,
       ...pageCommands,
+      ...hintCommands,
       ...backgroundCommands,
     ]);
 

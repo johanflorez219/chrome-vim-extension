@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** executing (T11 done)
-- **Next task:** T12 — Add the f, F, yf and gi commands
+- **Phase:** executing (T12 done)
+- **Next task:** T13 — End Hint mode on focus and on stop, and prove it never logs
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-23 by executor (T11)
+- **Last updated:** 2026-11-23 by executor (T12)
 
 ### Agreements
 
@@ -45,6 +45,7 @@
 - 2026-11-23 — executor: T9 done in "Add: page watcher that ends hints on scroll, resize and blur". The window blur is recognised by a non-Node target, because the window object seen by the listener is not identical to the global `window` in jsdom.
 - 2026-11-23 — executor: T10 done in "Add: hint mode that narrows and picks hints as labels are typed". Hint mode is registered but nothing starts it until T12 adds the keys, so the controller hint wiring (overlay, actions, watcher) has no unit coverage yet (controller.ts 84% lines, global threshold holds); T12 covers it through `f`.
 - 2026-11-23 — executor: T11 done in "Change: let i finish a mapped key sequence in Normal mode". The continuation check is a module-level function, because `createNormalMode` would otherwise pass the 60-line limit.
+- 2026-11-23 — executor: T12 done in "Add: f, F, yf and gi commands for link hints". Playwright Chromium was missing, so `npx playwright install chromium` ran first; `npm run test:e2e` then passed 53 of 53 (M1, M2 and the existing specs), with no hang. `createRegistry` and the hoisted finder are in controller.ts.
 
 ## Project state
 
@@ -741,7 +742,7 @@ As of pass 3 (branch `m3-link-hints`, head `8789e70 Docs: add the link hints spe
 - **Done when:** the new tests pass; existing `normal.test.ts` and `controller.test.ts` tests pass unchanged (`gg` then `i` in `never logs keys` still enters Insert mode, because nothing is pending after `gg`); `npm run check` passes.
 - **Commit:** `Change: let i finish a mapped key sequence in Normal mode`
 
-### T12: Add the f, F, yf and gi commands — [ ] todo
+### T12: Add the f, F, yf and gi commands — [x] done
 
 - **Requirements:** R3.2, R3.5, R3.9, R3.10, R4.1, R4.2, R4.7, R5.1–R5.4, R5.7, R5.8, R6.1–R6.4, R7.6, NFR2.2 · **Design:** Commands, Controller wiring
 - **Depends on:** T10 (Hint mode, `createHints`, and the geometry and `openTab` fakes in `controller.test.ts`), T11 (`i` finishes `g i`)

@@ -12,6 +12,9 @@ import { buildKeymapTrie } from './keymap-trie';
 import { createModeMachine, type ModeMachine } from './mode-machine';
 import { createInsertMode } from './modes/insert';
 import { createHintMode, type HintMode } from './modes/hint';
+import { createHintCommands } from './commands/hints';
+import type { Finder } from './hints/finder';
+import type { ScrollTargetTracker } from './scroll/scroll-target';
 import { createHintActions } from './hints/actions';
 import { createFinder } from './hints/finder';
 import type { Geometry } from './hints/geometry';
@@ -63,18 +66,19 @@ function createHints(
     readonly scroller: Pick<Scroller, 'stop'>;
     readonly machine: () => Pick<ModeMachine, 'enter'>;
   },
-): HintMode {
-  return createHintMode({
+): { readonly hint: HintMode; readonly finder: Finder } {
+  const finder = createFinder({
+    document: deps.window.document,
+    shadowRootOf: deps.shadowRootOf,
+    geometry: deps.geometry,
+  });
+  const hint = createHintMode({
     machine: {
       enter: (name, options) => {
         parts.machine().enter(name, options);
       },
     },
-    finder: createFinder({
-      document: deps.window.document,
-      shadowRootOf: deps.shadowRootOf,
-      geometry: deps.geometry,
-    }),
+    finder,
     overlay: createHintOverlay({
       mount: () => mountUiRoot(deps.window.document),
       viewport: () => deps.geometry.viewport(),
@@ -91,6 +95,25 @@ function createHints(
     watchPage: (hinted, onChange) =>
       watchPage({ window: deps.window, frames: deps.frames }, hinted, onChange),
   });
+  return { hint, finder };
+}
+
+/** The commands, in the order the keymap refers to them. */
+function createRegistry(
+  deps: ControllerDeps,
+  parts: {
+    readonly scroller: Scroller;
+    readonly tracker: ScrollTargetTracker;
+    readonly hint: Pick<HintMode, 'start'>;
+    readonly finder: Pick<Finder, 'find'>;
+  },
+): CommandRegistry {
+  return createCommandRegistry([
+    ...createScrollCommands({ scroller: parts.scroller, targets: parts.tracker }),
+    ...createNavigationCommands(deps.page),
+    ...createHintCommands({ hints: parts.hint, finder: parts.finder }),
+    ...createBackgroundCommands({ client: deps.client }),
+  ]);
 }
 
 function createModes(deps: {
@@ -144,13 +167,9 @@ export function createController(deps: ControllerDeps): Controller {
     now: deps.now,
     prefersReducedMotion: deps.prefersReducedMotion,
   });
-  const hint = createHints(deps, { scroller, machine: () => machine });
+  const { hint, finder } = createHints(deps, { scroller, machine: () => machine });
   const tracker = createScrollTargetTracker(doc);
-  const registry = createCommandRegistry([
-    ...createScrollCommands({ scroller, targets: tracker }),
-    ...createNavigationCommands(deps.page),
-    ...createBackgroundCommands({ client: deps.client }),
-  ]);
+  const registry = createRegistry(deps, { scroller, tracker, hint, finder });
   const { machine, normal } = createModes({
     timer: deps.timer,
     registry,
