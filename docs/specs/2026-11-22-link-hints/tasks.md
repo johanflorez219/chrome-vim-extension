@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** ready to start
-- **Next task:** T1 — Add the hint label generator and prefix matching
+- **Phase:** executing (T1 done)
+- **Next task:** T2 — Add the clickable, text input and link URL rules
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-23 by planner (pass 3)
+- **Last updated:** 2026-11-23 by executor (T1)
 
 ### Agreements
 
@@ -33,6 +33,7 @@
 - 2026-11-22 — planner: pass 1, created 14 tasks (T1–T14).
 - 2026-11-23 — planner: pass 2, integrated the task-mode proposals for T1–T14 (round 1, run by hand because the Workflow tool was unavailable); split T11 into T11 (`i` finishes a mapped sequence) and T12 (the hint commands) and renumbered the old T12–T14 to T13–T15; 15 tasks.
 - 2026-11-23 — planner: pass 3, round 2 re-reviewed T10–T14; merged the five proposals; kept T10 as one commit; split T12 into T12 (commands) and new T13 (`followFocus`, `stop()` guard, R7.2/R7.3/R7.7/NFR4.1 tests); renumbered the e2e tasks to T14 and T15 and the manual check to T16; 16 tasks.
+- 2026-11-23 — executor: T1 done in "Add: hint label generator and prefix matching". Deviations: `generateLabels` expands with a `for…of` loop over the queue instead of an index, so the unreachable `?? ''` fallback doesn't count against the 100% branch target for `labels.ts`; the test helper uses `Array.from` and `localeCompare` to satisfy lint.
 
 ## Project state
 
@@ -67,7 +68,7 @@ As of pass 3 (branch `m3-link-hints`, head `8789e70 Docs: add the link hints spe
 
 ## Tasks
 
-### T1: Add the hint label generator and prefix matching — [ ] todo
+### T1: Add the hint label generator and prefix matching — [x] done
 
 - **Requirements:** R2.1–R2.5, R3.1–R3.3 (matching only) · **Design:** Labels
 - **Depends on:** —
