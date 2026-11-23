@@ -150,12 +150,12 @@ _Learn: service worker, `chrome.tabs`, `chrome.sessions`, message passing._
 
 ### M3 — Link hints
 
-- [ ] Find clickable elements: links, buttons, inputs, `[role=button]`, `[onclick]`, `tabindex`
-- [ ] Keep only elements visible in the viewport
-- [ ] Generate short, prefix-free labels from the hint alphabet (default `sadfjklewcmpgh`)
-- [ ] Render hints in Shadow DOM; filter as the user types
-- [ ] `f` (current tab), `F` (new tab), `yf` (copy URL)
-- [ ] `gi` — focus the first text input
+- [x] Find clickable elements: links, buttons, inputs, `[role=button]`, `[onclick]`, `tabindex`
+- [x] Keep only elements visible in the viewport
+- [x] Generate short, prefix-free labels from the hint alphabet (default `sadfjklewcmpgh`)
+- [x] Render hints in Shadow DOM; filter as the user types
+- [x] `f` (current tab), `F` (new tab), `yf` (copy URL)
+- [x] `gi` — focus the first text input
 
 _Learn: Shadow DOM, `IntersectionObserver`, `getBoundingClientRect`, simulating clicks._
 
