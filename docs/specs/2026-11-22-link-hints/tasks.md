@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** executing (T8 done)
-- **Next task:** T9 — Add the page watcher that ends Hint mode
+- **Phase:** executing (T9 done)
+- **Next task:** T10 — Add Hint mode and register it in the controller
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-23 by executor (T8)
+- **Last updated:** 2026-11-23 by executor (T9)
 
 ### Agreements
 
@@ -42,6 +42,7 @@
 - 2026-11-23 — executor: T6 done in "Add: openTab message that opens a background tab". The router dispatches with an exhaustive switch (`dispatch`), and `createOpenTabHandler` returns the handler through a typed const. `npm run build` keeps the permissions at scripting, sessions and webNavigation.
 - 2026-11-23 — executor: T7 done in "Add: openTab in the message client that never throws". `sendCommand` and `openTab` share one `deliver` helper, so the existing tests cover the refactor.
 - 2026-11-23 — executor: T8 done in "Add: hint actions that click, open in a tab or copy a link". Deviation: no `view` on the simulated events (see Agreements). `canTakeFocus` reads "natively focusable" as tabIndex 0 or more, or any element with a tabindex attribute.
+- 2026-11-23 — executor: T9 done in "Add: page watcher that ends hints on scroll, resize and blur". The window blur is recognised by a non-Node target, because the window object seen by the listener is not identical to the global `window` in jsdom.
 
 ## Project state
 
@@ -526,7 +527,7 @@ As of pass 3 (branch `m3-link-hints`, head `8789e70 Docs: add the link hints spe
 - **Done when:** the tests pass (R4.5, a `target="_blank"` link clicked like any link, can't be observed in jsdom, which opens no windows; T14's `f on a target=_blank link opens it` proves it); `npm run check` passes (Knip: the test imports `simulateClick`, `createHintActions` and `HintAction`, and T10 imports `createHintActions` and `HintAction` later; `isDisabled`, `isTextInput`, `linkUrl` and `isOpenableUrl` from T2 are now used in product code).
 - **Commit:** `Add: hint actions that click, open in a tab or copy a link`
 
-### T9: Add the page watcher that ends Hint mode — [ ] todo
+### T9: Add the page watcher that ends Hint mode — [x] done
 
 - **Requirements:** R7.2, R7.3 (element blur must not end it), NFR1.3 · **Design:** Hint mode ("Ending on page changes"); `watchPage` takes the hinted elements (see Agreements)
 - **Depends on:** T4 (`composedContains`); existing `FrameScheduler` in `src/core/scroll/scroller.ts`
