@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** executing (T1 done)
-- **Next task:** T2 — Add the clickable, text input and link URL rules
+- **Phase:** executing (T2 done)
+- **Next task:** T3 — Add the geometry adapter
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-23 by executor (T1)
+- **Last updated:** 2026-11-23 by executor (T2)
 
 ### Agreements
 
@@ -34,6 +34,7 @@
 - 2026-11-23 — planner: pass 2, integrated the task-mode proposals for T1–T14 (round 1, run by hand because the Workflow tool was unavailable); split T11 into T11 (`i` finishes a mapped sequence) and T12 (the hint commands) and renumbered the old T12–T14 to T13–T15; 15 tasks.
 - 2026-11-23 — planner: pass 3, round 2 re-reviewed T10–T14; merged the five proposals; kept T10 as one commit; split T12 into T12 (commands) and new T13 (`followFocus`, `stop()` guard, R7.2/R7.3/R7.7/NFR4.1 tests); renumbered the e2e tasks to T14 and T15 and the manual check to T16; 16 tasks.
 - 2026-11-23 — executor: T1 done in "Add: hint label generator and prefix matching". Deviations: `generateLabels` expands with a `for…of` loop over the queue instead of an index, so the unreachable `?? ''` fallback doesn't count against the 100% branch target for `labels.ts`; the test helper uses `Array.from` and `localeCompare` to satisfy lint.
+- 2026-11-23 — executor: T2 done in "Add: rules for clickable elements, text inputs and link URLs". `linkUrl` keeps a `?? ''` fallback that `isLink` makes unreachable (branch 97.7% in `clickable.ts`; the global 80% target holds).
 
 ## Project state
 
@@ -129,7 +130,7 @@ As of pass 3 (branch `m3-link-hints`, head `8789e70 Docs: add the link hints spe
 - **Done when:** the new tests pass, `labels.ts` has 100% line and branch coverage, and `npm run check` passes. Knip passes because the test imports all three `labels.ts` exports and `HINT_ALPHABET`. T10 imports `generateLabels`, `matchPrefix` and `HINT_ALPHABET` in product code later.
 - **Commit:** `Add: hint label generator and prefix matching`. Body: `Why:` hint mode needs short, prefix-free labels and case-insensitive matching (R2, R3). `What:` one bullet each for `HINT_ALPHABET` in defaults, `generateLabels`, `matchPrefix` with its tests, and the tasks.md status update.
 
-### T2: Add the clickable, text input and link URL rules — [ ] todo
+### T2: Add the clickable, text input and link URL rules — [x] done
 
 - **Requirements:** R1.1, R1.2 (disabled), R1.4 (label control), R1.5 (iframe), R1.6, R4.3, R4.6 (disabled check), R5.2, R5.3, R5.5, R6.1, NFR3.2 · **Design:** Clickable rules; decision "`aria-disabled` and `inert` count as disabled"
 - **Depends on:** —
