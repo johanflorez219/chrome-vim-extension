@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** executing (T14 done)
-- **Next task:** T15 — Add end-to-end tests for F, yf, gi and a large page
+- **Phase:** executing (T15 done)
+- **Next task:** T16 — Run the manual check and mark milestone M3 done (needs the user in Arc and Chrome)
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-23 by executor (T14)
+- **Last updated:** 2026-11-23 by executor (T15)
 
 ### Agreements
 
@@ -48,6 +48,7 @@
 - 2026-11-23 — executor: T12 done in "Add: f, F, yf and gi commands for link hints". Playwright Chromium was missing, so `npx playwright install chromium` ran first; `npm run test:e2e` then passed 53 of 53 (M1, M2 and the existing specs), with no hang. `createRegistry` and the hoisted finder are in controller.ts.
 - 2026-11-23 — executor: T13 done in "Add: end hint mode on editable focus and on stop". Focus moves between non-editable elements keep the hints; `stop()` ends Hint mode first. `npm run test:e2e` still passes 53 of 53.
 - 2026-11-23 — executor: T14 done in "Test: add end-to-end tests for link hints with f". 16 tests in hints.spec.ts pass on the first run against the built extension. `npm run test:e2e` passes 69 of 69. The fixture was not changed to make a test pass.
+- 2026-11-23 — executor: T15 done in "Test: add end-to-end tests for F, yf, gi and a large page". Deviation: the F test does not wait for the opened tab's URL. A tab the extension opens shows a network error (Playwright attaches its route after the tab exists), so the test checks the tab through the service worker (index, opener, active) instead. `npm run test:e2e` passes 80 of 80. The M1 timing test "keeps up with a held key" failed once under full-suite load and passed alone twice and again in the full run.
 
 ## Project state
 
@@ -966,7 +967,7 @@ As of pass 3 (branch `m3-link-hints`, head `8789e70 Docs: add the link hints spe
 - **Done when:** `npm run test:e2e` passes. If the full suite hangs on Chromium launch, as in M2, `npm run build && npx playwright test hints.spec --workers=1` passes instead, and _History_ records that. `npm run check` passes.
 - **Commit:** `Test: add end-to-end tests for link hints with f`
 
-### T15: Add end-to-end tests for F, yf, gi and a large page — [ ] todo
+### T15: Add end-to-end tests for F, yf, gi and a large page — [x] done
 
 - **Requirements:** R1.6, R5.1–R5.5, R6.1–R6.4, R7.1, NFR1.1 (smoke), NFR6.1 · **Design:** Testing strategy (end-to-end, performance)
 - **Depends on:** T14 (the `hints` and `empty` pages, `window.events`, `HINTS_URL` and `OPENED_URL` in `pages.ts`, the `OPENED_URL` route set by `openHints`, and the helpers in `tests/e2e/fixtures/hints.ts`)

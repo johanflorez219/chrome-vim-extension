@@ -47,6 +47,29 @@ const HINTS_BODY = [
   </script>`,
 ].join('');
 
+// 100 visible links and 900 off-screen buttons: 1,000 clickables in about 10,000 elements
+const MANY_SCRIPT = `<script>
+  const grid = document.getElementById('grid');
+  for (let i = 0; i < 100; i += 1) {
+    const link = document.createElement('a');
+    link.id = 'link-' + i;
+    link.href = '#link-' + i;
+    link.textContent = 'L' + i;
+    link.style.cssText = 'display: inline-block; width: 40px; height: 20px';
+    grid.appendChild(link);
+  }
+  const rest = document.getElementById('rest');
+  for (let i = 0; i < 9000; i += 1) {
+    const box = document.createElement('div');
+    if (i % 10 === 0) {
+      const button = document.createElement('button');
+      button.textContent = 'Off';
+      box.appendChild(button);
+    }
+    rest.appendChild(box);
+  }
+</script>`;
+
 const SHADOW_SCRIPT =
   "<script>const open = document.getElementById('open-host').attachShadow({ mode: 'open' }); const input = document.createElement('input'); input.id = 'open-input'; open.appendChild(input); const closed = document.getElementById('closed-host').attachShadow({ mode: 'closed' }); window.closedInput = closed.appendChild(document.createElement('input'));</script>";
 
@@ -70,6 +93,9 @@ const PAGES = {
   ),
   hints: page(HINTS_BODY, HINTS_HEAD),
   empty: page('<p>No links here</p>', RECORDER),
+  many: page(
+    '<div id="grid"></div><div style="height: 5000px"></div><div id="rest"></div>' + MANY_SCRIPT,
+  ),
   spa: page(
     '<div id="main"><div id="main-content">App</div></div>',
     '<style>html, body { height: 100%; margin: 0 } #main { height: 100vh; overflow-y: auto } #main-content { height: 5000px }</style>',
