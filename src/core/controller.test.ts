@@ -544,6 +544,10 @@ describe('link hints', () => {
 
   const host = (): Element | null => document.querySelector('vim-hints');
 
+  function keys(list: readonly string[]): KeyboardEvent[] {
+    return list.map((key) => press(key));
+  }
+
   it('f shows hints and a label clicks its element', () => {
     start();
     addButton('first', TOP);
@@ -647,6 +651,62 @@ describe('link hints', () => {
     expect(events.every((event) => !event.defaultPrevented)).toBe(true);
     expect(host()).toBeNull();
     expect(document.activeElement).toBe(document.querySelector('input'));
+  });
+
+  it('an editable getting focus ends Hint mode and enters Insert mode', () => {
+    start();
+    addButton('first', TOP);
+    addButton('second', BELOW);
+    press('f');
+    addInput().focus();
+    expect(host()).toBeNull();
+    expect(press('j').defaultPrevented).toBe(false);
+  });
+
+  it('focus moving to a button keeps the hints', () => {
+    start();
+    addButton('first', TOP);
+    const second = addButton('second', BELOW);
+    press('f');
+    (second as HTMLElement).focus();
+    expect(host()).not.toBeNull();
+    press('s');
+    expect(clicked).toStrictEqual(['first']);
+  });
+
+  it('a scroll ends Hint mode', () => {
+    start();
+    addButton('first', TOP);
+    addButton('second', BELOW);
+    press('f');
+    flushFrames(16);
+    flushFrames(32);
+    document.dispatchEvent(new Event('scroll'));
+    expect(host()).toBeNull();
+    expect(press('s').defaultPrevented).toBe(false);
+    expect(clicked).toStrictEqual([]);
+  });
+
+  it('stop() removes open hints', () => {
+    const started = start();
+    addButton('first', TOP);
+    addButton('second', BELOW);
+    press('f');
+    started.stop();
+    expect(host()).toBeNull();
+  });
+
+  it('never logs while hints are up', () => {
+    const spies = ['debug', 'log', 'info', 'warn', 'error'].map((name) =>
+      vi.spyOn(console, name as 'log'),
+    );
+    start();
+    addButton('first', TOP);
+    addButton('second', BELOW);
+    keys(['f', 'Backspace', 'Escape', 'f', 's', '3', 'f', 'x']);
+    for (const spy of spies) {
+      expect(spy).not.toHaveBeenCalled();
+    }
   });
 
   it('a sticky Insert mode from i keeps f as a letter', () => {

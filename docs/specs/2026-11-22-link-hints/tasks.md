@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** executing (T12 done)
-- **Next task:** T13 — End Hint mode on focus and on stop, and prove it never logs
+- **Phase:** executing (T13 done)
+- **Next task:** T14 — Add end-to-end tests for f and cancelling
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-23 by executor (T12)
+- **Last updated:** 2026-11-23 by executor (T13)
 
 ### Agreements
 
@@ -46,6 +46,7 @@
 - 2026-11-23 — executor: T10 done in "Add: hint mode that narrows and picks hints as labels are typed". Hint mode is registered but nothing starts it until T12 adds the keys, so the controller hint wiring (overlay, actions, watcher) has no unit coverage yet (controller.ts 84% lines, global threshold holds); T12 covers it through `f`.
 - 2026-11-23 — executor: T11 done in "Change: let i finish a mapped key sequence in Normal mode". The continuation check is a module-level function, because `createNormalMode` would otherwise pass the 60-line limit.
 - 2026-11-23 — executor: T12 done in "Add: f, F, yf and gi commands for link hints". Playwright Chromium was missing, so `npx playwright install chromium` ran first; `npm run test:e2e` then passed 53 of 53 (M1, M2 and the existing specs), with no hang. `createRegistry` and the hoisted finder are in controller.ts.
+- 2026-11-23 — executor: T13 done in "Add: end hint mode on editable focus and on stop". Focus moves between non-editable elements keep the hints; `stop()` ends Hint mode first. `npm run test:e2e` still passes 53 of 53.
 
 ## Project state
 
@@ -808,7 +809,7 @@ As of pass 3 (branch `m3-link-hints`, head `8789e70 Docs: add the link hints spe
 - **Done when:** the tests pass; `npm run build` succeeds; the M1 and M2 e2e specs pass; `npm run check` passes. Knip: `createHintCommands` is imported by the controller and both tests, and `HINT_COMMAND_NAMES` is not exported. ESLint: `createController` is within 60 lines (about 51).
 - **Commit:** `Add: f, F, yf and gi commands for link hints`
 
-### T13: End Hint mode on focus and on stop, and prove it never logs — [ ] todo
+### T13: End Hint mode on focus and on stop, and prove it never logs — [x] done
 
 - **Requirements:** R7.2, R7.3, R7.7, NFR4.1 · **Design:** Hint mode ("Focus while hints are up"), Controller wiring (R7.7)
 - **Depends on:** T12 (the `f` key, the `boxes` map and the link-hints helpers in `controller.test.ts`)

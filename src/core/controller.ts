@@ -116,6 +116,22 @@ function createRegistry(
   ]);
 }
 
+/**
+ * Sticky Insert mode ignores focus changes (R3.7). Hint mode ignores all but an
+ * editable getting focus, so moving focus between buttons keeps the hints (R7.3).
+ */
+function followFocus(
+  deps: ControllerDeps,
+  machine: Pick<ModeMachine, 'current' | 'isSticky' | 'enter'>,
+): () => void {
+  return watchFocus(deps.window, deps.shadowRootOf, (editable) => {
+    if (machine.isSticky || (machine.current === 'hint' && !editable)) {
+      return;
+    }
+    machine.enter(editable ? 'insert' : 'normal');
+  });
+}
+
 function createModes(deps: {
   readonly timer: Timer;
   readonly registry: CommandRegistry;
@@ -181,11 +197,7 @@ export function createController(deps: ControllerDeps): Controller {
   });
 
   // Sticky Insert mode ignores focus changes (R3.7)
-  const stopFocus = watchFocus(deps.window, deps.shadowRootOf, (editable) => {
-    if (!machine.isSticky) {
-      machine.enter(editable ? 'insert' : 'normal');
-    }
-  });
+  const stopFocus = followFocus(deps, machine);
 
   let stopped = false;
   const stop = (): void => {
@@ -193,6 +205,10 @@ export function createController(deps: ControllerDeps): Controller {
       return;
     }
     stopped = true;
+    // Ends Hint mode: removes its hints and watchers (R7.7)
+    if (machine.current === 'hint') {
+      machine.enter('normal');
+    }
     stopKeys();
     stopFocus();
     tracker.stop();
