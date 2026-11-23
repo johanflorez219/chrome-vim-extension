@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** executing (T10 done)
-- **Next task:** T11 — Let i finish a mapped key sequence in Normal mode
+- **Phase:** executing (T11 done)
+- **Next task:** T12 — Add the f, F, yf and gi commands
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-23 by executor (T10)
+- **Last updated:** 2026-11-23 by executor (T11)
 
 ### Agreements
 
@@ -44,6 +44,7 @@
 - 2026-11-23 — executor: T8 done in "Add: hint actions that click, open in a tab or copy a link". Deviation: no `view` on the simulated events (see Agreements). `canTakeFocus` reads "natively focusable" as tabIndex 0 or more, or any element with a tabindex attribute.
 - 2026-11-23 — executor: T9 done in "Add: page watcher that ends hints on scroll, resize and blur". The window blur is recognised by a non-Node target, because the window object seen by the listener is not identical to the global `window` in jsdom.
 - 2026-11-23 — executor: T10 done in "Add: hint mode that narrows and picks hints as labels are typed". Hint mode is registered but nothing starts it until T12 adds the keys, so the controller hint wiring (overlay, actions, watcher) has no unit coverage yet (controller.ts 84% lines, global threshold holds); T12 covers it through `f`.
+- 2026-11-23 — executor: T11 done in "Change: let i finish a mapped key sequence in Normal mode". The continuation check is a module-level function, because `createNormalMode` would otherwise pass the 60-line limit.
 
 ## Project state
 
@@ -720,7 +721,7 @@ As of pass 3 (branch `m3-link-hints`, head `8789e70 Docs: add the link hints spe
 - **Done when:** the new and changed tests pass; `npm run build` succeeds; `npm run check` passes. For Knip, `createHintMode` and `HintMode` are imported by `controller.ts` and `hint.test.ts`. Every product export from T1–T9 now has a product consumer. `createController` is at or under 60 counted lines (about 55).
 - **Commit:** `Add: hint mode that narrows and picks hints as labels are typed`
 
-### T11: Let i finish a mapped key sequence in Normal mode — [ ] todo
+### T11: Let i finish a mapped key sequence in Normal mode — [x] done
 
 - **Requirements:** R6.1, R6.2 (makes `gi` reachable); keeps M1's R3.4 (`i` enters Insert mode) and R4.6 (a key that breaks a sequence is handled on its own) for every other case · **Design:** Commands ("Keymap additions"); see _Open questions_: the design's "none of them clashes" misses that Normal mode handles `i` before the keymap
 - **Depends on:** — (lands before T12, which maps `g i`)
