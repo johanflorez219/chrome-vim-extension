@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** executing (T3 done)
-- **Next task:** T4 — Add the finder for visible hint targets
+- **Phase:** executing (T4 done)
+- **Next task:** T5 — Add the hint overlay in a closed shadow root
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-23 by executor (T3)
+- **Last updated:** 2026-11-23 by executor (T4)
 
 ### Agreements
 
@@ -36,6 +36,7 @@
 - 2026-11-23 — executor: T1 done in "Add: hint label generator and prefix matching". Deviations: `generateLabels` expands with a `for…of` loop over the queue instead of an index, so the unreachable `?? ''` fallback doesn't count against the 100% branch target for `labels.ts`; the test helper uses `Array.from` and `localeCompare` to satisfy lint.
 - 2026-11-23 — executor: T2 done in "Add: rules for clickable elements, text inputs and link URLs". `linkUrl` keeps a `?? ''` fallback that `isLink` makes unreachable (branch 97.7% in `clickable.ts`; the global 80% target holds).
 - 2026-11-23 — executor: T3 done in "Add: geometry adapter for layout reads and hit tests". `deepestAt` tests `!root` before reading the inner element, and uses `inner?.getRootNode()` to satisfy lint; behaviour is unchanged.
+- 2026-11-23 — executor: T4 done in "Add: finder for visible hint targets". The `instanceof Element` guard in `collect` is unreachable (the walker shows elements only); kept for the types, global coverage holds.
 
 ## Project state
 
@@ -258,7 +259,7 @@ As of pass 3 (branch `m3-link-hints`, head `8789e70 Docs: add the link hints spe
 - **Done when:** the 12 test cases pass; `npm run check` passes (lint, typecheck, Prettier, Knip, tests with coverage). For Knip, the test imports `createDomGeometry`, `Geometry` and `Rect`; T4, T5, T8 and T10 import them later.
 - **Commit:** `Add: geometry adapter for layout reads and hit tests`
 
-### T4: Add the finder for visible hint targets — [ ] todo
+### T4: Add the finder for visible hint targets — [x] done
 
 - **Requirements:** R1.1–R1.6, R2.6 (clipping), R5.3, R6.1, NFR1.1 · **Design:** Finder
 - **Depends on:** T2 (`isClickable`, `isTextInput`, `linkUrl`, `isCopyableUrl`), T3 (`Geometry`, `Rect`)
