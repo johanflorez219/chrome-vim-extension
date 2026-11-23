@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** executing (T4 done)
-- **Next task:** T5 — Add the hint overlay in a closed shadow root
+- **Phase:** executing (T5 done)
+- **Next task:** T6 — Add the openTab message and the background tab handler
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-23 by executor (T4)
+- **Last updated:** 2026-11-23 by executor (T5)
 
 ### Agreements
 
@@ -37,6 +37,7 @@
 - 2026-11-23 — executor: T2 done in "Add: rules for clickable elements, text inputs and link URLs". `linkUrl` keeps a `?? ''` fallback that `isLink` makes unreachable (branch 97.7% in `clickable.ts`; the global 80% target holds).
 - 2026-11-23 — executor: T3 done in "Add: geometry adapter for layout reads and hit tests". `deepestAt` tests `!root` before reading the inner element, and uses `inner?.getRootNode()` to satisfy lint; behaviour is unchanged.
 - 2026-11-23 — executor: T4 done in "Add: finder for visible hint targets". The `instanceof Element` guard in `collect` is unreachable (the walker shows elements only); kept for the types, global coverage holds.
+- 2026-11-23 — executor: T5 done in "Add: hint overlay in a closed shadow root". Template literals take `px()` strings (lint `restrict-template-expressions`); sizes are read in one batch of `measured` entries, not a separate array index.
 
 ## Project state
 
@@ -337,7 +338,7 @@ As of pass 3 (branch `m3-link-hints`, head `8789e70 Docs: add the link hints spe
 - **Done when:** the tests pass; `npm run check` passes. Knip: the test imports `createFinder`, `composedContains`, `Finder`, `HintTarget` and `TargetFilter`. Later, T9 imports `composedContains`, and T10 imports `createFinder`, `Finder`, `HintTarget` and `TargetFilter`.
 - **Commit:** `Add: finder for visible hint targets`
 
-### T5: Add the hint overlay in a closed shadow root — [ ] todo
+### T5: Add the hint overlay in a closed shadow root — [x] done
 
 - **Requirements:** R2.5, R2.6, R3.1 and R3.3 (overlay side: it filters what the mode tells it), R7.1, R7.4 (overlay side: it draws what it is given), R7.5, NFR1.1 (batched reads), NFR1.2, NFR5.1, NFR5.2 · **Design:** Hint overlay
 - **Depends on:** T3 (`Rect`)
