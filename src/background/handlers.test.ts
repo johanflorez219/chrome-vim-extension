@@ -17,6 +17,7 @@ function createFakes() {
   const update = vi.fn<TabsApi['update']>(() => Promise.resolve(undefined));
   const remove = vi.fn<TabsApi['remove']>(() => Promise.resolve());
   const duplicate = vi.fn<TabsApi['duplicate']>(() => Promise.resolve({ id: 12, index: 2 }));
+  const create = vi.fn<TabsApi['create']>(() => Promise.resolve(undefined));
   const getRecentlyClosed = vi.fn<SessionsApi['getRecentlyClosed']>(() => Promise.resolve([]));
   const restore = vi.fn<SessionsApi['restore']>(() => Promise.resolve(undefined));
   const go = vi.fn<HistoryApi['go']>(() => Promise.resolve());
@@ -30,6 +31,7 @@ function createFakes() {
       update: (id, props) => update(id, props),
       remove: (id) => remove(id),
       duplicate: (id) => duplicate(id),
+      create: (props) => create(props),
     },
     sessions: {
       getRecentlyClosed: (filter) => getRecentlyClosed(filter),
@@ -47,6 +49,7 @@ function createFakes() {
     update,
     remove,
     duplicate,
+    create,
     getRecentlyClosed,
     restore,
     go,
@@ -63,6 +66,25 @@ beforeEach(() => {
 });
 
 describe('createBackgroundRouter', () => {
+  it('routes openTab to tabs.create right after the current tab', async () => {
+    await router.handle({ type: 'openTab', url: 'https://x.test/' }, sender);
+
+    expect(fakes.create).toHaveBeenCalledExactlyOnceWith({
+      url: 'https://x.test/',
+      active: false,
+      index: 1,
+      windowId: 1,
+      openerTabId: 10,
+    });
+  });
+
+  it('ignores openTab with a mailto URL', async () => {
+    await router.handle({ type: 'openTab', url: 'mailto:a@b.test' }, sender);
+
+    expect(fakes.create).not.toHaveBeenCalled();
+    expect(fakes.query).not.toHaveBeenCalled();
+  });
+
   it("runs tabNext in the sender's window", async () => {
     await router.handle({ type: 'runCommand', command: 'tabNext' }, sender);
 

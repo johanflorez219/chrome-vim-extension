@@ -1,17 +1,33 @@
 import type { BackgroundCommandName } from '@/messaging/protocol';
-import type { BackgroundCommandHandlers, HandlerContext } from '@/messaging/router';
+import type {
+  BackgroundCommandHandlers,
+  HandlerContext,
+  MessageHandlers,
+} from '@/messaging/router';
 
 export interface TabInfo {
   readonly id?: number | undefined;
   readonly index: number;
+  readonly openerTabId?: number | undefined;
 }
 
-/** chrome.tabs, narrowed to what M2 uses. No "tabs" permission: only ids and indexes are read (NFR3.2). */
+/**
+ * chrome.tabs, narrowed to what M2 and M3 use. No "tabs" permission: only ids,
+ * indexes and opener ids are read, and create needs none (NFR3.1, NFR3.2).
+ */
 export interface TabsApi {
   query(filter: { readonly windowId: number }): Promise<readonly TabInfo[]>;
   update(tabId: number, props: { readonly active: true }): Promise<unknown>;
   remove(tabId: number): Promise<void>;
   duplicate(tabId: number): Promise<TabInfo | undefined>;
+  create(props: {
+    readonly url: string;
+    readonly active: false;
+    /** Absent when the current tab is not in the window's list (R5.2). */
+    readonly index?: number;
+    readonly windowId: number;
+    readonly openerTabId: number;
+  }): Promise<unknown>;
 }
 
 export interface ClosedEntry {
@@ -122,4 +138,43 @@ export function createTabHandlers(deps: Deps): Pick<BackgroundCommandHandlers, T
     tabRestore: (count) => restoreClosed(deps.sessions, count),
     tabDuplicate: (_count, ctx) => duplicate(deps.tabs, ctx),
   };
+}
+
+/**
+ * The index after the current tab and every tab opened from it that directly
+ * follows it, so several opens keep their order (R5.2). Undefined when the current
+ * tab is not in the list.
+ */
+function insertionIndex(list: readonly TabInfo[], tabId: number): number | undefined {
+  const position = positionOf(list, tabId);
+  const current = list[position];
+  if (current === undefined) {
+    return undefined;
+  }
+  let last = current.index;
+  for (const tab of list.slice(position + 1)) {
+    if (tab.openerTabId !== tabId) {
+      break;
+    }
+    last = tab.index;
+  }
+  return last + 1;
+}
+
+/**
+ * Opens the URL in a background tab after the current tab (R5.2). Failures reach the
+ * router, which swallows them (R5.6). The message was checked by isMessage already.
+ */
+export function createOpenTabHandler(deps: { readonly tabs: TabsApi }): MessageHandlers['openTab'] {
+  const open: MessageHandlers['openTab'] = async (message, ctx) => {
+    const index = insertionIndex(await sortedTabs(deps.tabs, ctx), ctx.tabId);
+    const props = {
+      url: message.url,
+      active: false,
+      windowId: ctx.windowId,
+      openerTabId: ctx.tabId,
+    } as const;
+    await deps.tabs.create(index === undefined ? props : { ...props, index });
+  };
+  return open;
 }

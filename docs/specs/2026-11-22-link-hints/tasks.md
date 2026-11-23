@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** executing (T5 done)
-- **Next task:** T6 — Add the openTab message and the background tab handler
+- **Phase:** executing (T6 done)
+- **Next task:** T7 — Add openTab to the message client
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-23 by executor (T5)
+- **Last updated:** 2026-11-23 by executor (T6)
 
 ### Agreements
 
@@ -38,6 +38,7 @@
 - 2026-11-23 — executor: T3 done in "Add: geometry adapter for layout reads and hit tests". `deepestAt` tests `!root` before reading the inner element, and uses `inner?.getRootNode()` to satisfy lint; behaviour is unchanged.
 - 2026-11-23 — executor: T4 done in "Add: finder for visible hint targets". The `instanceof Element` guard in `collect` is unreachable (the walker shows elements only); kept for the types, global coverage holds.
 - 2026-11-23 — executor: T5 done in "Add: hint overlay in a closed shadow root". Template literals take `px()` strings (lint `restrict-template-expressions`); sizes are read in one batch of `measured` entries, not a separate array index.
+- 2026-11-23 — executor: T6 done in "Add: openTab message that opens a background tab". The router dispatches with an exhaustive switch (`dispatch`), and `createOpenTabHandler` returns the handler through a typed const. `npm run build` keeps the permissions at scripting, sessions and webNavigation.
 
 ## Project state
 
@@ -381,7 +382,7 @@ As of pass 3 (branch `m3-link-hints`, head `8789e70 Docs: add the link hints spe
 - **Done when:** the tests pass; `npm run check` passes (Knip: the two tests import every export of both files: `mountUiRoot`, `UiRoot`, `createHintOverlay`, `HintOverlay`, `HintView`; T10 imports `mountUiRoot`, `createHintOverlay` and `HintOverlay`); every branch of both files is covered, including the `catch`, which the throwing stub reaches. The commit flips this marker to `[x] done`, sets _Next task_ to T6 and adds a dated _History_ line naming the commit subject.
 - **Commit:** `Add: hint overlay in a closed shadow root`
 
-### T6: Add the openTab message and the background tab handler — [ ] todo
+### T6: Add the openTab message and the background tab handler — [x] done
 
 - **Requirements:** R5.2, R5.6, NFR3.1–NFR3.3, NFR4.1 · **Design:** Messages and the service worker
 - **Depends on:** — (T1 has run `npm install`, so `.wxt/` and `node_modules/` exist)
