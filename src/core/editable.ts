@@ -2,7 +2,7 @@
 export type ShadowRootOf = (host: Element) => ShadowRoot | null;
 
 // `input.type` lower-cases the attribute and maps a missing or unknown type to 'text'
-const TEXT_INPUT_TYPES: ReadonlySet<string> = new Set([
+export const TEXT_INPUT_TYPES: ReadonlySet<string> = new Set([
   'text',
   'search',
   'email',
