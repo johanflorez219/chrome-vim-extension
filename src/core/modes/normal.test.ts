@@ -2,12 +2,18 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { CommandRegistry } from '../commands/registry';
 import type { KeyPress } from '../key-listener';
-import { buildKeymapTrie } from '../keymap-trie';
+import { buildKeymapTrie, type KeymapEntry } from '../keymap-trie';
 import type { ModeMachine } from '../mode-machine';
 
 import { createNormalMode, type Timer } from './normal';
 
-function setup(options?: { editableFocused?: boolean }) {
+// `g i` is a stand-in for focusInput until T12 maps it
+const WITH_GI: readonly KeymapEntry[] = [
+  { keys: ['g', 'g'], command: 'scrollToTop' },
+  { keys: ['g', 'i'], command: 'scrollToBottom' },
+];
+
+function setup(options?: { editableFocused?: boolean; keymap?: readonly KeymapEntry[] }) {
   const callbacks = new Map<number, () => void>();
   let lastId = 0;
   const set = vi.fn<Timer['set']>((callback) => {
@@ -27,10 +33,12 @@ function setup(options?: { editableFocused?: boolean }) {
   const enter = vi.fn<ModeMachine['enter']>();
   const normal = createNormalMode({
     machine: { enter },
-    trie: buildKeymapTrie([
-      { keys: ['j'], command: 'scrollDown' },
-      { keys: ['g', 'g'], command: 'scrollToTop' },
-    ]),
+    trie: buildKeymapTrie(
+      options?.keymap ?? [
+        { keys: ['j'], command: 'scrollDown' },
+        { keys: ['g', 'g'], command: 'scrollToTop' },
+      ],
+    ),
     registry: { run },
     timer: { set, clear },
     editableFocused: () => options?.editableFocused ?? false,
@@ -220,6 +228,55 @@ describe('createNormalMode', () => {
     expect(normal.handleKey(press('j'))).toBe('passed');
     expect(enter).toHaveBeenCalledTimes(1);
     expect(enter.mock.calls[0]).toEqual(['insert']);
+    expect(run).not.toHaveBeenCalled();
+  });
+});
+
+describe('createNormalMode and i', () => {
+  it('lets i finish a mapped sequence instead of entering Insert mode', () => {
+    const { normal, run, enter } = setup({ keymap: WITH_GI });
+    expect(normal.handleKey(press('g'))).toBe('consumed');
+    expect(normal.handleKey(press('i'))).toBe('consumed');
+    expect(run).toHaveBeenCalledExactlyOnceWith('scrollToBottom', {
+      count: undefined,
+      repeat: false,
+    });
+    expect(enter).not.toHaveBeenCalled();
+  });
+
+  it('passes the count to a sequence that ends in i', () => {
+    const { normal, run, enter } = setup({ keymap: WITH_GI });
+    normal.handleKey(press('2'));
+    normal.handleKey(press('g'));
+    normal.handleKey(press('i'));
+    expect(run).toHaveBeenCalledExactlyOnceWith('scrollToBottom', { count: 2, repeat: false });
+    expect(enter).not.toHaveBeenCalled();
+  });
+
+  it('still enters sticky Insert mode on i after a count', () => {
+    const { normal, run, enter } = setup({ keymap: WITH_GI });
+    normal.handleKey(press('3'));
+    expect(normal.handleKey(press('i'))).toBe('consumed');
+    expect(enter).toHaveBeenCalledExactlyOnceWith('insert', { sticky: true });
+    expect(run).not.toHaveBeenCalled();
+  });
+
+  it('enters sticky Insert mode on i once a pending sequence timed out', () => {
+    const { normal, run, enter, fire } = setup({ keymap: WITH_GI });
+    normal.handleKey(press('g'));
+    fire(1);
+    normal.handleKey(press('i'));
+    expect(enter).toHaveBeenCalledExactlyOnceWith('insert', { sticky: true });
+    expect(run).not.toHaveBeenCalled();
+  });
+
+  it('enters sticky Insert mode on i after a prefix with no i continuation', () => {
+    const { normal, run, enter } = setup({
+      keymap: [...WITH_GI, { keys: ['z', 'z'], command: 'scrollDown' }],
+    });
+    normal.handleKey(press('z'));
+    normal.handleKey(press('i'));
+    expect(enter).toHaveBeenCalledExactlyOnceWith('insert', { sticky: true });
     expect(run).not.toHaveBeenCalled();
   });
 });

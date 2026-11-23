@@ -28,9 +28,15 @@ function hasPending(state: ParserState): boolean {
   return state.count !== '' || state.keys.length > 0;
 }
 
+/** True when `key` extends a pending sequence into a mapped one, such as `g` then `i` for `gi`. */
+function continuesSequence(state: ParserState, trie: KeymapTrie, key: string): boolean {
+  return state.keys.length > 0 && trie.lookup([...state.keys, key]).type !== 'none';
+}
+
 /**
  * Normal mode runs mapped commands from key sequences and counts, and lets
- * every other key reach the page. `i` enters sticky Insert mode.
+ * every other key reach the page. `i` enters sticky Insert mode, unless it continues
+ * a pending mapped sequence such as `gi`.
  */
 export function createNormalMode(deps: NormalModeDeps): NormalMode {
   let state: ParserState = EMPTY_PARSER_STATE;
@@ -88,7 +94,8 @@ export function createNormalMode(deps: NormalModeDeps): NormalMode {
       deps.machine.enter('insert');
       return 'passed';
     }
-    if (press.key === 'i') {
+    // `i` enters sticky Insert mode unless it continues a mapped sequence (`gi`)
+    if (press.key === 'i' && !continuesSequence(state, deps.trie, press.key)) {
       reset();
       deps.machine.enter('insert', { sticky: true });
       return 'consumed';
