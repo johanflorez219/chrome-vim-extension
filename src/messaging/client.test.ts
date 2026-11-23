@@ -45,4 +45,31 @@ describe('createMessageClient', () => {
 
     await expect(client.sendCommand('tabNext', undefined)).resolves.toBeUndefined();
   });
+
+  it('openTab sends an openTab message with the URL', async () => {
+    await client.openTab('https://x.test/a');
+
+    expect(send).toHaveBeenCalledOnce();
+    expect(send.mock.calls[0]?.[0]).toStrictEqual({ type: 'openTab', url: 'https://x.test/a' });
+  });
+
+  it('openTab resolves when send throws synchronously', async () => {
+    send.mockImplementation(() => {
+      throw new Error('gone');
+    });
+
+    await expect(client.openTab('https://x.test/a')).resolves.toBeUndefined();
+  });
+
+  it('openTab resolves when send rejects', async () => {
+    send.mockRejectedValue(new Error('Extension context invalidated.'));
+
+    await expect(client.openTab('https://x.test/a')).resolves.toBeUndefined();
+  });
+
+  it('openTab resolves when send resolves with a response', async () => {
+    send.mockResolvedValue('ignored');
+
+    await expect(client.openTab('https://x.test/a')).resolves.toBeUndefined();
+  });
 });
