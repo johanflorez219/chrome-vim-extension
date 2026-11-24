@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** in progress
-- **Next task:** T4 — Add: find session that remembers the query and position
+- **Next task:** T5 — Add: help entries from the command registry
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-24 by executor (T3)
+- **Last updated:** 2026-11-24 by executor (T4)
 
 ### Agreements
 
@@ -30,6 +30,7 @@
 - 2026-11-24 — executor: T1 done in "Add: match search over text segments". `locateMatches` joins the segments once and records each start, so 10,000 nodes take one pass. `npm run format:check` fails on `docs/specs/2026-11-22-link-hints/requirements.md`, the user's uncommitted edit (not touched); every other gate passes.
 - 2026-11-24 — executor: T2 done in "Add: page text segments and match ranges". The walker checks each parent element once (a cache), so `isRendered` runs per element, not per text node. Its tests passed on the first run, so the behaviour was already in the code I wrote; the tests still pin each rule.
 - 2026-11-24 — executor: T3 done in "Add: highlighter for find matches in the page". Deviation from the design: `createHighlighter(doc, api)` takes a `HighlightApi` object, so the tests fake `CSS.highlights` and the adopted stylesheet without globals. `browserHighlightApi()` reads the real API and returns undefined in jsdom. The browser-only branches are covered by the e2e tests (T13).
+- 2026-11-24 — executor: T4 done in "Add: find session that remembers the query and position". Three deviations from the design, made so the find bar and the scroll stay separate: `setQuery` only highlights (R3.3) and does not scroll; a new `reveal()` scrolls the current match for `<CR>`; `FindPosition` has `capped`, so the HUD can show `10000+`. Deps take `toRange` and `reveal` as Range-based functions, keeping the session DOM-free apart from its inputs. The first lint run flagged a method type that `unbound-method` rejects and a 78-line function, so the state moved into module helpers.
 
 ## Project state
 
@@ -123,7 +124,7 @@ Each task is one commit. It flips its marker below to `[x] done` and adds a date
 
 ### T4 — `Add: find session that remembers the query and position`
 
-- [ ] done
+- [x] done
 
 **Traces:** R3.3, R3.4 (position rule), R3.7, R3.8, R4.1–R4.3, R4.5, R4.7, design _Find session_.
 **Files:** create `src/core/find/session.ts`, `src/core/find/session.test.ts`.
