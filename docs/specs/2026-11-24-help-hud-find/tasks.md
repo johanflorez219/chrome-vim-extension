@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** in progress
-- **Next task:** T6 — Add: mode change subscriptions and pending keys in normal mode
+- **Next task:** T7 — Add: status HUD with the mode and pending keys
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-24 by executor (T5)
+- **Last updated:** 2026-11-24 by executor (T6)
 
 ### Agreements
 
@@ -32,6 +32,7 @@
 - 2026-11-24 — executor: T3 done in "Add: highlighter for find matches in the page". Deviation from the design: `createHighlighter(doc, api)` takes a `HighlightApi` object, so the tests fake `CSS.highlights` and the adopted stylesheet without globals. `browserHighlightApi()` reads the real API and returns undefined in jsdom. The browser-only branches are covered by the e2e tests (T13).
 - 2026-11-24 — executor: T4 done in "Add: find session that remembers the query and position". Three deviations from the design, made so the find bar and the scroll stay separate: `setQuery` only highlights (R3.3) and does not scroll; a new `reveal()` scrolls the current match for `<CR>`; `FindPosition` has `capped`, so the HUD can show `10000+`. Deps take `toRange` and `reveal` as Range-based functions, keeping the session DOM-free apart from its inputs. The first lint run flagged a method type that `unbound-method` rejects and a 78-line function, so the state moved into module helpers.
 - 2026-11-24 — executor: T5 done in "Add: help entries from the command registry". Each row's keys are one string per binding (`gg`, `<C-d>`), joined from the keymap sequence. `HelpEntry` is unexported until T8 imports it (Knip). An earlier T4 commit failed Knip, because `FindPosition` was exported without an importer; it was amended while unpushed, so the history still ends green.
+- 2026-11-24 — executor: T6 done in "Add: mode change subscriptions and pending keys in normal mode". Mode machine `subscribe` runs after `onEnter`. The normal-mode callback fires only when the pending text changes, so repeated idle keys cause no redraw. The controller passes a no-op until T7 wires the HUD. The key timer and the parser moved into small helpers to keep `createNormalMode` under the 60-line limit.
 
 ## Project state
 
@@ -169,7 +170,7 @@ Each task is one commit. It flips its marker below to `[x] done` and adds a date
 
 ### T6 — `Add: mode change subscriptions and pending keys in normal mode`
 
-- [ ] done
+- [x] done
 
 **Traces:** R1.2 (the update trigger), R1.3, R1.4, design _Architecture_ (`subscribe`, `pending()`, `onPendingChange`).
 **Files:** modify `src/core/mode-machine.ts` and `src/core/mode-machine.test.ts`; modify `src/core/modes/normal.ts` and `src/core/modes/normal.test.ts`.

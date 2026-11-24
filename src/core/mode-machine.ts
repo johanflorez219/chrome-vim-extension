@@ -21,6 +21,8 @@ export interface ModeMachine {
   /** No-op if already in that mode with the same stickiness. */
   enter(name: ModeName, options?: EnterOptions): void;
   handleKey(press: KeyPress): KeyResult;
+  /** Calls `listener` with the new mode after each real change, including ones no key caused (R1.2). */
+  subscribe(listener: (name: ModeName) => void): () => void;
 }
 
 function modeNamed(byName: ReadonlyMap<ModeName, Mode>, name: ModeName): Mode {
@@ -53,6 +55,7 @@ export function createModeMachine(modes: readonly Mode[], initial: ModeName): Mo
   const byName = indexModes(modes);
   let active = modeNamed(byName, initial);
   let sticky = false;
+  const listeners = new Set<(name: ModeName) => void>();
 
   return {
     get current() {
@@ -72,6 +75,15 @@ export function createModeMachine(modes: readonly Mode[], initial: ModeName): Mo
       active = next;
       sticky = nextSticky;
       next.onEnter?.({ sticky: nextSticky });
+      for (const listener of listeners) {
+        listener(name);
+      }
+    },
+    subscribe: (listener) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
     },
     // Looked up at each call: a mode may switch modes and hand the key on
     handleKey: (press) => active.handleKey(press),
