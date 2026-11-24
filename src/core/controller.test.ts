@@ -717,3 +717,36 @@ describe('link hints', () => {
     expect(host()).toBeNull();
   });
 });
+
+describe('help', () => {
+  it('? opens the dialog and a second ? closes it (R2.1, R2.3)', () => {
+    start();
+    press('?');
+    expect(document.querySelector('vim-help')).not.toBeNull();
+    press('?');
+    expect(document.querySelector('vim-help')).toBeNull();
+  });
+
+  it('Esc closes the dialog too', () => {
+    start();
+    press('?');
+    press('<Esc>');
+    expect(document.querySelector('vim-help')).toBeNull();
+  });
+
+  it('keeps the dialog open when focus moves to a button, so keys stay consumed (R6.2)', () => {
+    start();
+    press('?');
+    const button = document.body.appendChild(document.createElement('button'));
+    button.focus();
+    // z is not mapped, so Normal mode would let it through; Help mode consumes it
+    expect(press('z').defaultPrevented).toBe(true);
+  });
+
+  it('lets an unmapped key through when help is not open (control for the test above)', () => {
+    start();
+    const button = document.body.appendChild(document.createElement('button'));
+    button.focus();
+    expect(press('z').defaultPrevented).toBe(false);
+  });
+});

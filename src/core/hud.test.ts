@@ -18,6 +18,7 @@ describe('hudView', () => {
   it('names the other modes in capitals (R1.1)', () => {
     expect(hudView('insert', '', undefined).mode).toBe('INSERT');
     expect(hudView('hint', '', undefined).mode).toBe('HINT');
+    expect(hudView('help', '', undefined).mode).toBe('HELP');
   });
 
   it('shows the position as current/total while a query is remembered (R4.6)', () => {

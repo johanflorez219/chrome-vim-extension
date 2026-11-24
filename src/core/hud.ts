@@ -18,6 +18,8 @@ function modeLabel(mode: ModeName): string {
       return 'INSERT';
     case 'hint':
       return 'HINT';
+    case 'help':
+      return 'HELP';
   }
 }
 
