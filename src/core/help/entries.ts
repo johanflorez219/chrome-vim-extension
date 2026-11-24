@@ -2,7 +2,7 @@ import type { Command, CommandName } from '../commands/registry';
 import type { KeymapEntry } from '../keymap-trie';
 
 /** One row of the help dialog: a command and every key bound to it (R2.2). */
-interface HelpEntry {
+export interface HelpEntry {
   readonly name: CommandName;
   readonly description: string;
   /** Page commands and background commands are listed under different headings (design: help). */
