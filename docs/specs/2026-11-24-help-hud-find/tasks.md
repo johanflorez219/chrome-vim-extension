@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** planning
-- **Next task:** T1 — Add: match search over text segments
-- **Blocked by:** the user's approval of this plan
-- **Last updated:** 2026-11-24 by planner (pass 1)
+- **Phase:** in progress
+- **Next task:** T2 — Add: page text segments and match ranges
+- **Blocked by:** nothing
+- **Last updated:** 2026-11-24 by executor (T1)
 
 ### Agreements
 
@@ -27,6 +27,7 @@
 ### History
 
 - 2026-11-24 — planner: pass 1, drafted T1–T14 by hand (the Workflow tool was not available).
+- 2026-11-24 — executor: T1 done in "Add: match search over text segments". `locateMatches` joins the segments once and records each start, so 10,000 nodes take one pass. `npm run format:check` fails on `docs/specs/2026-11-22-link-hints/requirements.md`, the user's uncommitted edit (not touched); every other gate passes.
 
 ## Project state
 
@@ -56,7 +57,7 @@ Each task is one commit. It flips its marker below to `[x] done` and adds a date
 
 ### T1 — `Add: match search over text segments`
 
-- [ ] done
+- [x] done
 
 **Traces:** R3.3, R3.5, R3.6, R3.7 (empty query), design _Search (pure)_.
 **Files:** create `src/core/find/search.ts`, `src/core/find/search.test.ts`.
