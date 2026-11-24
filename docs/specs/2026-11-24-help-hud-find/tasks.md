@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** in progress
-- **Next task:** T5 — Add: help entries from the command registry
+- **Next task:** T6 — Add: mode change subscriptions and pending keys in normal mode
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-24 by executor (T4)
+- **Last updated:** 2026-11-24 by executor (T5)
 
 ### Agreements
 
@@ -31,6 +31,7 @@
 - 2026-11-24 — executor: T2 done in "Add: page text segments and match ranges". The walker checks each parent element once (a cache), so `isRendered` runs per element, not per text node. Its tests passed on the first run, so the behaviour was already in the code I wrote; the tests still pin each rule.
 - 2026-11-24 — executor: T3 done in "Add: highlighter for find matches in the page". Deviation from the design: `createHighlighter(doc, api)` takes a `HighlightApi` object, so the tests fake `CSS.highlights` and the adopted stylesheet without globals. `browserHighlightApi()` reads the real API and returns undefined in jsdom. The browser-only branches are covered by the e2e tests (T13).
 - 2026-11-24 — executor: T4 done in "Add: find session that remembers the query and position". Three deviations from the design, made so the find bar and the scroll stay separate: `setQuery` only highlights (R3.3) and does not scroll; a new `reveal()` scrolls the current match for `<CR>`; `FindPosition` has `capped`, so the HUD can show `10000+`. Deps take `toRange` and `reveal` as Range-based functions, keeping the session DOM-free apart from its inputs. The first lint run flagged a method type that `unbound-method` rejects and a 78-line function, so the state moved into module helpers.
+- 2026-11-24 — executor: T5 done in "Add: help entries from the command registry". Each row's keys are one string per binding (`gg`, `<C-d>`), joined from the keymap sequence. `HelpEntry` is unexported until T8 imports it (Knip). An earlier T4 commit failed Knip, because `FindPosition` was exported without an importer; it was amended while unpushed, so the history still ends green.
 
 ## Project state
 
@@ -148,7 +149,7 @@ Each task is one commit. It flips its marker below to `[x] done` and adds a date
 
 ### T5 — `Add: help entries from the command registry`
 
-- [ ] done
+- [x] done
 
 **Traces:** R2.2, R2.5, R2.7, design _Help entries (pure)_, Agreements (`context` on `HelpEntry`).
 **Files:** create `src/core/help/entries.ts`, `src/core/help/entries.test.ts`.
