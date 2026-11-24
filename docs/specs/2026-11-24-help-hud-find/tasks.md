@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** in progress
-- **Next task:** T3 — Add: highlighter for find matches in the page
+- **Next task:** T4 — Add: find session that remembers the query and position
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-24 by executor (T2)
+- **Last updated:** 2026-11-24 by executor (T3)
 
 ### Agreements
 
@@ -29,6 +29,7 @@
 - 2026-11-24 — planner: pass 1, drafted T1–T14 by hand (the Workflow tool was not available).
 - 2026-11-24 — executor: T1 done in "Add: match search over text segments". `locateMatches` joins the segments once and records each start, so 10,000 nodes take one pass. `npm run format:check` fails on `docs/specs/2026-11-22-link-hints/requirements.md`, the user's uncommitted edit (not touched); every other gate passes.
 - 2026-11-24 — executor: T2 done in "Add: page text segments and match ranges". The walker checks each parent element once (a cache), so `isRendered` runs per element, not per text node. Its tests passed on the first run, so the behaviour was already in the code I wrote; the tests still pin each rule.
+- 2026-11-24 — executor: T3 done in "Add: highlighter for find matches in the page". Deviation from the design: `createHighlighter(doc, api)` takes a `HighlightApi` object, so the tests fake `CSS.highlights` and the adopted stylesheet without globals. `browserHighlightApi()` reads the real API and returns undefined in jsdom. The browser-only branches are covered by the e2e tests (T13).
 
 ## Project state
 
@@ -101,7 +102,7 @@ Each task is one commit. It flips its marker below to `[x] done` and adds a date
 
 ### T3 — `Add: highlighter for find matches in the page`
 
-- [ ] done
+- [x] done
 
 **Traces:** R5.1–R5.4, design _Highlighter_, Agreements (`dispose()`).
 **Files:** create `src/core/find/highlighter.ts`, `src/core/find/highlighter.test.ts`.
