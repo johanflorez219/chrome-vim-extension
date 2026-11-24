@@ -58,7 +58,9 @@ export interface Controller {
   stop(): void;
 }
 
-function blurElement(element: Element | null): void {
+/** Blurs the focused element, looking inside open and closed shadow roots (R3.6). */
+function blurFocused(doc: Document, shadowRootOf: ShadowRootOf): void {
+  const element = deepActiveElement(doc, shadowRootOf);
   if (element instanceof HTMLElement) {
     element.blur();
   }
@@ -292,8 +294,7 @@ function createModes(deps: {
  */
 export function createController(deps: ControllerDeps): Controller {
   const doc = deps.window.document;
-  const activeElement = (): Element | null => deepActiveElement(doc, deps.shadowRootOf);
-  const editableFocused = (): boolean => isEditable(activeElement());
+  const editableFocused = (): boolean => isEditable(deepActiveElement(doc, deps.shadowRootOf));
 
   const scroller = createScroller({
     frames: deps.frames,
@@ -323,7 +324,7 @@ export function createController(deps: ControllerDeps): Controller {
     hint,
     editableFocused,
     blurActive: () => {
-      blurElement(activeElement());
+      blurFocused(doc, deps.shadowRootOf);
     },
     help: help.mode,
     find: find.mode,

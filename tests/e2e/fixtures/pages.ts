@@ -87,6 +87,8 @@ const PAGES = {
   shadow: page(`<div id="open-host"></div><div id="closed-host"></div>${FILLER}${SHADOW_SCRIPT}`),
   design: page(`<p id="para">Type here</p>${FILLER}<script>document.designMode = 'on';</script>`),
   autofocus: page(`<input id="auto" autofocus>${FILLER}`),
+  // A button and a field below the fold-free area, for focus moves that must not close overlays
+  controls: page(`<button id="button">Button</button><input id="text">${FILLER}`),
   panel: page(
     '<div id="panel"><div id="panel-content">Panel</div></div><div id="outside">Outside</div><div id="rest"></div>',
     '<style>#panel { height: 300px; width: 400px; overflow-y: auto } #panel-content { height: 3000px } #outside { height: 100px; width: 400px } #rest { height: 5000px }</style>',
