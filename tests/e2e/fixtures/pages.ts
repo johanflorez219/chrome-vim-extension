@@ -70,6 +70,15 @@ const MANY_SCRIPT = `<script>
   }
 </script>`;
 
+const LARGE_SCRIPT = `<script>
+  const rows = document.getElementById('rows');
+  for (let i = 0; i < 10000; i += 1) {
+    const row = document.createElement('div');
+    row.textContent = 'row ' + i + ' ' + (i % 2 ? 'foo' : 'fob');
+    rows.appendChild(row);
+  }
+</script>`;
+
 const SHADOW_SCRIPT =
   "<script>const open = document.getElementById('open-host').attachShadow({ mode: 'open' }); const input = document.createElement('input'); input.id = 'open-input'; open.appendChild(input); const closed = document.getElementById('closed-host').attachShadow({ mode: 'closed' }); window.closedInput = closed.appendChild(document.createElement('input'));</script>";
 
@@ -88,6 +97,12 @@ const PAGES = {
   design: page(`<p id="para">Type here</p>${FILLER}<script>document.designMode = 'on';</script>`),
   autofocus: page(`<input id="auto" autofocus>${FILLER}`),
   // A button and a field below the fold-free area, for focus moves that must not close overlays
+  // Five visible matches for "foo": one more is hidden, one is in a textarea, and one is past the fold
+  find: page(
+    '<p id="p1">foo bar</p><p id="p2">Foo and fooo</p><p id="p3">last foo</p><textarea>foo</textarea><div style="display: none">foo hidden</div><button id="button">Button</button><input id="text"><div style="height: 3000px"></div><p id="p4">foo far</p>',
+  ),
+  // 10,000 text nodes, half of them matching "foo" and half "fob"; "fo" matches all of them
+  large: page('<div id="rows"></div>' + LARGE_SCRIPT),
   controls: page(`<button id="button">Button</button><input id="text">${FILLER}`),
   panel: page(
     '<div id="panel"><div id="panel-content">Panel</div></div><div id="outside">Outside</div><div id="rest"></div>',
