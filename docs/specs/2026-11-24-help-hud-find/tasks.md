@@ -7,10 +7,10 @@
 
 ### Current status
 
-- **Phase:** in progress
-- **Next task:** T14 — Docs: mark milestone M4 as done
+- **Phase:** done
+- **Next task:** none — M4 is complete; the manual Chrome check and the Arc check are still open
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-24 by executor (T13)
+- **Last updated:** 2026-11-24 by executor (T14)
 
 ### Agreements
 
@@ -40,6 +40,7 @@
 - 2026-11-24 — executor: T11 done in "Add: find mode, / n and N, and the find bar". Decisions made while building it: opening `/` starts an empty query, so the last search's highlights go away; `<Space>` is a query character; `n`/`N` have counts; a forced exit cancels. The controller redraws the HUD after every key, since find's position changes without a mode change. `OVERLAY_MODES` (hint, help, find) drives both the focus rule and `stop()`. `createController` stays at 60 lines by moving the HUD redraw into `createHudRedraw` and the key router into `routeKeys`. jsdom has no `scrollIntoView`, so the controller test stubs it.
 - 2026-11-24 — executor: T12 done in "Test: end-to-end checks for the HUD and the help dialog". Added tests/e2e/help-hud.spec.ts (6 tests) and a controls page fixture. The HUD and help dialog sit in closed shadow roots, so the tests check hosts, pixels and the keys the page receives. Controller: the blur helper is now a module function (blurFocused) and activeElement is inlined, so createController stays at 60 lines. Full e2e run: 86 passed.
 - 2026-11-24 — executor: T13 done in "Test: end-to-end checks for find and a large page". Added tests/e2e/find.spec.ts (11 tests) and tests/e2e/fixtures/find.ts, plus find and large pages in pages.ts. Checks read CSS.highlights and scroll position because the bar sits in a closed shadow root; the bar text and 1/N count stay with the unit tests. Two expectation fixes during the run: three n presses from p2 reach p4, not the wrap; Foo matches once case-sensitively. Timing tests stayed under 100 ms over 3 repeat runs. Full e2e: 97 passed.
+- 2026-11-24 — executor: T14 done in "Docs: mark milestone M4 as done". Ticked the three M4 boxes in PLAN.md. Phase set to done. Open items for the user: the manual Chrome check, the Arc check for highlights (not blocking), and whether to commit the README.md update.
 
 ## Project state
 
@@ -350,7 +351,7 @@ This is one commit, not two. `MODE_NAMES` can't gain `find` until a `find` mode 
 
 ### T14 — `Docs: mark milestone M4 as done`
 
-- [ ] done
+- [x] done
 
 **Traces:** the status log, `PLAN.md` M4 boxes.
 **Files:** modify `PLAN.md` (tick the three M4 boxes), `docs/specs/2026-11-24-help-hud-find/tasks.md` (status log: phase done, next task none, history line).

@@ -161,9 +161,9 @@ _Learn: Shadow DOM, `IntersectionObserver`, `getBoundingClientRect`, simulating 
 
 ### M4 — Help, HUD, and find
 
-- [ ] HUD showing the current mode and pending keys (e.g. `5g…`)
-- [ ] `?` help dialog generated from the command registry
-- [ ] `/` find bar, `n` / `N`, match highlighting
+- [x] HUD showing the current mode and pending keys (e.g. `5g…`)
+- [x] `?` help dialog generated from the command registry
+- [x] `/` find bar, `n` / `N`, match highlighting
 
 _Learn: building UI without a framework, CSS Custom Highlight API._
 
