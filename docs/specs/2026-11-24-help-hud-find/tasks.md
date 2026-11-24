@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** in progress
-- **Next task:** T12 — Test: end-to-end checks for the HUD and the help dialog
+- **Next task:** T13 — Test: end-to-end checks for find, n/N and the highlights
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-24 by executor (T11)
+- **Last updated:** 2026-11-24 by executor (T12)
 
 ### Agreements
 
@@ -38,6 +38,7 @@
 - 2026-11-24 — executor: T9 done in "Add: find bar that shows the query and position". The bar mounts on the first show and stays until hide. An empty query shows only the prompt. The count reuses `positionText` from `core/hud.ts`, so the bar and the HUD format positions the same way. `FindBar` stays unexported until T11 imports it.
 - 2026-11-24 — executor: T10 done in "Add: help mode and the ? key that opens the dialog". Help mode is registered as `help` (HUD label HELP). `features.ts` builds the help feature; the controller reads the machine and registry lazily through `createHelp`, so `createController` stays under 60 lines. Focus rule: Hint and Help both ignore non-editable focus changes. Keymap has 30 entries.
 - 2026-11-24 — executor: T11 done in "Add: find mode, / n and N, and the find bar". Decisions made while building it: opening `/` starts an empty query, so the last search's highlights go away; `<Space>` is a query character; `n`/`N` have counts; a forced exit cancels. The controller redraws the HUD after every key, since find's position changes without a mode change. `OVERLAY_MODES` (hint, help, find) drives both the focus rule and `stop()`. `createController` stays at 60 lines by moving the HUD redraw into `createHudRedraw` and the key router into `routeKeys`. jsdom has no `scrollIntoView`, so the controller test stubs it.
+- 2026-11-24 — executor: T12 done in "Test: end-to-end checks for the HUD and the help dialog". Added tests/e2e/help-hud.spec.ts (6 tests) and a controls page fixture. The HUD and help dialog sit in closed shadow roots, so the tests check hosts, pixels and the keys the page receives. Controller: the blur helper is now a module function (blurFocused) and activeElement is inlined, so createController stays at 60 lines. Full e2e run: 86 passed.
 
 ## Project state
 
@@ -304,7 +305,7 @@ This is one commit, not two. `MODE_NAMES` can't gain `find` until a `find` mode 
 
 ### T12 — `Test: end-to-end checks for the HUD and the help dialog`
 
-- [ ] done
+- [x] done
 
 **Traces:** R1.1, R1.3, R1.4, R2.1, R2.2, R2.4, R6.1, design _Testing strategy_ (e2e list).
 **Files:** create `tests/e2e/help-hud.spec.ts`, `tests/e2e/fixtures/help.ts` (a page with a few links, a text input and a button; use `pages.ts` for the shared `openPage`).
