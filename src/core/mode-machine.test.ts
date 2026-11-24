@@ -168,3 +168,31 @@ describe('createModeMachine', () => {
     );
   });
 });
+
+describe('subscribe', () => {
+  it('tells listeners the new mode after a real change', () => {
+    const { machine } = setup();
+    const listener = vi.fn<(name: ModeName) => void>();
+    machine.subscribe(listener);
+    machine.enter('insert');
+    expect(listener).toHaveBeenCalledWith('insert');
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not tell listeners about an enter that changes nothing', () => {
+    const { machine } = setup('normal');
+    const listener = vi.fn<(name: ModeName) => void>();
+    machine.subscribe(listener);
+    machine.enter('normal');
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it('stops calling a listener after it is unsubscribed', () => {
+    const { machine } = setup();
+    const listener = vi.fn<(name: ModeName) => void>();
+    const stop = machine.subscribe(listener);
+    stop();
+    machine.enter('insert');
+    expect(listener).not.toHaveBeenCalled();
+  });
+});

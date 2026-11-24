@@ -13,7 +13,11 @@ const WITH_GI: readonly KeymapEntry[] = [
   { keys: ['g', 'i'], command: 'scrollToBottom' },
 ];
 
-function setup(options?: { editableFocused?: boolean; keymap?: readonly KeymapEntry[] }) {
+function setup(options?: {
+  editableFocused?: boolean;
+  keymap?: readonly KeymapEntry[];
+  onPendingChange?: () => void;
+}) {
   const callbacks = new Map<number, () => void>();
   let lastId = 0;
   const set = vi.fn<Timer['set']>((callback) => {
@@ -42,6 +46,7 @@ function setup(options?: { editableFocused?: boolean; keymap?: readonly KeymapEn
     registry: { run },
     timer: { set, clear },
     editableFocused: () => options?.editableFocused ?? false,
+    onPendingChange: options?.onPendingChange ?? (() => undefined),
   });
   return { normal, run, enter, set, clear, fire };
 }
@@ -278,5 +283,50 @@ describe('createNormalMode and i', () => {
     normal.handleKey(press('i'));
     expect(enter).toHaveBeenCalledExactlyOnceWith('insert', { sticky: true });
     expect(run).not.toHaveBeenCalled();
+  });
+});
+
+describe('pending keys', () => {
+  it('shows nothing pending while idle', () => {
+    expect(setup().normal.pending()).toBe('');
+  });
+
+  it('shows the count and the first key of a sequence that is waiting', () => {
+    const { normal } = setup();
+    normal.handleKey(press('5'));
+    normal.handleKey(press('g'));
+    expect(normal.pending()).toBe('5g');
+  });
+
+  it('shows nothing after a key that breaks no sequence and is unmapped', () => {
+    const { normal } = setup();
+    normal.handleKey(press('x'));
+    expect(normal.pending()).toBe('');
+  });
+
+  it('tells the callback when a key starts a sequence and when it completes', () => {
+    const onPendingChange = vi.fn();
+    const { normal } = setup({ onPendingChange });
+    normal.handleKey(press('g'));
+    expect(onPendingChange).toHaveBeenCalledTimes(1);
+    normal.handleKey(press('g'));
+    expect(onPendingChange).toHaveBeenCalledTimes(2);
+    expect(normal.pending()).toBe('');
+  });
+
+  it('tells the callback when the timeout drops the pending keys', () => {
+    const onPendingChange = vi.fn();
+    const { normal, fire, set } = setup({ onPendingChange });
+    normal.handleKey(press('g'));
+    fire(set.mock.results.at(-1)?.value as number);
+    expect(normal.pending()).toBe('');
+    expect(onPendingChange).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not tell the callback about an unmapped key that passes through while idle', () => {
+    const onPendingChange = vi.fn();
+    const { normal } = setup({ onPendingChange });
+    normal.handleKey(press('x'));
+    expect(onPendingChange).not.toHaveBeenCalled();
   });
 });

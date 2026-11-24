@@ -14,6 +14,8 @@ interface NormalMode extends Mode {
   onExit(): void;
   /** Drops pending keys and clears the timeout timer. */
   reset(): void;
+  /** The count and keys waiting for a next key, in Vim notation (`5g`), or '' when none (R1.3). */
+  pending(): string;
 }
 
 interface NormalModeDeps {
@@ -22,10 +24,71 @@ interface NormalModeDeps {
   readonly registry: Pick<CommandRegistry, 'run'>;
   readonly timer: Timer;
   readonly editableFocused: () => boolean;
+  /** Called when the pending text changes, so the HUD can redraw (R1.4). */
+  readonly onPendingChange: () => void;
 }
 
 function hasPending(state: ParserState): boolean {
   return state.count !== '' || state.keys.length > 0;
+}
+
+function pendingText(state: ParserState): string {
+  return `${state.count}${state.keys.join('')}`;
+}
+
+interface KeyTimer {
+  /** Starts the timeout, replacing any running one. */
+  restart(): void;
+  clear(): void;
+}
+
+/** The timeout that drops pending keys (R4.5). Owns the timer id, so the mode doesn't. */
+function createKeyTimer(timer: Timer, onTimeout: () => void): KeyTimer {
+  let id: number | undefined;
+  const clear = (): void => {
+    if (id !== undefined) {
+      timer.clear(id);
+      id = undefined;
+    }
+  };
+  return {
+    clear,
+    restart: () => {
+      clear();
+      id = timer.set(() => {
+        id = undefined;
+        onTimeout();
+      }, KEY_TIMEOUT_MS);
+    },
+  };
+}
+
+/**
+ * Feeds one key to the parser. Returns the next parser state and whether the key
+ * was used. A run or an unmapped key stops the timeout; a pending key restarts it.
+ */
+function parsePress(
+  deps: Pick<NormalModeDeps, 'trie' | 'registry'>,
+  keyTimer: KeyTimer,
+  state: ParserState,
+  press: KeyPress,
+): { readonly state: ParserState; readonly result: KeyResult } {
+  const parsed = parseKey(state, press.key, deps.trie);
+  switch (parsed.outcome.type) {
+    case 'run':
+      keyTimer.clear();
+      deps.registry.run(parsed.outcome.command, {
+        count: parsed.outcome.count,
+        repeat: press.repeat,
+      });
+      return { state: parsed.state, result: 'consumed' };
+    case 'pending':
+      keyTimer.restart();
+      return { state: parsed.state, result: 'consumed' };
+    case 'unmapped':
+      keyTimer.clear();
+      return { state: parsed.state, result: 'passed' };
+  }
 }
 
 /** True when `key` extends a pending sequence into a mapped one, such as `g` then `i` for `gi`. */
@@ -40,24 +103,25 @@ function continuesSequence(state: ParserState, trie: KeymapTrie, key: string): b
  */
 export function createNormalMode(deps: NormalModeDeps): NormalMode {
   let state: ParserState = EMPTY_PARSER_STATE;
-  let timerId: number | undefined;
-
-  const clearTimer = (): void => {
-    if (timerId !== undefined) {
-      deps.timer.clear(timerId);
-      timerId = undefined;
+  // Runs `change` and tells the callback if the pending text it leaves behind differs
+  const changing = <T>(change: () => T): T => {
+    const before = pendingText(state);
+    const result = change();
+    if (pendingText(state) !== before) {
+      deps.onPendingChange();
     }
+    return result;
   };
-  const reset = (): void => {
-    clearTimer();
-    state = EMPTY_PARSER_STATE;
-  };
-  const restartTimer = (): void => {
-    clearTimer();
-    timerId = deps.timer.set(() => {
-      timerId = undefined;
+  const keyTimer = createKeyTimer(deps.timer, () => {
+    changing(() => {
       state = EMPTY_PARSER_STATE;
-    }, KEY_TIMEOUT_MS);
+    });
+  });
+  const reset = (): void => {
+    changing(() => {
+      keyTimer.clear();
+      state = EMPTY_PARSER_STATE;
+    });
   };
 
   const escape = (): KeyResult => {
@@ -69,24 +133,12 @@ export function createNormalMode(deps: NormalModeDeps): NormalMode {
   };
 
   const parse = (press: KeyPress): KeyResult => {
-    const result = parseKey(state, press.key, deps.trie);
-    state = result.state;
-    const { outcome } = result;
-    switch (outcome.type) {
-      case 'run':
-        clearTimer();
-        deps.registry.run(outcome.command, { count: outcome.count, repeat: press.repeat });
-        return 'consumed';
-      case 'pending':
-        restartTimer();
-        return 'consumed';
-      case 'unmapped':
-        clearTimer();
-        return 'passed';
-    }
+    const next = parsePress(deps, keyTimer, state, press);
+    state = next.state;
+    return next.result;
   };
 
-  const handleKey = (press: KeyPress): KeyResult => {
+  const route = (press: KeyPress): KeyResult => {
     // Focus can reach a field without a focusin we saw (designMode, a move
     // inside one shadow root): step aside and let the key through
     if (deps.editableFocused()) {
@@ -103,5 +155,13 @@ export function createNormalMode(deps: NormalModeDeps): NormalMode {
     return press.key === '<Esc>' ? escape() : parse(press);
   };
 
-  return { name: 'normal', handleKey, onExit: reset, reset };
+  const handleKey = (press: KeyPress): KeyResult => changing(() => route(press));
+
+  return {
+    name: 'normal',
+    handleKey,
+    onExit: reset,
+    reset,
+    pending: () => pendingText(state),
+  };
 }

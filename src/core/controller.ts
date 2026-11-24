@@ -155,6 +155,8 @@ function createModes(deps: {
     registry: deps.registry,
     timer: deps.timer,
     editableFocused: deps.editableFocused,
+    // The HUD listens to this once it is wired (T7)
+    onPendingChange: () => undefined,
   });
   const insert = createInsertMode({
     machine: switcher,
