@@ -27,7 +27,8 @@ function setup(initial: ModeName = 'normal'): {
   const normal = fakeMode('normal', 'consumed');
   const insert = fakeMode('insert', 'passed');
   const hint = fakeMode('hint');
-  const machine = createModeMachine([normal.mode, insert.mode, hint.mode], initial);
+  const help = fakeMode('help');
+  const machine = createModeMachine([normal.mode, insert.mode, hint.mode, help.mode], initial);
   return { machine, normal, insert };
 }
 

@@ -3,7 +3,7 @@ import { DEFAULT_KEYMAP, HINT_ALPHABET } from '../settings/defaults';
 
 import { createBackgroundCommands } from './commands/background';
 import { createNavigationCommands, type PageActions } from './commands/navigation';
-import { createCommandRegistry, type CommandRegistry } from './commands/registry';
+import { createCommandRegistry, type Command, type CommandRegistry } from './commands/registry';
 import { createScrollCommands } from './commands/scroll';
 import { deepActiveElement, isEditable, type ShadowRootOf } from './editable';
 import { watchFocus } from './focus-watcher';
@@ -14,6 +14,8 @@ import { createInsertMode } from './modes/insert';
 import { createHintMode, type HintMode } from './modes/hint';
 import { createHintCommands } from './commands/hints';
 import { hudView } from './hud';
+import { createHelpFeature } from './features';
+import { helpEntries } from './help/entries';
 import type { Finder } from './hints/finder';
 import type { ScrollTargetTracker } from './scroll/scroll-target';
 import { createHintActions } from './hints/actions';
@@ -22,8 +24,10 @@ import type { Geometry } from './hints/geometry';
 import { watchPage } from './hints/page-watch';
 import { createHintOverlay } from '../ui/hints';
 import { createHud } from '../ui/hud';
+import type { ModeName } from './mode-machine';
 import { mountUiRoot } from '../ui/shadow-root';
 import { createNormalMode, type Timer } from './modes/normal';
+import type { Mode } from './mode-machine';
 import { createScrollTargetTracker } from './scroll/scroll-target';
 import { createScroller, type FrameScheduler, type Scroller } from './scroll/scroller';
 
@@ -108,26 +112,53 @@ function createRegistry(
     readonly tracker: ScrollTargetTracker;
     readonly hint: Pick<HintMode, 'start'>;
     readonly finder: Pick<Finder, 'find'>;
+    readonly help: readonly Command[];
   },
 ): CommandRegistry {
   return createCommandRegistry([
     ...createScrollCommands({ scroller: parts.scroller, targets: parts.tracker }),
     ...createNavigationCommands(deps.page),
     ...createHintCommands({ hints: parts.hint, finder: parts.finder }),
+    ...parts.help,
     ...createBackgroundCommands({ client: deps.client }),
   ]);
 }
 
 /**
- * Sticky Insert mode ignores focus changes (R3.7). Hint mode ignores all but an
- * editable getting focus, so moving focus between buttons keeps the hints (R7.3).
+ * Help mode and its `?` command. The machine and the registry are read lazily, since
+ * both are built after this feature; the entries come from the same registry that runs keys (R2.2).
+ */
+function createHelp(
+  doc: Document,
+  parts: {
+    readonly machine: () => Pick<ModeMachine, 'enter'>;
+    readonly registry: () => Pick<CommandRegistry, 'list'>;
+  },
+): ReturnType<typeof createHelpFeature> {
+  return createHelpFeature({
+    machine: {
+      enter: (name, options) => {
+        parts.machine().enter(name, options);
+      },
+    },
+    mount: () => mountUiRoot(doc, 'vim-help'),
+    entries: () => helpEntries(parts.registry().list(), DEFAULT_KEYMAP),
+  });
+}
+
+/** Modes that stay open when focus moves between non-editable elements (R7.3, R2.4). */
+const KEEPS_OPEN_ON_FOCUS: ReadonlySet<ModeName> = new Set(['hint', 'help']);
+
+/**
+ * Sticky Insert mode ignores focus changes (R3.7). Hint and Help modes ignore all but
+ * an editable getting focus, so moving focus between buttons keeps them open (R7.3, R6.2).
  */
 function followFocus(
   deps: ControllerDeps,
   machine: Pick<ModeMachine, 'current' | 'isSticky' | 'enter'>,
 ): () => void {
   return watchFocus(deps.window, deps.shadowRootOf, (editable) => {
-    if (machine.isSticky || (machine.current === 'hint' && !editable)) {
+    if (machine.isSticky || (KEEPS_OPEN_ON_FOCUS.has(machine.current) && !editable)) {
       return;
     }
     machine.enter(editable ? 'insert' : 'normal');
@@ -140,6 +171,7 @@ function createModes(deps: {
   readonly editableFocused: () => boolean;
   readonly blurActive: () => void;
   readonly hint: HintMode;
+  readonly help: Mode;
   readonly onPendingChange: () => void;
 }): { readonly machine: ModeMachine; readonly normal: ReturnType<typeof createNormalMode> } {
   // The modes need the machine before it exists: forward to it at call time
@@ -166,7 +198,7 @@ function createModes(deps: {
     editableFocused: deps.editableFocused,
   });
   const machine = createModeMachine(
-    [normal, insert, deps.hint],
+    [normal, insert, deps.hint, deps.help],
     deps.editableFocused() ? 'insert' : 'normal',
   );
   return { machine, normal };
@@ -189,7 +221,8 @@ export function createController(deps: ControllerDeps): Controller {
   });
   const { hint, finder } = createHints(deps, { scroller, machine: () => machine });
   const tracker = createScrollTargetTracker(doc);
-  const registry = createRegistry(deps, { scroller, tracker, hint, finder });
+  const help = createHelp(doc, { machine: () => machine, registry: () => registry });
+  const registry = createRegistry(deps, { scroller, tracker, hint, finder, help: help.commands });
   // The HUD is mounted once and redrawn when the mode or the pending keys change (R1.2, R1.4)
   const hud = createHud({ mount: () => mountUiRoot(doc, 'vim-hud') });
   function refreshHud(): void {
@@ -203,6 +236,7 @@ export function createController(deps: ControllerDeps): Controller {
     blurActive: () => {
       blurElement(activeElement());
     },
+    help: help.mode,
     onPendingChange: refreshHud,
   });
   machine.subscribe(refreshHud);

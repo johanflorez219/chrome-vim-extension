@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** in progress
-- **Next task:** T10 — Add: help mode and the ? key that opens the dialog
+- **Next task:** T11 — Add: find mode, / n and N, and the find bar
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-24 by executor (T9)
+- **Last updated:** 2026-11-24 by executor (T10)
 
 ### Agreements
 
@@ -36,6 +36,7 @@
 - 2026-11-24 — executor: T7 done in "Add: status HUD with the mode and pending keys". The HUD mounts once in its own `vim-hud` host (`mountUiRoot` takes an optional tag), so the hint overlay's tests still find only the overlay. `FindPosition` is exported now that `hud.ts` imports it. The controller redraws on mode changes and pending keys. Find's position is passed as undefined until T11.
 - 2026-11-24 — executor: T8 done in "Add: help dialog that lists commands and keys". The dialog mounts a fresh UI root on each show and removes it on hide, like the hint overlay. Rows are grouped under "In the page" and "Browser" by context, and a heading with no rows is left out. `HelpEntry` is exported now that the dialog imports it.
 - 2026-11-24 — executor: T9 done in "Add: find bar that shows the query and position". The bar mounts on the first show and stays until hide. An empty query shows only the prompt. The count reuses `positionText` from `core/hud.ts`, so the bar and the HUD format positions the same way. `FindBar` stays unexported until T11 imports it.
+- 2026-11-24 — executor: T10 done in "Add: help mode and the ? key that opens the dialog". Help mode is registered as `help` (HUD label HELP). `features.ts` builds the help feature; the controller reads the machine and registry lazily through `createHelp`, so `createController` stays under 60 lines. Focus rule: Hint and Help both ignore non-editable focus changes. Keymap has 30 entries.
 
 ## Project state
 
@@ -253,7 +254,7 @@ Each task is one commit. It flips its marker below to `[x] done` and adds a date
 
 ### T10 — `Add: help mode and the ? key that opens the dialog`
 
-- [ ] done
+- [x] done
 
 **Traces:** R2.1, R2.3, R2.4, R6.2 (help part), design _Help mode_, _Commands_, _Architecture_ (`followFocus`).
 **Files:** create `src/core/modes/help.ts`, `src/core/modes/help.test.ts`, `src/core/commands/help.ts`, `src/core/commands/help.test.ts`, `src/core/features.ts`; modify `src/core/mode-machine.ts` (`MODE_NAMES` gains `help`), `src/core/commands/registry.ts` (`COMMAND_NAMES` gains `helpOpen`), `src/settings/defaults.ts` (`?` → `helpOpen`), `src/settings/defaults.test.ts`, `src/core/controller.ts`, `src/core/controller.test.ts`, `src/core/hud.ts` and its test (the `help` label).

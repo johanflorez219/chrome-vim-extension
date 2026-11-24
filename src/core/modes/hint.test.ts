@@ -83,6 +83,7 @@ function setup() {
       { name: 'normal', handleKey: (press) => normalKey(press) },
       { name: 'insert', handleKey: () => 'passed' },
       hint,
+      { name: 'help', handleKey: () => 'consumed' },
     ],
     'normal',
   );
