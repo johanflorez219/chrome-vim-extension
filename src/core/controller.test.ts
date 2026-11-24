@@ -46,6 +46,11 @@ const hitTest = vi.fn<Geometry['hitTest']>(() => null);
 const boxes = new Map<Element, Rect>();
 
 function stubDocument(): void {
+  // jsdom has no scrollIntoView; find scrolls matches into view with it
+  Object.defineProperty(Element.prototype, 'scrollIntoView', {
+    value: vi.fn(),
+    configurable: true,
+  });
   const root = document.documentElement;
   let top = 0;
   let left = 0;
@@ -748,5 +753,46 @@ describe('help', () => {
     const button = document.body.appendChild(document.createElement('button'));
     button.focus();
     expect(press('z').defaultPrevented).toBe(false);
+  });
+});
+
+describe('find', () => {
+  it('/ opens the search bar and a second key goes to the query (R3.1, R3.2)', () => {
+    start();
+    press('/');
+    expect(document.querySelector('vim-find')).not.toBeNull();
+    expect(press('f').defaultPrevented).toBe(true);
+  });
+
+  it('Esc closes the bar and the next key goes back to Normal mode (R3.8)', () => {
+    start();
+    press('/');
+    press('<Esc>');
+    expect(document.querySelector('vim-find')).toBeNull();
+    expect(press('z').defaultPrevented).toBe(false);
+  });
+
+  it('Enter closes the bar but keeps the search (R3.4)', () => {
+    start();
+    press('/');
+    press('f');
+    press('<CR>');
+    expect(document.querySelector('vim-find')).toBeNull();
+  });
+
+  it('keeps the search open when focus moves to a button (R6.2)', () => {
+    start();
+    press('/');
+    const button = document.body.appendChild(document.createElement('button'));
+    button.focus();
+    expect(press('z').defaultPrevented).toBe(true);
+  });
+
+  it('types / into a text field instead of opening the bar (R6.1)', () => {
+    start();
+    const input = addInput();
+    input.focus();
+    expect(press('/').defaultPrevented).toBe(false);
+    expect(document.querySelector('vim-find')).toBeNull();
   });
 });

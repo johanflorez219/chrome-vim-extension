@@ -28,7 +28,11 @@ function setup(initial: ModeName = 'normal'): {
   const insert = fakeMode('insert', 'passed');
   const hint = fakeMode('hint');
   const help = fakeMode('help');
-  const machine = createModeMachine([normal.mode, insert.mode, hint.mode, help.mode], initial);
+  const find = fakeMode('find');
+  const machine = createModeMachine(
+    [normal.mode, insert.mode, hint.mode, help.mode, find.mode],
+    initial,
+  );
   return { machine, normal, insert };
 }
 

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { createCommandRegistry } from '@/core/commands/registry';
+import { createFindCommands } from '@/core/commands/find';
 import { createHelpCommands } from '@/core/commands/help';
 import { createHintCommands } from '@/core/commands/hints';
 import type { Finder } from '@/core/hints/finder';
@@ -47,6 +48,9 @@ const EXPECTED: readonly KeymapEntry[] = [
   { keys: ['y', 'f'], command: 'hintCopyUrl' },
   { keys: ['g', 'i'], command: 'focusInput' },
   { keys: ['?'], command: 'helpOpen' },
+  { keys: ['/'], command: 'findOpen' },
+  { keys: ['n'], command: 'findNext' },
+  { keys: ['N'], command: 'findPrevious' },
 ];
 
 describe('DEFAULT_KEYMAP', () => {
@@ -96,6 +100,10 @@ describe('DEFAULT_KEYMAP in the command registry', () => {
     const backgroundCommands = createBackgroundCommands({
       client: { sendCommand: vi.fn<MessageClient['sendCommand']>() },
     });
+    const findCommands = createFindCommands({
+      machine: { enter: vi.fn<ModeMachine['enter']>() },
+      session: { next: vi.fn(), previous: vi.fn() },
+    });
     const helpCommands = createHelpCommands({
       machine: { enter: vi.fn<ModeMachine['enter']>() },
     });
@@ -108,6 +116,7 @@ describe('DEFAULT_KEYMAP in the command registry', () => {
       ...pageCommands,
       ...hintCommands,
       ...helpCommands,
+      ...findCommands,
       ...backgroundCommands,
     ]);
 
