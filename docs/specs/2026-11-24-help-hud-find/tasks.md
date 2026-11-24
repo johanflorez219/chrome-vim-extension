@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** in progress
-- **Next task:** T13 — Test: end-to-end checks for find, n/N and the highlights
+- **Next task:** T14 — Docs: mark milestone M4 as done
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-24 by executor (T12)
+- **Last updated:** 2026-11-24 by executor (T13)
 
 ### Agreements
 
@@ -39,6 +39,7 @@
 - 2026-11-24 — executor: T10 done in "Add: help mode and the ? key that opens the dialog". Help mode is registered as `help` (HUD label HELP). `features.ts` builds the help feature; the controller reads the machine and registry lazily through `createHelp`, so `createController` stays under 60 lines. Focus rule: Hint and Help both ignore non-editable focus changes. Keymap has 30 entries.
 - 2026-11-24 — executor: T11 done in "Add: find mode, / n and N, and the find bar". Decisions made while building it: opening `/` starts an empty query, so the last search's highlights go away; `<Space>` is a query character; `n`/`N` have counts; a forced exit cancels. The controller redraws the HUD after every key, since find's position changes without a mode change. `OVERLAY_MODES` (hint, help, find) drives both the focus rule and `stop()`. `createController` stays at 60 lines by moving the HUD redraw into `createHudRedraw` and the key router into `routeKeys`. jsdom has no `scrollIntoView`, so the controller test stubs it.
 - 2026-11-24 — executor: T12 done in "Test: end-to-end checks for the HUD and the help dialog". Added tests/e2e/help-hud.spec.ts (6 tests) and a controls page fixture. The HUD and help dialog sit in closed shadow roots, so the tests check hosts, pixels and the keys the page receives. Controller: the blur helper is now a module function (blurFocused) and activeElement is inlined, so createController stays at 60 lines. Full e2e run: 86 passed.
+- 2026-11-24 — executor: T13 done in "Test: end-to-end checks for find and a large page". Added tests/e2e/find.spec.ts (11 tests) and tests/e2e/fixtures/find.ts, plus find and large pages in pages.ts. Checks read CSS.highlights and scroll position because the bar sits in a closed shadow root; the bar text and 1/N count stay with the unit tests. Two expectation fixes during the run: three n presses from p2 reach p4, not the wrap; Foo matches once case-sensitively. Timing tests stayed under 100 ms over 3 repeat runs. Full e2e: 97 passed.
 
 ## Project state
 
@@ -325,7 +326,7 @@ This is one commit, not two. `MODE_NAMES` can't gain `find` until a `find` mode 
 
 ### T13 — `Test: end-to-end checks for find and a large page`
 
-- [ ] done
+- [x] done
 
 **Traces:** R3.1–R3.9, R4.1–R4.7, R5.1, R6.2, NFR1.1, NFR1.2, design _Testing strategy_.
 **Files:** create `tests/e2e/find.spec.ts`, `tests/e2e/fixtures/find.ts` (a page with repeated text, a hidden copy, a textarea and a generated 10,000 text-node page for the timing test).
