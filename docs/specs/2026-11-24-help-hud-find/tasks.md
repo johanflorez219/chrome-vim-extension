@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** in progress
-- **Next task:** T7 — Add: status HUD with the mode and pending keys
+- **Next task:** T8 — Add: help dialog that lists commands and keys
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-24 by executor (T6)
+- **Last updated:** 2026-11-24 by executor (T7)
 
 ### Agreements
 
@@ -33,6 +33,7 @@
 - 2026-11-24 — executor: T4 done in "Add: find session that remembers the query and position". Three deviations from the design, made so the find bar and the scroll stay separate: `setQuery` only highlights (R3.3) and does not scroll; a new `reveal()` scrolls the current match for `<CR>`; `FindPosition` has `capped`, so the HUD can show `10000+`. Deps take `toRange` and `reveal` as Range-based functions, keeping the session DOM-free apart from its inputs. The first lint run flagged a method type that `unbound-method` rejects and a 78-line function, so the state moved into module helpers.
 - 2026-11-24 — executor: T5 done in "Add: help entries from the command registry". Each row's keys are one string per binding (`gg`, `<C-d>`), joined from the keymap sequence. `HelpEntry` is unexported until T8 imports it (Knip). An earlier T4 commit failed Knip, because `FindPosition` was exported without an importer; it was amended while unpushed, so the history still ends green.
 - 2026-11-24 — executor: T6 done in "Add: mode change subscriptions and pending keys in normal mode". Mode machine `subscribe` runs after `onEnter`. The normal-mode callback fires only when the pending text changes, so repeated idle keys cause no redraw. The controller passes a no-op until T7 wires the HUD. The key timer and the parser moved into small helpers to keep `createNormalMode` under the 60-line limit.
+- 2026-11-24 — executor: T7 done in "Add: status HUD with the mode and pending keys". The HUD mounts once in its own `vim-hud` host (`mountUiRoot` takes an optional tag), so the hint overlay's tests still find only the overlay. `FindPosition` is exported now that `hud.ts` imports it. The controller redraws on mode changes and pending keys. Find's position is passed as undefined until T11.
 
 ## Project state
 
@@ -190,7 +191,7 @@ Each task is one commit. It flips its marker below to `[x] done` and adds a date
 
 ### T7 — `Add: status HUD with the mode and pending keys`
 
-- [ ] done
+- [x] done
 
 **Traces:** R1.1–R1.6, R4.6 (the position text), design _HUD_.
 **Files:** create `src/core/hud.ts`, `src/core/hud.test.ts`, `src/ui/hud.ts`, `src/ui/hud.test.ts`; modify `src/core/controller.ts`, and `src/core/controller.test.ts` only if an existing assertion changes.

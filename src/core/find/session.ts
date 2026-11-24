@@ -2,7 +2,7 @@ import type { Highlighter } from './highlighter';
 import { locateMatches, MAX_MATCHES, type MatchSpan, type TextSegment } from './search';
 
 /** Where the current match is among all matches. `current` is 0 when there are none. */
-interface FindPosition {
+export interface FindPosition {
   readonly current: number;
   readonly total: number;
   /** True at the match cap, so the HUD can show "10000+" (design: error handling). */

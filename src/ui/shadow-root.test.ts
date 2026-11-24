@@ -42,6 +42,14 @@ describe('mountUiRoot', () => {
     expect(ui.root.mode).toBe('closed');
   });
 
+  it('uses the tag it is given, so UI pieces can be told apart on the page', () => {
+    stubShowPopover(undefined);
+    const ui = mountUiRoot(document, 'vim-hud');
+    expect(document.querySelector('vim-hud')).not.toBeNull();
+    expect(document.querySelectorAll('vim-hints')).toHaveLength(0);
+    ui.unmount();
+  });
+
   it('marks the host as a manual popover hidden from screen readers', () => {
     stubShowPopover(undefined);
     mountUiRoot(document);
