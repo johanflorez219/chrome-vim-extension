@@ -13,6 +13,7 @@ import { createModeMachine, type ModeMachine } from './mode-machine';
 import { createInsertMode } from './modes/insert';
 import { createHintMode, type HintMode } from './modes/hint';
 import { createHintCommands } from './commands/hints';
+import { hudView } from './hud';
 import type { Finder } from './hints/finder';
 import type { ScrollTargetTracker } from './scroll/scroll-target';
 import { createHintActions } from './hints/actions';
@@ -20,6 +21,7 @@ import { createFinder } from './hints/finder';
 import type { Geometry } from './hints/geometry';
 import { watchPage } from './hints/page-watch';
 import { createHintOverlay } from '../ui/hints';
+import { createHud } from '../ui/hud';
 import { mountUiRoot } from '../ui/shadow-root';
 import { createNormalMode, type Timer } from './modes/normal';
 import { createScrollTargetTracker } from './scroll/scroll-target';
@@ -138,6 +140,7 @@ function createModes(deps: {
   readonly editableFocused: () => boolean;
   readonly blurActive: () => void;
   readonly hint: HintMode;
+  readonly onPendingChange: () => void;
 }): { readonly machine: ModeMachine; readonly normal: ReturnType<typeof createNormalMode> } {
   // The modes need the machine before it exists: forward to it at call time
   const switcher: Pick<ModeMachine, 'enter' | 'handleKey' | 'isSticky'> = {
@@ -155,8 +158,7 @@ function createModes(deps: {
     registry: deps.registry,
     timer: deps.timer,
     editableFocused: deps.editableFocused,
-    // The HUD listens to this once it is wired (T7)
-    onPendingChange: () => undefined,
+    onPendingChange: deps.onPendingChange,
   });
   const insert = createInsertMode({
     machine: switcher,
@@ -188,6 +190,11 @@ export function createController(deps: ControllerDeps): Controller {
   const { hint, finder } = createHints(deps, { scroller, machine: () => machine });
   const tracker = createScrollTargetTracker(doc);
   const registry = createRegistry(deps, { scroller, tracker, hint, finder });
+  // The HUD is mounted once and redrawn when the mode or the pending keys change (R1.2, R1.4)
+  const hud = createHud({ mount: () => mountUiRoot(doc, 'vim-hud') });
+  function refreshHud(): void {
+    hud.update(hudView(machine.current, normal.pending(), undefined));
+  }
   const { machine, normal } = createModes({
     timer: deps.timer,
     registry,
@@ -196,7 +203,10 @@ export function createController(deps: ControllerDeps): Controller {
     blurActive: () => {
       blurElement(activeElement());
     },
+    onPendingChange: refreshHud,
   });
+  machine.subscribe(refreshHud);
+  refreshHud();
 
   // Sticky Insert mode ignores focus changes (R3.7)
   const stopFocus = followFocus(deps, machine);
@@ -216,6 +226,7 @@ export function createController(deps: ControllerDeps): Controller {
     tracker.stop();
     scroller.stop();
     normal.reset();
+    hud.unmount();
   };
 
   // An orphaned copy (extension reloaded or disabled) passes every key and

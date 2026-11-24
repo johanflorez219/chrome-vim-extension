@@ -27,8 +27,9 @@ const HOST_STYLE = [
  * layer, above the page's own stacking and modal dialogs (R2.6). Hints are drawn
  * inside the root, so page CSS cannot reach them.
  */
-export function mountUiRoot(doc: Document): UiRoot {
-  const host = doc.createElement('vim-hints');
+export function mountUiRoot(doc: Document, tagName = 'vim-hints'): UiRoot {
+  // Each UI piece has its own tag, so the hint overlay and the HUD can be told apart on the page
+  const host = doc.createElement(tagName);
   host.setAttribute('popover', 'manual');
   host.setAttribute('aria-hidden', 'true');
   host.setAttribute('style', HOST_STYLE);
