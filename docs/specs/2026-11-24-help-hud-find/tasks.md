@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** in progress
-- **Next task:** T11 — Add: find mode, / n and N, and the find bar
+- **Next task:** T12 — Test: end-to-end checks for the HUD and the help dialog
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-24 by executor (T10)
+- **Last updated:** 2026-11-24 by executor (T11)
 
 ### Agreements
 
@@ -37,6 +37,7 @@
 - 2026-11-24 — executor: T8 done in "Add: help dialog that lists commands and keys". The dialog mounts a fresh UI root on each show and removes it on hide, like the hint overlay. Rows are grouped under "In the page" and "Browser" by context, and a heading with no rows is left out. `HelpEntry` is exported now that the dialog imports it.
 - 2026-11-24 — executor: T9 done in "Add: find bar that shows the query and position". The bar mounts on the first show and stays until hide. An empty query shows only the prompt. The count reuses `positionText` from `core/hud.ts`, so the bar and the HUD format positions the same way. `FindBar` stays unexported until T11 imports it.
 - 2026-11-24 — executor: T10 done in "Add: help mode and the ? key that opens the dialog". Help mode is registered as `help` (HUD label HELP). `features.ts` builds the help feature; the controller reads the machine and registry lazily through `createHelp`, so `createController` stays under 60 lines. Focus rule: Hint and Help both ignore non-editable focus changes. Keymap has 30 entries.
+- 2026-11-24 — executor: T11 done in "Add: find mode, / n and N, and the find bar". Decisions made while building it: opening `/` starts an empty query, so the last search's highlights go away; `<Space>` is a query character; `n`/`N` have counts; a forced exit cancels. The controller redraws the HUD after every key, since find's position changes without a mode change. `OVERLAY_MODES` (hint, help, find) drives both the focus rule and `stop()`. `createController` stays at 60 lines by moving the HUD redraw into `createHudRedraw` and the key router into `routeKeys`. jsdom has no `scrollIntoView`, so the controller test stubs it.
 
 ## Project state
 
@@ -275,7 +276,7 @@ Each task is one commit. It flips its marker below to `[x] done` and adds a date
 
 ### T11 — `Add: find mode, / n and N, and the find bar`
 
-- [ ] done
+- [x] done
 
 **Traces:** R3.1–R3.9, R4.1–R4.7, R5, R6.1–R6.3, design _Find mode_, _Commands_, _Architecture_, _Error handling_.
 **Files:** create `src/core/modes/find.ts`, `src/core/modes/find.test.ts`, `src/core/commands/find.ts`, `src/core/commands/find.test.ts`; modify `src/core/features.ts` (find wiring), `src/core/mode-machine.ts` (`MODE_NAMES` gains `find`), `src/core/commands/registry.ts` (`findOpen`, `findNext`, `findPrevious`), `src/settings/defaults.ts` (`/`, `n`, `N`), `src/settings/defaults.test.ts`, `src/core/controller.ts` (`followFocus` ignores non-editable focus for `find`; `stop()` disposes the highlighter and clears the session), `src/core/controller.test.ts`, `src/core/hud.ts` and its test (`FIND` label, position from the session).

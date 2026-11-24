@@ -4,7 +4,7 @@ import { positionText } from '../core/hud';
 import type { UiRoot } from './shadow-root';
 
 /** The `/` bar at the bottom left, drawn while find mode is on (R3.1, R3.6). */
-interface FindBar {
+export interface FindBar {
   show(query: string, position: FindPosition): void;
   hide(): void;
 }

@@ -32,6 +32,9 @@ export const DEFAULT_KEYMAP: readonly KeymapEntry[] = [
   { keys: ['y', 'f'], command: 'hintCopyUrl' },
   { keys: ['g', 'i'], command: 'focusInput' },
   { keys: ['?'], command: 'helpOpen' },
+  { keys: ['/'], command: 'findOpen' },
+  { keys: ['n'], command: 'findNext' },
+  { keys: ['N'], command: 'findPrevious' },
 ];
 
 /** How long pending keys wait for the next key before they are dropped (R4.5). */

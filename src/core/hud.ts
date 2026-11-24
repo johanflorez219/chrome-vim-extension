@@ -20,6 +20,8 @@ function modeLabel(mode: ModeName): string {
       return 'HINT';
     case 'help':
       return 'HELP';
+    case 'find':
+      return 'FIND';
   }
 }
 

@@ -14,7 +14,9 @@ import { createInsertMode } from './modes/insert';
 import { createHintMode, type HintMode } from './modes/hint';
 import { createHintCommands } from './commands/hints';
 import { hudView } from './hud';
-import { createHelpFeature } from './features';
+import { createFindFeature, createHelpFeature, type FindFeature } from './features';
+import type { FindPosition } from './find/session';
+import { browserHighlightApi } from './find/highlighter';
 import { helpEntries } from './help/entries';
 import type { Finder } from './hints/finder';
 import type { ScrollTargetTracker } from './scroll/scroll-target';
@@ -113,6 +115,7 @@ function createRegistry(
     readonly hint: Pick<HintMode, 'start'>;
     readonly finder: Pick<Finder, 'find'>;
     readonly help: readonly Command[];
+    readonly find: readonly Command[];
   },
 ): CommandRegistry {
   return createCommandRegistry([
@@ -120,6 +123,7 @@ function createRegistry(
     ...createNavigationCommands(deps.page),
     ...createHintCommands({ hints: parts.hint, finder: parts.finder }),
     ...parts.help,
+    ...parts.find,
     ...createBackgroundCommands({ client: deps.client }),
   ]);
 }
@@ -146,8 +150,84 @@ function createHelp(
   });
 }
 
-/** Modes that stay open when focus moves between non-editable elements (R7.3, R2.4). */
-const KEEPS_OPEN_ON_FOCUS: ReadonlySet<ModeName> = new Set(['hint', 'help']);
+/** The find feature over the live page, with the machine read lazily (R3-R5). */
+function createFind(
+  deps: ControllerDeps,
+  parts: { readonly machine: () => Pick<ModeMachine, 'enter'> },
+): FindFeature {
+  return createFindFeature({
+    machine: {
+      enter: (name, options) => {
+        parts.machine().enter(name, options);
+      },
+    },
+    mount: () => mountUiRoot(deps.window.document, 'vim-find'),
+    document: deps.window.document,
+    isRendered: (element) => deps.geometry.isRendered(element),
+    api: browserHighlightApi(),
+  });
+}
+
+/**
+ * Modes that draw an overlay. They stay open when focus moves between non-editable
+ * elements (R7.3, R2.4, R6.2), and `stop()` ends them.
+ */
+const OVERLAY_MODES: ReadonlySet<ModeName> = new Set(['hint', 'help', 'find']);
+
+/**
+ * The HUD, mounted once and redrawn when the mode, the pending keys or the find
+ * position change (R1.2, R1.4, R4.6).
+ */
+function createHudRedraw(
+  doc: Document,
+  parts: {
+    readonly machine: () => Pick<ModeMachine, 'current'>;
+    readonly pending: () => string;
+    readonly find: Pick<FindFeature, 'session'>;
+  },
+): { readonly refresh: () => void; readonly unmount: () => void } {
+  const hud = createHud({ mount: () => mountUiRoot(doc, 'vim-hud') });
+  return {
+    refresh: () => {
+      hud.update(
+        hudView(parts.machine().current, parts.pending(), findPosition(parts.find.session)),
+      );
+    },
+    unmount: () => {
+      hud.unmount();
+    },
+  };
+}
+
+/** The find position for the HUD, or undefined while no query is remembered (R4.6). */
+function findPosition(session: Pick<FindFeature, 'session'>['session']): FindPosition | undefined {
+  return session.query === '' ? undefined : session.position;
+}
+
+/**
+ * Sends every key to the machine and redraws the HUD after it. An orphaned copy
+ * (extension reloaded or disabled) passes every key and stops itself (R1.4, R1.6).
+ */
+function routeKeys(
+  deps: ControllerDeps,
+  machine: Pick<ModeMachine, 'handleKey'>,
+  refresh: () => void,
+  stop: () => void,
+): () => void {
+  return listenForKeys(
+    deps.window,
+    (press) => {
+      if (!deps.isValid()) {
+        stop();
+        return 'passed';
+      }
+      const result = machine.handleKey(press);
+      refresh();
+      return result;
+    },
+    deps.isTrusted,
+  );
+}
 
 /**
  * Sticky Insert mode ignores focus changes (R3.7). Hint and Help modes ignore all but
@@ -158,7 +238,7 @@ function followFocus(
   machine: Pick<ModeMachine, 'current' | 'isSticky' | 'enter'>,
 ): () => void {
   return watchFocus(deps.window, deps.shadowRootOf, (editable) => {
-    if (machine.isSticky || (KEEPS_OPEN_ON_FOCUS.has(machine.current) && !editable)) {
+    if (machine.isSticky || (OVERLAY_MODES.has(machine.current) && !editable)) {
       return;
     }
     machine.enter(editable ? 'insert' : 'normal');
@@ -172,6 +252,7 @@ function createModes(deps: {
   readonly blurActive: () => void;
   readonly hint: HintMode;
   readonly help: Mode;
+  readonly find: Mode;
   readonly onPendingChange: () => void;
 }): { readonly machine: ModeMachine; readonly normal: ReturnType<typeof createNormalMode> } {
   // The modes need the machine before it exists: forward to it at call time
@@ -198,7 +279,7 @@ function createModes(deps: {
     editableFocused: deps.editableFocused,
   });
   const machine = createModeMachine(
-    [normal, insert, deps.hint, deps.help],
+    [normal, insert, deps.hint, deps.help, deps.find],
     deps.editableFocused() ? 'insert' : 'normal',
   );
   return { machine, normal };
@@ -222,12 +303,20 @@ export function createController(deps: ControllerDeps): Controller {
   const { hint, finder } = createHints(deps, { scroller, machine: () => machine });
   const tracker = createScrollTargetTracker(doc);
   const help = createHelp(doc, { machine: () => machine, registry: () => registry });
-  const registry = createRegistry(deps, { scroller, tracker, hint, finder, help: help.commands });
-  // The HUD is mounted once and redrawn when the mode or the pending keys change (R1.2, R1.4)
-  const hud = createHud({ mount: () => mountUiRoot(doc, 'vim-hud') });
-  function refreshHud(): void {
-    hud.update(hudView(machine.current, normal.pending(), undefined));
-  }
+  const find = createFind(deps, { machine: () => machine });
+  const registry = createRegistry(deps, {
+    scroller,
+    tracker,
+    hint,
+    finder,
+    help: help.commands,
+    find: find.commands,
+  });
+  const hud = createHudRedraw(doc, {
+    machine: () => machine,
+    pending: () => normal.pending(),
+    find,
+  });
   const { machine, normal } = createModes({
     timer: deps.timer,
     registry,
@@ -237,10 +326,11 @@ export function createController(deps: ControllerDeps): Controller {
       blurElement(activeElement());
     },
     help: help.mode,
-    onPendingChange: refreshHud,
+    find: find.mode,
+    onPendingChange: hud.refresh,
   });
-  machine.subscribe(refreshHud);
-  refreshHud();
+  machine.subscribe(hud.refresh);
+  hud.refresh();
 
   // Sticky Insert mode ignores focus changes (R3.7)
   const stopFocus = followFocus(deps, machine);
@@ -251,8 +341,8 @@ export function createController(deps: ControllerDeps): Controller {
       return;
     }
     stopped = true;
-    // Ends Hint mode: removes its hints and watchers (R7.7)
-    if (machine.current === 'hint') {
+    // Ends the overlay modes: removes hints, the help dialog and the find bar (R7.7)
+    if (OVERLAY_MODES.has(machine.current)) {
       machine.enter('normal');
     }
     stopKeys();
@@ -260,22 +350,11 @@ export function createController(deps: ControllerDeps): Controller {
     tracker.stop();
     scroller.stop();
     normal.reset();
+    find.dispose();
     hud.unmount();
   };
 
-  // An orphaned copy (extension reloaded or disabled) passes every key and
-  // stops itself (R1.4, R1.6)
-  const stopKeys = listenForKeys(
-    deps.window,
-    (press) => {
-      if (!deps.isValid()) {
-        stop();
-        return 'passed';
-      }
-      return machine.handleKey(press);
-    },
-    deps.isTrusted,
-  );
+  const stopKeys = routeKeys(deps, machine, hud.refresh, stop);
 
   return { stop };
 }

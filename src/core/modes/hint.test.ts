@@ -84,6 +84,7 @@ function setup() {
       { name: 'insert', handleKey: () => 'passed' },
       hint,
       { name: 'help', handleKey: () => 'consumed' },
+      { name: 'find', handleKey: () => 'consumed' },
     ],
     'normal',
   );
