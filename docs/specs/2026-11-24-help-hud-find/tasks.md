@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** in progress
-- **Next task:** T2 — Add: page text segments and match ranges
+- **Next task:** T3 — Add: highlighter for find matches in the page
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-24 by executor (T1)
+- **Last updated:** 2026-11-24 by executor (T2)
 
 ### Agreements
 
@@ -28,6 +28,7 @@
 
 - 2026-11-24 — planner: pass 1, drafted T1–T14 by hand (the Workflow tool was not available).
 - 2026-11-24 — executor: T1 done in "Add: match search over text segments". `locateMatches` joins the segments once and records each start, so 10,000 nodes take one pass. `npm run format:check` fails on `docs/specs/2026-11-22-link-hints/requirements.md`, the user's uncommitted edit (not touched); every other gate passes.
+- 2026-11-24 — executor: T2 done in "Add: page text segments and match ranges". The walker checks each parent element once (a cache), so `isRendered` runs per element, not per text node. Its tests passed on the first run, so the behaviour was already in the code I wrote; the tests still pin each rule.
 
 ## Project state
 
@@ -79,7 +80,7 @@ Each task is one commit. It flips its marker below to `[x] done` and adds a date
 
 ### T2 — `Add: page text segments and match ranges`
 
-- [ ] done
+- [x] done
 
 **Traces:** R3.7 (hidden text is not searched), NFR1.1 (one walk), design _Page text (DOM)_; the shadow-root exclusion from the requirements' _Out of scope_.
 **Files:** create `src/core/find/page-text.ts`, `src/core/find/page-text.test.ts`.
