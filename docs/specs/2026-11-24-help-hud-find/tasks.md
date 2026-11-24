@@ -8,9 +8,9 @@
 ### Current status
 
 - **Phase:** in progress
-- **Next task:** T9 — Add: find bar that shows the query and position
+- **Next task:** T10 — Add: help mode and the ? key that opens the dialog
 - **Blocked by:** nothing
-- **Last updated:** 2026-11-24 by executor (T8)
+- **Last updated:** 2026-11-24 by executor (T9)
 
 ### Agreements
 
@@ -35,6 +35,7 @@
 - 2026-11-24 — executor: T6 done in "Add: mode change subscriptions and pending keys in normal mode". Mode machine `subscribe` runs after `onEnter`. The normal-mode callback fires only when the pending text changes, so repeated idle keys cause no redraw. The controller passes a no-op until T7 wires the HUD. The key timer and the parser moved into small helpers to keep `createNormalMode` under the 60-line limit.
 - 2026-11-24 — executor: T7 done in "Add: status HUD with the mode and pending keys". The HUD mounts once in its own `vim-hud` host (`mountUiRoot` takes an optional tag), so the hint overlay's tests still find only the overlay. `FindPosition` is exported now that `hud.ts` imports it. The controller redraws on mode changes and pending keys. Find's position is passed as undefined until T11.
 - 2026-11-24 — executor: T8 done in "Add: help dialog that lists commands and keys". The dialog mounts a fresh UI root on each show and removes it on hide, like the hint overlay. Rows are grouped under "In the page" and "Browser" by context, and a heading with no rows is left out. `HelpEntry` is exported now that the dialog imports it.
+- 2026-11-24 — executor: T9 done in "Add: find bar that shows the query and position". The bar mounts on the first show and stays until hide. An empty query shows only the prompt. The count reuses `positionText` from `core/hud.ts`, so the bar and the HUD format positions the same way. `FindBar` stays unexported until T11 imports it.
 
 ## Project state
 
@@ -232,7 +233,7 @@ Each task is one commit. It flips its marker below to `[x] done` and adds a date
 
 ### T9 — `Add: find bar that shows the query and position`
 
-- [ ] done
+- [x] done
 
 **Traces:** R3.1 (the bar's look), R3.6 (`0/0`), R4.6, design _Find bar_.
 **Files:** create `src/ui/find-bar.ts`, `src/ui/find-bar.test.ts`.

@@ -21,7 +21,7 @@ function modeLabel(mode: ModeName): string {
   }
 }
 
-function positionText(position: FindPosition | undefined): string {
+export function positionText(position: FindPosition | undefined): string {
   if (position === undefined) {
     return '';
   }
