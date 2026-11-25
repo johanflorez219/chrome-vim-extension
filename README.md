@@ -4,22 +4,25 @@ Vim-style keyboard navigation for **Arc** and **Google Chrome**.
 
 Scroll, follow links, switch tabs, and move through history without touching the mouse — using the same muscle memory you already have from Neovim.
 
-> **Status: early development.** Nothing below is implemented yet. This README describes the extension we are building; see [PLAN.md](PLAN.md) for the roadmap and progress.
+> **Status: in development.** Scrolling, tabs, history and link hints work today. Help, the status HUD and find are in progress (milestone M4). The options page, custom keymaps, per-site exclusions and visual mode are planned. See [PLAN.md](PLAN.md) for the roadmap.
 
 ---
 
 ## Features
 
-- **Modal editing for the browser** — Normal, Insert, Hint, Visual, and Find modes, just like Vim.
+- **Modal editing for the browser** — Normal, Insert, Hint, Find and Help modes, just like Vim. Visual mode is planned.
+- **Status HUD** — a small badge in the corner shows the current mode and any keys waiting for a second press.
 - **Scrolling** — `j`/`k`/`h`/`l`, half-page jumps, `gg`/`G`.
 - **Link hints** — press `f` and type the label shown next to any link or button to click it.
-- **Tab control** — next/previous, close, restore, duplicate, pin.
+- **Find on the page** — `/` to search, `n`/`N` to step through matches, with smart case.
+- **Help** — press `?` to see every command and its keys, generated from the same list the extension runs.
+- **Tab control** — next/previous, close, restore, duplicate.
 - **History** — back and forward with `H`/`L`.
 - **Counts** — prefix commands with a number: `5j` scrolls down five steps.
 - **Multi-key mappings** — `gg`, `gt`, `yy`, and so on, with a Vim-like timeout.
 - **Automatic Insert mode** — typing in a text field never triggers commands.
-- **Custom keymaps** — remap any command from the options page.
-- **Per-site exclusions** — disable the extension on sites with their own keyboard shortcuts (Gmail, Google Docs, Figma…).
+- **Custom keymaps** (planned) — remap any command from the options page.
+- **Per-site exclusions** (planned) — disable the extension on sites with their own keyboard shortcuts (Gmail, Google Docs, Figma…).
 - **Arc-friendly defaults** — tab keys follow Arc's vertical sidebar, and no default mapping collides with Arc's own shortcuts.
 
 ## Installation
@@ -66,15 +69,18 @@ The extension starts in **Normal mode** on every page. Keys you press are interp
 
 Press `?` at any time to see every mapping.
 
+The badge in the bottom-right corner shows the current mode (`NORMAL`, `INSERT`, `HINT`, `FIND`) and any keys you have typed that are still waiting for a second key, such as `5g`.
+
 ### Modes
 
-| Mode   | How to enter                             | How to leave        |
-| ------ | ---------------------------------------- | ------------------- |
-| Normal | Default; `Esc` or `Ctrl-[` from any mode | —                   |
-| Insert | `i`, `gi`, or click/focus a text field   | `Esc` / `Ctrl-[`    |
-| Hint   | `f`, `F`, `yf`                           | Type a label, `Esc` |
-| Find   | `/`                                      | `Enter`, `Esc`      |
-| Visual | `v`                                      | `Esc`               |
+| Mode   | How to enter                             | How to leave                            |
+| ------ | ---------------------------------------- | --------------------------------------- |
+| Normal | Default; `Esc` or `Ctrl-[` from any mode | —                                       |
+| Insert | `i`, `gi`, or click/focus a text field   | `Esc` / `Ctrl-[`                        |
+| Hint   | `f`, `F`, `yf`                           | Type a label, `Esc`                     |
+| Find   | `/`                                      | `Enter` keeps the search, `Esc` cancels |
+| Help   | `?`                                      | `?` or `Esc`                            |
+| Visual | `v` (planned)                            | `Esc`                                   |
 
 In **Insert mode** every key goes to the page, so you can type normally. Pressing `Esc` blurs the field and returns you to Normal mode.
 
@@ -124,10 +130,18 @@ Arc shows tabs vertically, so `J` (down) moves to the next tab and `K` (up) to t
 
 ### Find
 
-| Key       | Action                  |
-| --------- | ----------------------- |
-| `/`       | Search text on the page |
-| `n` / `N` | Next / previous match   |
+| Key       | Action                                     |
+| --------- | ------------------------------------------ |
+| `/`       | Open the find bar and search the page      |
+| `Enter`   | Keep the search and leave the bar          |
+| `Esc`     | Cancel the search and clear the highlights |
+| `n` / `N` | Next / previous match (wraps around)       |
+
+A query in all lowercase matches any case. A query with a capital letter matches case exactly (smart case). Find searches all rendered text on the page, including text outside the screen, but not text inside iframes.
+
+### Help
+
+Press `?` to open the list of commands and their keys. Press `?` or `Esc` to close it. While the list is open, keys do not reach the page.
 
 ### Counts
 
@@ -139,9 +153,9 @@ Most commands accept a count, the same way Vim does:
 2x     close 2 tabs
 ```
 
-### Customizing
+### Customizing (planned)
 
-Right-click the extension icon and choose **Options** (or open it from `arc://extensions`) to:
+The options page is part of milestone M5 and is not built yet. It will let you:
 
 - remap keys, e.g. `map <C-d> scrollHalfPageDown`
 - unmap keys you do not want
@@ -157,6 +171,7 @@ These are browser restrictions that apply to every extension:
 - The extension cannot run on internal pages (`arc://…`, `chrome://…`), the Chrome Web Store, or the new-tab page.
 - Shortcuts that Arc or Chrome reserve — such as `Cmd-T`, `Cmd-L`, `Cmd-W` — cannot be overridden.
 - Pages already open when you install or update the extension must be reloaded before it works on them.
+- Link hints and find work only in the top frame of a page. Content inside iframes is not hinted or searched yet.
 
 ## Development
 
