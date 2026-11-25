@@ -15,9 +15,10 @@ const CONTEXTS: readonly Context[] = ['page', 'background'];
 // Pointer events are off, so a click on the dialog reaches the page and the dialog stays open (R6.2)
 const STYLE = [
   '.dialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);',
-  'box-sizing: border-box; width: min(640px, 90vw); max-height: 80vh; overflow: auto;',
-  'padding: 16px 20px; font: 13px/1.5 system-ui, sans-serif; color: #111; background: #fff;',
-  'border-radius: 8px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); pointer-events: none; }',
+  'box-sizing: border-box; width: min(440px, 90vw); max-height: 70vh; overflow: auto;',
+  'padding: 14px 18px; font: 13px/1.5 system-ui, sans-serif; color: #111; background: rgba(255, 255, 255, 0.98);',
+  'border-radius: 18px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.08);',
+  'pointer-events: none; }',
   'h1 { font-size: 15px; margin: 0 0 8px; }',
   'h2 { font-size: 13px; margin: 12px 0 4px; }',
   '.row { display: flex; gap: 12px; }',
