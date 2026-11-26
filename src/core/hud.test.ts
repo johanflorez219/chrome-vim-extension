@@ -3,9 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { hudView } from './hud';
 
 describe('hudView', () => {
-  it('shows the normal mode name with nothing pending and no position (R1.1)', () => {
+  it('shows no mode name in normal mode, so the badge stays hidden (R1.1)', () => {
     expect(hudView('normal', '', undefined)).toEqual({
-      mode: 'NORMAL',
+      mode: '',
       pending: '',
       position: '',
     });

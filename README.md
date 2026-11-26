@@ -69,7 +69,7 @@ The extension starts in **Normal mode** on every page. Keys you press are interp
 
 Press `?` at any time to see every mapping.
 
-The badge in the bottom-right corner shows the current mode (`NORMAL`, `INSERT`, `HINT`, `FIND`) and any keys you have typed that are still waiting for a second key, such as `5g`.
+The badge in the bottom-right corner shows the current mode (`INSERT`, `HINT`, `FIND`, `HELP`) and any keys you have typed that are still waiting for a second key, such as `5g`. In normal mode with nothing pending, the badge is hidden.
 
 ### Modes
 
