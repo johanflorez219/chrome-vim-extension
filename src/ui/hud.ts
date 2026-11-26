@@ -2,7 +2,10 @@ import type { HudView } from '../core/hud';
 
 import type { UiRoot } from './shadow-root';
 
-/** The corner badge with the mode and pending keys (R1.1, R1.5, R1.6). */
+/**
+ * The corner badge with the mode and pending keys (R1.1, R1.5, R1.6). It hides itself when
+ * it has nothing to show, such as normal mode with no keys pending.
+ */
 export interface Hud {
   update(view: HudView): void;
   unmount(): void;
@@ -40,6 +43,8 @@ export function createHud(deps: { readonly mount: () => UiRoot }): Hud {
 
   return {
     update: (view) => {
+      // Nothing to show in normal mode with no keys pending or position: hide the badge.
+      box.hidden = view.mode === '' && view.pending === '' && view.position === '';
       mode.textContent = view.mode;
       pending.textContent = view.pending;
       pending.hidden = view.pending === '';

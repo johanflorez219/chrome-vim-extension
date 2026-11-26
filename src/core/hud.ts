@@ -13,7 +13,8 @@ export interface HudView {
 function modeLabel(mode: ModeName): string {
   switch (mode) {
     case 'normal':
-      return 'NORMAL';
+      // Normal mode is the quiet default, so the badge shows no name for it.
+      return '';
     case 'insert':
       return 'INSERT';
     case 'hint':
